@@ -3,7 +3,7 @@ on: [push]
 jobs:
   fullstack_fragments_node:
     runs-on: ubuntu-latest
-    name: fullstack fragments for node.js
+    name: node.js
     steps:
       - uses: actions/checkout@v4
       - run: docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
