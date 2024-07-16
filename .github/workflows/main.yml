@@ -7,6 +7,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
+      - run: docker save --output fullstack_fragments_node.tar fullstack_fragments_node
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fullstack_fragments_node
+          path: fullstack_fragments_node.tar
+          overwrite: true
       
   docker_run_node_fragments:
     needs: docker_build_node
@@ -14,4 +20,9 @@ jobs:
     name: run node.js fragments
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fullstack_fragments_node
+          path: fullstack_fragments_node.tar
+      - run: docker load --input fullstack_fragments_node.tar
       - run: docker run --rm fullstack_fragments_node
