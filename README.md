@@ -30,9 +30,15 @@ execute the code.
 
 ### Docker
 
-- Build the image at root of repo: `docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .`
+- Build the image at root of repo:
+  ```
+  docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
+  ```
 - Run all fragments: `docker run --rm fullstack_fragments_node`
-- Run a single fragment, e.g.: `docker run --rm fullstack_fragments_node fragments/env_vars/env_vars.node.ts`
+- Run a single fragment, e.g.:
+  ```
+  docker run --rm fullstack_fragments_node fragments/env_vars/env_vars.node.ts
+  ```
 - Run unit tests: `docker run --rm --entrypoint npm fullstack_fragments_node run test`
 - Run the linter: `docker run --rm --entrypoint npm fullstack_fragments_node run lint`
 - Run the TypeScript check: `docker run --rm --entrypoint npm fullstack_fragments_node run tsc`
