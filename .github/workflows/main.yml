@@ -1,28 +1,30 @@
 on: [push]
 
 jobs:
-  docker_build_node:
+  fullstack_fragments_node:
     runs-on: ubuntu-latest
-    name: build docker image for node.js
+    name: fullstack fragments for node.js
     steps:
       - uses: actions/checkout@v4
       - run: docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
-      - run: docker save --output fullstack_fragments_node.zip fullstack_fragments_node
-      - uses: actions/upload-artifact@v4
-        with:
-          name: fullstack_fragments_node
-          path: fullstack_fragments_node.zip
-          overwrite: true
+      - name: run all fragments
+        run: docker run --rm fullstack_fragments_node
+      # - run: docker save --output fullstack_fragments_node.zip fullstack_fragments_node
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: fullstack_fragments_node
+      #     path: fullstack_fragments_node.zip
+      #     overwrite: true
       
-  docker_run_node_fragments:
-    needs: docker_build_node
-    runs-on: ubuntu-latest
-    name: run node.js fragments
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: fullstack_fragments_node
-          path: fullstack_fragments_node.zip
-      - run: docker load --input fullstack_fragments_node.zip
-      - run: docker run --rm fullstack_fragments_node
+  # docker_run_node_fragments:
+  #   needs: docker_build_node
+  #   runs-on: ubuntu-latest
+  #   name: run node.js fragments
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: fullstack_fragments_node
+  #         path: fullstack_fragments_node.zip
+  #     - run: docker load --input fullstack_fragments_node.zip
+  #     - run: docker run --rm fullstack_fragments_node
