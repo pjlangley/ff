@@ -22,11 +22,26 @@ execute the code.
 
 - Install [node.js v20](https://nodejs.org/en/download/package-manager)
 - Run `npm install` at root of repo
-- Run all fragments: `npm run fragments`
-- Run a single fragment, e.g.: `npm run fragment -- fragments/env_vars/env_vars.node.ts`
-- Run unit tests: `npm run test`
-- Run the linter: `npm run lint`
-- Run the TypeScript check: `npm run tsc`
+- Run all fragments:
+  ```
+  npm run fragments
+  ```
+- Run a single fragment, e.g.:
+  ```
+  npm run fragment -- fragments/env_vars/env_vars.node.ts
+  ```
+- Run unit tests:
+  ```
+  npm run test
+  ```
+- Run the linter:
+  ```
+  npm run lint
+  ```
+- Run the TypeScript check:
+  ```
+  npm run tsc
+  ```
 
 ### Docker
 
