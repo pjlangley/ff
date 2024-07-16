@@ -1,4 +1,0 @@
-name: 'fullstack_fragment_node'
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
