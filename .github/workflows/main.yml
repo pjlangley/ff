@@ -7,11 +7,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
-      - run: docker save --output fullstack_fragments_node.tar fullstack_fragments_node
+      - run: docker save --output fullstack_fragments_node.zip fullstack_fragments_node
       - uses: actions/upload-artifact@v4
         with:
           name: fullstack_fragments_node
-          path: fullstack_fragments_node.tar
+          path: fullstack_fragments_node.zip
           overwrite: true
       
   docker_run_node_fragments:
@@ -23,6 +23,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: fullstack_fragments_node
-          path: fullstack_fragments_node.tar
-      - run: docker load --input fullstack_fragments_node.tar
+          path: fullstack_fragments_node.zip
+      - run: docker load --input fullstack_fragments_node.zip
       - run: docker run --rm fullstack_fragments_node
