@@ -1,0 +1,27 @@
+{
+  "name": "fullstack_fragments",
+  "version": "0.0.1",
+  "author": "pjlangley",
+  "license": "Unlicense",
+  "engines": {
+    "node": "^20",
+    "npm": "^10"
+  },
+  "scripts": {
+    "fragment": "tsx",
+    "fragments": "npm run fragment -- fragments/index.node.ts",
+    "test": "tsx fragments/**/*.node.test.ts",
+    "lint": "eslint --config .eslintrc.json fragments/ --ext node.ts,node.test.ts",
+    "tsc": "tsc --noEmit --project tsconfig.json",
+    "docs:prettier": "npx prettier --write README.md --print-width 120 --prose-wrap always"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.14.10",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
+    "eslint": "^8.57.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  }
+}
