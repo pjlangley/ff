@@ -1,11 +1,17 @@
 on: [push]
 
 jobs:
-  node:
+  docker_build_node:
     runs-on: ubuntu-latest
-    name: fullstack fragments - node.js
+    name: build docker image for node.js
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: run all fragments
-        uses: ./.github/actions/node
+      - uses: actions/checkout@v4
+      - run: docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
+      
+  docker_run_node_fragments:
+    needs: docker_build_node
+    runs-on: ubuntu-latest
+    name: run node.js fragments
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker run --rm fullstack_fragments_node
