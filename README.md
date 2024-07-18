@@ -10,7 +10,7 @@ _fullstack fragments_.
 ## Running the code
 
 Each programming language supports local environment setup, or you can build and run with Docker instead. If you're
-using [Docker](https://www.docker.com/get-started/) I'll assume you've already installed it and it's running
+using [Docker](https://www.docker.com/get-started/) I'll assume you've already installed it and it's running.
 
 <details>
 <summary>Node.js</summary>
