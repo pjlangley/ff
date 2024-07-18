@@ -15,3 +15,18 @@ jobs:
         run: docker run --rm --entrypoint npm fullstack_fragments_node run lint
       - name: typescript check
         run: docker run --rm --entrypoint npm fullstack_fragments_node run tsc
+
+  fullstack_fragments_deno:
+    runs-on: ubuntu-latest
+    name: deno
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --force-rm -f Dockerfile.deno -t fullstack_fragments_deno .
+      - name: run all fragments
+        run: docker run --rm fullstack_fragments_deno
+      - name: unit tests
+        run: docker run --rm --entrypoint deno fullstack_fragments_deno task test --fail-fast
+      - name: lint
+        run: docker run --rm --entrypoint deno fullstack_fragments_deno lint
+      - name: format check
+        run: docker run --rm --entrypoint deno fullstack_fragments_deno fmt --check

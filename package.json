@@ -12,8 +12,7 @@
     "fragments": "npm run fragment -- fragments/index.node.ts",
     "test": "tsx fragments/**/*.node.test.ts",
     "lint": "eslint --config .eslintrc.json fragments/ --ext node.ts,node.test.ts",
-    "tsc": "tsc --noEmit --project tsconfig.json",
-    "docs:prettier": "npx prettier --write README.md --print-width 120 --prose-wrap always"
+    "tsc": "tsc --noEmit --project tsconfig.json"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",

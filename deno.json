@@ -1,0 +1,32 @@
+{
+  "imports": {
+    "std/": "https://deno.land/std@0.224.0/"
+  },
+  "tasks": {
+    "fragment": "deno run --allow-env",
+    "fragments": "deno task fragment fragments/index.deno.ts",
+    "test": "deno test --allow-env"
+  },
+  "lint": {
+    "include": [
+      "fragments/**/*.deno.ts",
+      "fragments/**/*.deno.test.ts"
+    ],
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "lineWidth": 120,
+    "include": [
+      "fragments/**/*.deno.ts",
+      "fragments/**/*.deno.test.ts",
+      "README.md"
+    ]
+  },
+  "test": {
+    "include": [
+      "fragments/**/*.deno.test.ts"
+    ]
+  }
+}
