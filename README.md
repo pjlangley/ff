@@ -43,6 +43,14 @@ execute the code.
   ```
   npm run tsc
   ```
+- Run the formatter:
+  ```
+  npm run format:write
+  ```
+- Run the format check:
+  ```
+  npm run format:check
+  ```
 
 ### Docker
 
@@ -69,6 +77,10 @@ execute the code.
 - Run the TypeScript check:
   ```
   docker run --rm --entrypoint npm fullstack_fragments_node run tsc
+  ```
+- Run the format check:
+  ```
+  docker run --rm --entrypoint npm fullstack_fragments_node run format:check
   ```
 
 </details>

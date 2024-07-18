@@ -12,7 +12,10 @@
     "fragments": "npm run fragment -- fragments/index.node.ts",
     "test": "tsx fragments/**/*.node.test.ts",
     "lint": "eslint --config .eslintrc.json fragments/ --ext node.ts,node.test.ts",
-    "tsc": "tsc --noEmit --project tsconfig.json"
+    "tsc": "tsc --noEmit --project tsconfig.json",
+    "format": "prettier ./fragments/*.node.ts ./fragments/**/*.{node.ts,node.test.ts}",
+    "format:write": "npm run format -- --write",
+    "format:check": "npm run format -- --check"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
@@ -20,6 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^7.16.1",
     "@typescript-eslint/parser": "^7.16.1",
     "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3"
   }
