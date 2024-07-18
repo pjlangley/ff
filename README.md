@@ -15,6 +15,7 @@ using [Docker](https://www.docker.com/get-started/) I'll assume you've already i
 <details>
 <summary>Node.js</summary>
 <br/>
+
 All the node.js code is written in TypeScript. I'm using [`tsx`](https://www.npmjs.com/package/tsx) to transpile and
 execute the code.
 
