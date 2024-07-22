@@ -98,7 +98,9 @@ execute the code.
 - I use VS Code with the [vscode_deno](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
   extension, and I maintain the `deno.enablePaths` setting (in `.vscode/settings.json`) to make the distinction between
   Node.js TypeScript files and Deno TypeScript files
-- Install [Deno](https://docs.deno.com/runtime/manual/getting_started/installation/)
+- Install [`dvm`](https://deno.land/x/dvm)
+- `dvm install 1.45.2` if you don't already have this version
+- `dvm use 1.45.2`
 - Run all fragments:
   ```
   deno task fragments
