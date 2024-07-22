@@ -146,3 +146,100 @@ execute the code.
   ```
 
 </details>
+
+---
+
+<details>
+<summary>Python</summary>
+<br/>
+
+### Local
+
+#### Setup
+
+- Install [`pyenv`](https://github.com/pyenv/pyenv)
+- `pyenv install 3.12.4` if you don't already have this version
+- Ensure `python3 --version` prints the above version
+- Create a
+  [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/):
+  ```
+  python3 -m venv .venv
+  ```
+- Activate the virtual environment: `source .venv/bin/activate`
+- Ensure the Python interpreter being used is the virtual environment: `which python3`
+- Create a `.pth` file in the virtual environment to set the repo in the Python path:
+  ```
+  touch .venv/lib/python3.12/site-packages/fullstack_fragments.pth
+  pwd > .venv/lib/python3.12/site-packages/fullstack_fragments.pth
+  ```
+- Install dependencies: `python3 -m pip install -r requirements.txt`
+- Verify it's been installed with `python3 -m pip list`
+- You can run `deactivate` to exit the virtual environment at any time
+
+#### Run
+
+- Run all fragments:
+  ```
+  python3 ./fragments/index.py
+  ```
+- Run a single fragment, e.g.:
+  ```
+  python3 ./fragments/env_vars/env_vars.py
+  ```
+- Run unit tests:
+  ```
+  python3 -m unittest -v
+  ```
+- Run the type check:
+  ```
+  python3 -m mypy --config-file mypy.ini
+  ```
+- Run the linter:
+  ```
+  python3 -m pylint ./fragments --rcfile ./pylintrc
+  ```
+- Run the formatter:
+  ```
+  python3 -m black ./fragments
+  ```
+- Run the format check:
+  ```
+  python3 -m black ./fragments --check
+  ```
+
+### Docker
+
+- Build the image at root of repo:
+  ```
+  docker build --force-rm -f Dockerfile.python -t fullstack_fragments_python .
+  ```
+- Run all fragments:
+  ```
+  docker run --rm fullstack_fragments_python
+  ```
+- Run a single fragment, e.g.:
+  ```
+  docker run --rm --entrypoint python3 fullstack_fragments_python ./fragments/env_vars/env_vars.py
+  ```
+- Run unit tests:
+  ```
+  docker run --rm --entrypoint python3 fullstack_fragments_python -m unittest -v
+  ```
+- Run the type check:
+  ```
+  docker run --rm --entrypoint python3 fullstack_fragments_python -m mypy --config-file mypy.ini
+  ```
+- Run the linter:
+  ```
+  docker run --rm --entrypoint python3 fullstack_fragments_python -m pylint ./fragments --rcfile ./pylintrc
+  ```
+- Run the formatter:
+  ```
+  docker run --rm --entrypoint python3 fullstack_fragments_python -m black ./fragments
+  ```
+- Run the format check:
+  ```
+  docker run --rm --entrypoint python3 fullstack_fragments_python -m black ./fragments --check
+  ```
+
+</details>

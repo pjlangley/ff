@@ -32,3 +32,20 @@ jobs:
         run: docker run --rm --entrypoint deno fullstack_fragments_deno lint
       - name: format check
         run: docker run --rm --entrypoint deno fullstack_fragments_deno fmt --check
+  
+  fullstack_fragments_python:
+    runs-on: ubuntu-latest
+    name: python
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --force-rm -f Dockerfile.python -t fullstack_fragments_python .
+      - name: run all fragments
+        run: docker run --rm fullstack_fragments_python
+      - name: unit tests
+        run: docker run --rm --entrypoint python3 fullstack_fragments_python -m unittest -v --failfast
+      - name: type check
+        run: docker run --rm --entrypoint python3 fullstack_fragments_python -m mypy --config-file mypy.ini
+      - name: lint
+        run: docker run --rm --entrypoint python3 fullstack_fragments_python -m pylint ./fragments --rcfile ./pylintrc
+      - name: format check
+        run: docker run --rm --entrypoint python3 fullstack_fragments_python -m black ./fragments --check
