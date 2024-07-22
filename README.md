@@ -21,7 +21,9 @@ execute the code.
 
 ### Local
 
-- Install [node.js v20](https://nodejs.org/en/download/package-manager)
+- Install [`nvm`](https://github.com/nvm-sh/nvm)
+- `nvm install 20` if you don't already have this version
+- `nvm use 20`
 - Run `npm install` at root of repo
 - Run all fragments:
   ```
