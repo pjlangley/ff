@@ -1,7 +1,24 @@
 # Fullstack fragments
 
-A collection of single responsibility code samples in a variety of programming languages for comparison. What I call
-_fullstack fragments_.
+A collection of single responsibility code samples in a variety of programming languages for comparison, with an
+emphasis on functional programming. What I call _fullstack fragments_.
+
+The chosen programming languages are:
+
+- ✅ Node.js
+- ✅ Deno
+- ✅ Python
+- ✅ Rust
+
+Every code sample is mirrored in each language, and each one implements these basic code quality tasks:
+
+- Unit testing
+- Linting
+- Building / compiling, if applicable
+- Formatting
+- Type checking
+
+Every sample in every language can be run both locally and via Docker. See _Running the code_ below.
 
 ## Code contents
 
