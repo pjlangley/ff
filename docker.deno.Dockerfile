@@ -6,4 +6,4 @@ COPY README.md .
 COPY deno.json .
 COPY deno.lock .
 ENTRYPOINT ["deno", "task", "fragment"]
-CMD ["fragments/index.deno.ts"]
+CMD ["fragments/main.deno.ts"]

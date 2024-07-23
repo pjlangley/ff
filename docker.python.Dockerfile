@@ -9,4 +9,4 @@ RUN python3 -m pip install -r requirements.txt
 RUN touch /usr/local/lib/python3.12/site-packages/fullstack_fragments.pth
 RUN pwd > /usr/local/lib/python3.12/site-packages/fullstack_fragments.pth
 ENTRYPOINT ["python3"]
-CMD ["fragments/index.py"]
+CMD ["fragments/main.py"]

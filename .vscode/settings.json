@@ -2,7 +2,7 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "deno.enable": true,
   "deno.enablePaths": [
-    "./fragments/index.deno.ts",
+    "./fragments/main.deno.ts",
     "./fragments/env_vars/env_vars.deno.ts",
     "./fragments/env_vars/env_vars.deno.test.ts"
   ],

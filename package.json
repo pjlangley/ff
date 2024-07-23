@@ -9,7 +9,7 @@
   },
   "scripts": {
     "fragment": "tsx",
-    "fragments": "npm run fragment -- fragments/index.node.ts",
+    "fragments": "npm run fragment -- fragments/main.node.ts",
     "test": "tsx fragments/**/*.node.test.ts",
     "lint": "eslint --config .eslintrc.json fragments/ --ext node.ts,node.test.ts",
     "tsc": "tsc --noEmit --project tsconfig.json",

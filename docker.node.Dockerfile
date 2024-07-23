@@ -7,4 +7,4 @@ COPY tsconfig.json .
 COPY .eslintrc.json .
 RUN npm install
 ENTRYPOINT ["npm", "run", "fragment", "--"]
-CMD ["fragments/index.node.ts"]
+CMD ["fragments/main.node.ts"]

@@ -184,7 +184,7 @@ execute the code.
 
 - Run all fragments:
   ```
-  python3 ./fragments/index.py
+  python3 ./fragments/main.py
   ```
 - Run a single fragment, e.g.:
   ```

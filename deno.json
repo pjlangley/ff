@@ -4,7 +4,7 @@
   },
   "tasks": {
     "fragment": "deno run --allow-env",
-    "fragments": "deno task fragment fragments/index.deno.ts",
+    "fragments": "deno task fragment fragments/main.deno.ts",
     "test": "deno test --allow-env"
   },
   "lint": {
