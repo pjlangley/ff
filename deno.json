@@ -21,7 +21,8 @@
     "include": [
       "fragments/**/*.deno.ts",
       "fragments/**/*.deno.test.ts",
-      "README.md"
+      "README.md",
+      "CONTRIBUTING.md"
     ]
   },
   "test": {

@@ -3,7 +3,7 @@
 A collection of single responsibility code samples in a variety of programming languages for comparison, with an
 emphasis on functional programming. What I call _fullstack fragments_.
 
-The chosen programming languages are:
+The supported programming languages are:
 
 - ✅ Node.js
 - ✅ Deno
