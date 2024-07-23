@@ -247,3 +247,79 @@ execute the code.
   ```
 
 </details>
+
+---
+
+<details>
+<summary>Rust</summary>
+<br/>
+
+### Local
+
+#### Setup
+
+- Install [Rust](https://www.rust-lang.org/tools/install)
+- `rustup toolchain install 1.79.0` if you don't already have this version installed
+- `rustc --version` to confirm the above version is being used
+- Add `clippy` for enhanced linting: `rustup component add clippy`
+- Add `rustfmt` for formatting: `rustup component add rustfmt`
+
+#### Run
+
+- Run all fragments:
+  ```
+  cargo run --bin fragments
+  ```
+- Run unit tests:
+  ```
+  cargo test
+  ```
+- Run the build:
+  ```
+  cargo build --release --bin fragments
+  ```
+- Run the linter:
+  ```
+  cargo clippy -- -D warnings
+  ```
+- Run the formatter:
+  ```
+  cargo fmt -v
+  ```
+- Run the format check:
+  ```
+  cargo fmt --check -v
+  ```
+
+### Docker
+
+- Build the image at root of repo:
+  ```
+  docker build --force-rm -f Dockerfile.rust -t fullstack_fragments_rust .
+  ```
+- Run all fragments:
+  ```
+  docker run --rm fullstack_fragments_rust
+  ```
+- Run unit tests:
+  ```
+  docker run --rm --entrypoint cargo fullstack_fragments_rust test
+  ```
+- Run the build:
+  ```
+  docker run --rm --entrypoint cargo fullstack_fragments_rust build --release --bin fragments
+  ```
+- Run the linter:
+  ```
+  docker run --rm --entrypoint cargo fullstack_fragments_rust clippy -- -D warnings
+  ```
+- Run the formatter:
+  ```
+  docker run --rm --entrypoint cargo fullstack_fragments_rust fmt -v
+  ```
+- Run the format check:
+  ```
+  docker run --rm --entrypoint cargo fullstack_fragments_rust fmt -v --check
+  ```
+
+</details>

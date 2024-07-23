@@ -49,3 +49,20 @@ jobs:
         run: docker run --rm --entrypoint python3 fullstack_fragments_python -m pylint ./fragments --rcfile ./pylintrc
       - name: format check
         run: docker run --rm --entrypoint python3 fullstack_fragments_python -m black ./fragments --check
+
+  fullstack_fragments_rust:
+    runs-on: ubuntu-latest
+    name: rust
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --force-rm -f Dockerfile.rust -t fullstack_fragments_rust .
+      - name: run all fragments
+        run: docker run --rm fullstack_fragments_rust
+      - name: unit tests
+        run: docker run --rm --entrypoint cargo fullstack_fragments_rust test --release
+      - name: build
+        run: docker run --rm --entrypoint cargo fullstack_fragments_rust build --release --bin fragments
+      - name: lint
+        run: docker run --rm --entrypoint cargo fullstack_fragments_rust clippy -- -D warnings
+      - name: format check
+        run: docker run --rm --entrypoint cargo fullstack_fragments_rust fmt -v --check

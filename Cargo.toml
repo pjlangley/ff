@@ -1,0 +1,10 @@
+[package]
+name = "fullstack_fragments"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[[bin]]
+name = "fragments"
+path = "fragments/main.rs"
