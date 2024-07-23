@@ -3,8 +3,8 @@
   "deno.enable": true,
   "deno.enablePaths": [
     "./fragments/main.deno.ts",
-    "./fragments/env_vars/env_vars.deno.ts",
-    "./fragments/env_vars/env_vars.deno.test.ts"
+    "./fragments/env_vars/env_vars_utils.deno.ts",
+    "./fragments/env_vars/env_vars_utils.deno.test.ts"
   ],
   "deno.importMap": "./deno.json"
 }

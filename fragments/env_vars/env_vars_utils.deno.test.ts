@@ -1,4 +1,4 @@
-import { get_env_var } from "./env_vars.deno.ts";
+import { get_env_var } from "./env_vars_utils.deno.ts";
 import { assertEquals } from "std/assert/mod.ts";
 
 Deno.test("returns environment variable value if exists", () => {

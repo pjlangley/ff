@@ -1,6 +1,6 @@
 import unittest
 import os
-from fragments.env_vars.env_vars import get_env_var
+from fragments.env_vars.env_vars_utils import get_env_var
 
 
 class TestGetEnvVar(unittest.TestCase):

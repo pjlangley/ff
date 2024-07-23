@@ -43,6 +43,7 @@
         "npm:@typescript-eslint/eslint-plugin@^7.16.1",
         "npm:@typescript-eslint/parser@^7.16.1",
         "npm:eslint@^8.57.0",
+        "npm:prettier@^3.3.3",
         "npm:tsx@^4.16.2",
         "npm:typescript@^5.5.3"
       ]

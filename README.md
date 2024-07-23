@@ -31,7 +31,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  npm run fragment -- fragments/env_vars/env_vars.node.ts
+  npm run fragment -- fragments/env_vars/env_vars_utils.node.ts
   ```
 - Run unit tests:
   ```
@@ -66,7 +66,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm fullstack_fragments_node fragments/env_vars/env_vars.node.ts
+  docker run --rm fullstack_fragments_node fragments/env_vars/env_vars_utils.node.ts
   ```
 - Run unit tests:
   ```
@@ -107,7 +107,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  deno task fragment fragments/env_vars/env_vars.deno.ts
+  deno task fragment fragments/env_vars/env_vars_utils.deno.ts
   ```
 - Run unit tests:
   ```
@@ -134,7 +134,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm fullstack_fragments_deno fragments/env_vars/env_vars.deno.ts
+  docker run --rm fullstack_fragments_deno fragments/env_vars/env_vars_utils.deno.ts
   ```
 - Run unit tests:
   ```
@@ -188,7 +188,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  python3 ./fragments/env_vars/env_vars.py
+  python3 ./fragments/env_vars/env_vars_utils.py
   ```
 - Run unit tests:
   ```
@@ -223,7 +223,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python ./fragments/env_vars/env_vars.py
+  docker run --rm --entrypoint python3 fullstack_fragments_python ./fragments/env_vars/env_vars_utils.py
   ```
 - Run unit tests:
   ```
