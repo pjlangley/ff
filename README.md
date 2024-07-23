@@ -58,7 +58,7 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
+  docker build --force-rm -f docker.node.Dockerfile -t fullstack_fragments_node .
   ```
 - Run all fragments:
   ```
@@ -126,7 +126,7 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f Dockerfile.deno -t fullstack_fragments_deno .
+  docker build --force-rm -f docker.deno.Dockerfile -t fullstack_fragments_deno .
   ```
 - Run all fragments:
   ```
@@ -215,7 +215,7 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f Dockerfile.python -t fullstack_fragments_python .
+  docker build --force-rm -f docker.python.Dockerfile -t fullstack_fragments_python .
   ```
 - Run all fragments:
   ```
@@ -295,7 +295,7 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f Dockerfile.rust -t fullstack_fragments_rust .
+  docker build --force-rm -f docker.rust.Dockerfile -t fullstack_fragments_rust .
   ```
 - Run all fragments:
   ```

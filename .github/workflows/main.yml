@@ -6,7 +6,7 @@ jobs:
     name: node.js
     steps:
       - uses: actions/checkout@v4
-      - run: docker build --force-rm -f Dockerfile.node -t fullstack_fragments_node .
+      - run: docker build --force-rm -f docker.node.Dockerfile -t fullstack_fragments_node .
       - name: run all fragments
         run: docker run --rm fullstack_fragments_node
       - name: unit tests
@@ -23,7 +23,7 @@ jobs:
     name: deno
     steps:
       - uses: actions/checkout@v4
-      - run: docker build --force-rm -f Dockerfile.deno -t fullstack_fragments_deno .
+      - run: docker build --force-rm -f docker.deno.Dockerfile -t fullstack_fragments_deno .
       - name: run all fragments
         run: docker run --rm fullstack_fragments_deno
       - name: unit tests
@@ -38,7 +38,7 @@ jobs:
     name: python
     steps:
       - uses: actions/checkout@v4
-      - run: docker build --force-rm -f Dockerfile.python -t fullstack_fragments_python .
+      - run: docker build --force-rm -f docker.python.Dockerfile -t fullstack_fragments_python .
       - name: run all fragments
         run: docker run --rm fullstack_fragments_python
       - name: unit tests
@@ -55,7 +55,7 @@ jobs:
     name: rust
     steps:
       - uses: actions/checkout@v4
-      - run: docker build --force-rm -f Dockerfile.rust -t fullstack_fragments_rust .
+      - run: docker build --force-rm -f docker.rust.Dockerfile -t fullstack_fragments_rust .
       - name: run all fragments
         run: docker run --rm fullstack_fragments_rust
       - name: unit tests
