@@ -39,8 +39,8 @@ execute the code.
 ### Local
 
 - Install [`nvm`](https://github.com/nvm-sh/nvm)
-- `nvm install 20` if you don't already have this version
-- `nvm use 20`
+- `nvm install 22` if you don't already have this version
+- `nvm use 22`
 - Run `npm install` at root of repo
 - Run all fragments:
   ```
