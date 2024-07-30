@@ -138,6 +138,10 @@ execute the code.
   ```
   deno fmt
   ```
+- Run the TypeScript check:
+  ```
+  deno check fragments/**/*.deno.ts
+  ```
 
 ### Docker
 
@@ -164,6 +168,10 @@ execute the code.
 - Run the formatter:
   ```
   docker run --rm --entrypoint deno fullstack_fragments_deno fmt
+  ```
+- Run the TypeScript check:
+  ```
+  docker run --rm --entrypoint deno fullstack_fragments_deno check fragments/**/*.deno.ts
   ```
 
 </details>

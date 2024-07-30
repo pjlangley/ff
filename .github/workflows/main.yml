@@ -32,6 +32,8 @@ jobs:
         run: docker run --rm --entrypoint deno fullstack_fragments_deno lint
       - name: format check
         run: docker run --rm --entrypoint deno fullstack_fragments_deno fmt --check
+      - name: typescript check
+        run: docker run --rm --entrypoint deno fullstack_fragments_deno check fragments/**/*.deno.ts
   
   fullstack_fragments_python:
     runs-on: ubuntu-latest
