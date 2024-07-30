@@ -4,7 +4,9 @@
   "deno.enablePaths": [
     "./fragments/main.deno.ts",
     "./fragments/env_vars/env_vars_utils.deno.ts",
-    "./fragments/env_vars/env_vars_utils.deno.test.ts"
+    "./fragments/env_vars/env_vars_utils.deno.test.ts",
+    "./fragments/sql/sql_queries.deno.ts",
+    "./fragments/sql/sql_queries.deno.test.ts"
   ],
   "deno.importMap": "./deno.json"
 }
