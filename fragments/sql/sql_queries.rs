@@ -224,7 +224,7 @@ pub fn add_item(ticker: &str, name: &str, launched: i64) -> Option<&'static str>
     match stmt.next() {
         Ok(_) => Some("ok"),
         Err(e) => {
-            eprintln!("Failed to into item into database: {}", e);
+            eprintln!("Failed to insert item into database: {}", e);
             None
         }
     }
