@@ -54,7 +54,7 @@ export const get_item_by_ticker = async (ticker: string) => {
   const result = await new Promise<CryptoCoin | undefined>(
     (resolve, reject) => {
       db.get<CryptoCoin | undefined>(
-        "SELECT * FROM crypto_coins WHERE ticker = ?",
+        "SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1",
         [ticker],
         (err, row) => {
           if (err) {

@@ -33,7 +33,7 @@ def get_item_by_ticker(ticker: str) -> Optional[CryptoCoin]:
     connection = init_db()
     cursor = connection.cursor()
     params = (ticker,)
-    cursor.execute("SELECT * FROM crypto_coins WHERE ticker = ?", params)
+    cursor.execute("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1", params)
     result = cursor.fetchone()
     connection.close()
 

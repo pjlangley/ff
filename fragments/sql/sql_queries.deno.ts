@@ -31,7 +31,7 @@ const init_db = () => {
 
 export const get_item_by_ticker = (ticker: string) => {
   const db = init_db();
-  const stmt = db.prepare("SELECT * FROM crypto_coins WHERE ticker = ?");
+  const stmt = db.prepare("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1");
   const result = stmt.get<CryptoCoinRecord>(ticker);
   db.close();
 
