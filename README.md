@@ -23,6 +23,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 ## Code contents
 
 1. Working with environment variables: [`fragments/env_vars`](./fragments/env_vars/)
+1. Working with SQL: [`fragments/sql`](./fragments/sql/)
 
 ## Running the code
 
