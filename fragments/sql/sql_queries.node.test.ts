@@ -1,9 +1,4 @@
-import {
-  add_item,
-  get_all_items,
-  get_item_by_ticker,
-  get_items_after_launch_year,
-} from "./sql_queries.node";
+import { add_item, get_all_items, get_item_by_ticker, get_items_after_launch_year } from "./sql_queries.node";
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 
@@ -52,9 +47,7 @@ describe("sql queries", () => {
     });
 
     test("fails because ticker already exists", async () => {
-      assert.rejects(
-        add_item({ ticker: "BTC", name: "Bitcoin", launched: 2009 }),
-      );
+      assert.rejects(add_item({ ticker: "BTC", name: "Bitcoin", launched: 2009 }));
     });
   });
 });

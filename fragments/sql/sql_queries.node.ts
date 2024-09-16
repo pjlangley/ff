@@ -51,20 +51,14 @@ const init_db = async () => {
 
 export const get_item_by_ticker = async (ticker: string) => {
   const db = await init_db();
-  const result = await new Promise<CryptoCoin | undefined>(
-    (resolve, reject) => {
-      db.get<CryptoCoin | undefined>(
-        "SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1",
-        [ticker],
-        (err, row) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(row);
-        },
-      );
-    },
-  );
+  const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
+    db.get<CryptoCoin | undefined>("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1", [ticker], (err, row) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(row);
+    });
+  });
 
   return result;
 };
@@ -72,16 +66,12 @@ export const get_item_by_ticker = async (ticker: string) => {
 export const get_items_after_launch_year = async (launch_year: number) => {
   const db = await init_db();
   const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
-    db.all<CryptoCoin>(
-      "SELECT * FROM crypto_coins WHERE launched > ?",
-      [launch_year],
-      (err, rows) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(rows);
-      },
-    );
+    db.all<CryptoCoin>("SELECT * FROM crypto_coins WHERE launched > ?", [launch_year], (err, rows) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(rows);
+    });
   });
 
   return result;
@@ -90,14 +80,10 @@ export const get_items_after_launch_year = async (launch_year: number) => {
 export const get_all_items = async () => {
   const db = await init_db();
   const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
-    db.all<CryptoCoin>(
-      "SELECT * FROM crypto_coins ORDER BY launched DESC",
-      [],
-      (err, rows) => {
-        if (err) reject(err);
-        resolve(rows);
-      },
-    );
+    db.all<CryptoCoin>("SELECT * FROM crypto_coins ORDER BY launched DESC", [], (err, rows) => {
+      if (err) reject(err);
+      resolve(rows);
+    });
   });
 
   return result;

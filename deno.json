@@ -21,8 +21,7 @@
     "lineWidth": 120,
     "include": [
       "fragments/**/*.deno.ts",
-      "fragments/**/*.deno.test.ts",
-      "*.md"
+      "fragments/**/*.deno.test.ts"
     ]
   },
   "test": {

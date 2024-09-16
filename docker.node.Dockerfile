@@ -5,6 +5,7 @@ COPY package*.json .
 COPY tsconfig.json .
 COPY .eslintrc.json .
 COPY .npmrc .
+COPY *.md .
 RUN npm install
 COPY fragments/ ./fragments/
 ENTRYPOINT ["npm", "run", "fragment", "--"]
