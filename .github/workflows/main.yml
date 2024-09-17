@@ -68,3 +68,20 @@ jobs:
         run: docker run --rm --entrypoint cargo fullstack_fragments_rust clippy -- -D warnings
       - name: format check
         run: docker run --rm --entrypoint cargo fullstack_fragments_rust fmt -v --check
+
+  ff_go:
+    runs-on: ubuntu-latest
+    name: go
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --force-rm -f docker.go.Dockerfile -t ff_go .
+      - name: run all fragments
+        run: docker run --rm ff_go
+      - name: unit tests
+        run: docker run --rm --entrypoint go ff_go test ./fragments/...
+      - name: build
+        run: docker run --rm --entrypoint go ff_go build -o .bin/go_ff ./fragments/main.go
+      - name: lint
+        run: docker run --rm --entrypoint golangci-lint ff_go run -v ./fragments/...
+      - name: format check
+        run: docker run --rm --entrypoint test ff_go -z $(gofmt -l ./fragments)
