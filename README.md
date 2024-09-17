@@ -349,3 +349,78 @@ execute the code.
   ```
 
 </details>
+
+---
+
+<details>
+<summary>Go</summary>
+<br/>
+
+### Local
+
+#### Setup
+
+- Install [goenv](https://github.com/go-nv/goenv)
+- `goenv install 1.23.1` if you don't already have this version installed
+- `goenv version` to confirm the above version is being used
+- Install [`golangci-lint`](https://golangci-lint.run/welcome/install/#local-installation) for linting
+
+#### Run
+
+- Run all fragments:
+  ```
+  goenv exec go run fragments/main.go
+  ```
+- Run unit tests:
+  ```
+  goenv exec go test ./fragments/...
+  ```
+- Run the build:
+  ```
+  goenv exec go build -o .bin/go_ff ./fragments/main.go
+  ```
+- Run the linter:
+  ```
+  golangci-lint run ./fragments/...
+  ```
+- Run the formatter:
+  ```
+  goenv exec gofmt -w ./fragments
+  ```
+- Run the format check:
+  ```
+  test -z $(goenv exec gofmt -l ./fragments)
+  ```
+
+### Docker
+
+- Build the image at root of repo:
+  ```
+  docker build --force-rm -f docker.go.Dockerfile -t ff_go .
+  ```
+- Run all fragments:
+  ```
+  docker run --rm ff_go
+  ```
+- Run unit tests:
+  ```
+  docker run --rm --entrypoint go ff_go test ./fragments/...
+  ```
+- Run the build:
+  ```
+  docker run --rm --entrypoint go ff_go build -o .bin/go_ff ./fragments/main.go
+  ```
+- Run the linter:
+  ```
+  docker run --rm --entrypoint golangci-lint ff_go run -v ./fragments/...
+  ```
+- Run the formatter:
+  ```
+  docker run --rm --entrypoint gofmt ff_go -w ./fragments
+  ```
+- Run the format check:
+  ```
+  docker run --rm --entrypoint test ff_go -z $(gofmt -l ./fragments)
+  ```
+
+</details>

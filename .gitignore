@@ -10,3 +10,6 @@ __pycache__/
 
 # cargo / rust
 /target
+
+# go
+/.bin
