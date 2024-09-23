@@ -364,6 +364,7 @@ execute the code.
 - `goenv install 1.23.1` if you don't already have this version installed
 - `goenv version` to confirm the above version is being used
 - Install [`golangci-lint`](https://golangci-lint.run/welcome/install/#local-installation) for linting
+- Install dependencies: `cd ./fragments && goenv exec go mod tidy`
 
 #### Run
 
