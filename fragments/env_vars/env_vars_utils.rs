@@ -10,8 +10,8 @@ mod tests {
 
     #[test]
     fn test_returns_env_var_if_exists() {
-        env::set_var("REPO_NAME", "fullstack_fragments");
-        assert_eq!(get_env_var("REPO_NAME"), "fullstack_fragments");
+        env::set_var("REPO_NAME", "ff");
+        assert_eq!(get_env_var("REPO_NAME"), "ff");
         env::remove_var("REPO_NAME");
     }
 

@@ -6,8 +6,8 @@ from fragments.env_vars.env_vars_utils import get_env_var
 class TestGetEnvVar(unittest.TestCase):
 
     def test_env_var_exists(self):
-        os.environ["REPO_NAME"] = "fullstack_fragments"
-        self.assertEqual(get_env_var("REPO_NAME"), "fullstack_fragments")
+        os.environ["REPO_NAME"] = "ff"
+        self.assertEqual(get_env_var("REPO_NAME"), "ff")
         del os.environ["REPO_NAME"]
 
     def test_env_var_nonexistent(self):

@@ -1,5 +1,5 @@
 FROM node:22
-ENV REPO_NAME=fullstack_fragments
+ENV REPO_NAME=ff
 WORKDIR /usr/src/app
 COPY package*.json .
 COPY tsconfig.json .

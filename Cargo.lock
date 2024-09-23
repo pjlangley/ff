@@ -9,7 +9,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26a5c3fd7bfa1ce3897a3a3501d362b2d87b7f2583ebcb4a949ec25911025cbc"
 
 [[package]]
-name = "fullstack_fragments"
+name = "ff"
 version = "0.1.0"
 dependencies = [
  "sqlite",

@@ -76,31 +76,31 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f docker.node.Dockerfile -t fullstack_fragments_node .
+  docker build --force-rm -f docker.node.Dockerfile -t ff_node .
   ```
 - Run all fragments:
   ```
-  docker run --rm fullstack_fragments_node
+  docker run --rm ff_node
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm fullstack_fragments_node fragments/env_vars/env_vars_utils.node.ts
+  docker run --rm ff_node fragments/env_vars/env_vars_utils.node.ts
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint npm fullstack_fragments_node run test
+  docker run --rm --entrypoint npm ff_node run test
   ```
 - Run the linter:
   ```
-  docker run --rm --entrypoint npm fullstack_fragments_node run lint
+  docker run --rm --entrypoint npm ff_node run lint
   ```
 - Run the TypeScript check:
   ```
-  docker run --rm --entrypoint npm fullstack_fragments_node run tsc
+  docker run --rm --entrypoint npm ff_node run tsc
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint npm fullstack_fragments_node run format:check
+  docker run --rm --entrypoint npm ff_node run format:check
   ```
 
 </details>
@@ -127,8 +127,8 @@ execute the code.
 - Ensure the Python interpreter being used is the virtual environment: `which python3`
 - Create a `.pth` file in the virtual environment to set the repo in the Python path:
   ```
-  touch .venv/lib/python3.12/site-packages/fullstack_fragments.pth
-  pwd > .venv/lib/python3.12/site-packages/fullstack_fragments.pth
+  touch .venv/lib/python3.12/site-packages/ff.pth
+  pwd > .venv/lib/python3.12/site-packages/ff.pth
   ```
 - Install dependencies: `python3 -m pip install -r requirements.txt`
 - Verify it's been installed with `python3 -m pip list`
@@ -169,35 +169,35 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f docker.python.Dockerfile -t fullstack_fragments_python .
+  docker build --force-rm -f docker.python.Dockerfile -t ff_python .
   ```
 - Run all fragments:
   ```
-  docker run --rm fullstack_fragments_python
+  docker run --rm ff_python
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python ./fragments/env_vars/env_vars_utils.py
+  docker run --rm --entrypoint python3 ff_python ./fragments/env_vars/env_vars_utils.py
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python -m unittest -v
+  docker run --rm --entrypoint python3 ff_python -m unittest -v
   ```
 - Run the type check:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python -m mypy --config-file mypy.ini
+  docker run --rm --entrypoint python3 ff_python -m mypy --config-file mypy.ini
   ```
 - Run the linter:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python -m pylint ./fragments --rcfile ./pylintrc
+  docker run --rm --entrypoint python3 ff_python -m pylint ./fragments --rcfile ./pylintrc
   ```
 - Run the formatter:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python -m black ./fragments
+  docker run --rm --entrypoint python3 ff_python -m black ./fragments
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint python3 fullstack_fragments_python -m black ./fragments --check
+  docker run --rm --entrypoint python3 ff_python -m black ./fragments --check
   ```
 
 </details>
@@ -249,31 +249,31 @@ execute the code.
 
 - Build the image at root of repo:
   ```
-  docker build --force-rm -f docker.rust.Dockerfile -t fullstack_fragments_rust .
+  docker build --force-rm -f docker.rust.Dockerfile -t ff_rust .
   ```
 - Run all fragments:
   ```
-  docker run --rm fullstack_fragments_rust
+  docker run --rm ff_rust
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint cargo fullstack_fragments_rust test
+  docker run --rm --entrypoint cargo ff_rust test
   ```
 - Run the build:
   ```
-  docker run --rm --entrypoint cargo fullstack_fragments_rust build --release --bin fragments
+  docker run --rm --entrypoint cargo ff_rust build --release --bin fragments
   ```
 - Run the linter:
   ```
-  docker run --rm --entrypoint cargo fullstack_fragments_rust clippy -- -D warnings
+  docker run --rm --entrypoint cargo ff_rust clippy -- -D warnings
   ```
 - Run the formatter:
   ```
-  docker run --rm --entrypoint cargo fullstack_fragments_rust fmt -v
+  docker run --rm --entrypoint cargo ff_rust fmt -v
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint cargo fullstack_fragments_rust fmt -v --check
+  docker run --rm --entrypoint cargo ff_rust fmt -v --check
   ```
 
 </details>
