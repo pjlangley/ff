@@ -6,9 +6,9 @@ emphasis on functional programming. What I call _fullstack fragments_.
 The supported programming languages are:
 
 - ✅ Node.js
-- ✅ Deno
 - ✅ Python
 - ✅ Rust
+- ✅ Go
 
 Every code sample is mirrored in each language, and each one implements these basic code quality tasks:
 
@@ -101,78 +101,6 @@ execute the code.
 - Run the format check:
   ```
   docker run --rm --entrypoint npm fullstack_fragments_node run format:check
-  ```
-
-</details>
-
----
-
-<details>
-<summary>Deno</summary>
-<br/>
-
-### Local
-
-- I use VS Code with the [vscode_deno](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
-  extension, and I maintain the `deno.enablePaths` setting (in `.vscode/settings.json`) to make the distinction between
-  Node.js TypeScript files and Deno TypeScript files
-- Install [`dvm`](https://deno.land/x/dvm)
-- `dvm install 1.45.2` if you don't already have this version
-- `dvm use 1.45.2`
-- Run all fragments:
-  ```
-  deno task fragments
-  ```
-- Run a single fragment, e.g.:
-  ```
-  deno task fragment fragments/env_vars/env_vars_utils.deno.ts
-  ```
-- Run unit tests:
-  ```
-  deno task test
-  ```
-- Run the linter:
-  ```
-  deno lint
-  ```
-- Run the formatter:
-  ```
-  deno fmt
-  ```
-- Run the TypeScript check:
-  ```
-  deno check fragments/**/*.deno.ts
-  ```
-
-### Docker
-
-- Build the image at root of repo:
-  ```
-  docker build --force-rm -f docker.deno.Dockerfile -t fullstack_fragments_deno .
-  ```
-- Run all fragments:
-  ```
-  docker run --rm fullstack_fragments_deno
-  ```
-- Run a single fragment, e.g.:
-  ```
-  docker run --rm fullstack_fragments_deno fragments/env_vars/env_vars_utils.deno.ts
-  ```
-- Run unit tests:
-  ```
-  docker run --rm --entrypoint deno fullstack_fragments_deno task test
-  ```
-- Run the linter:
-  ```
-  docker run --rm --entrypoint deno fullstack_fragments_deno lint
-  ```
-- Run the formatter:
-  ```
-  docker run --rm --entrypoint deno fullstack_fragments_deno fmt
-  ```
-- Run the TypeScript check:
-  ```
-  docker run --rm --entrypoint deno fullstack_fragments_deno check fragments/**/*.deno.ts
   ```
 
 </details>
