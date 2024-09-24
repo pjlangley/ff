@@ -7,5 +7,8 @@ ENV REPO_NAME=ff
 COPY .golangci.yaml .
 COPY go.work .
 COPY fragments ./fragments/
+WORKDIR /usr/src/app/fragments
+RUN go mod tidy
+WORKDIR /usr/src/app
 ENTRYPOINT ["go"]
 CMD ["run", "fragments/main.go"]
