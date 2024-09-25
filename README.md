@@ -37,12 +37,17 @@ using [Docker](https://www.docker.com/get-started/) I'll assume you've already i
 All the node.js code is written in TypeScript. I'm using [`tsx`](https://www.npmjs.com/package/tsx) to transpile and
 execute the code.
 
-### Local
+### Local (Node.js)
+
+#### Setup
 
 - Install [`nvm`](https://github.com/nvm-sh/nvm)
 - `nvm install 22` if you don't already have this version
 - `nvm use 22`
 - Run `npm install` at root of repo
+
+#### Run
+
 - Run all fragments:
   ```
   npm run fragments
@@ -72,7 +77,7 @@ execute the code.
   npm run format:check
   ```
 
-### Docker
+### Docker (Node.js)
 
 - Build the image at root of repo:
   ```
@@ -111,7 +116,7 @@ execute the code.
 <summary>Python</summary>
 <br/>
 
-### Local
+### Local (Python)
 
 #### Setup
 
@@ -165,7 +170,7 @@ execute the code.
   python3 -m black ./fragments --check
   ```
 
-### Docker
+### Docker (Python)
 
 - Build the image at root of repo:
   ```
@@ -208,7 +213,7 @@ execute the code.
 <summary>Rust</summary>
 <br/>
 
-### Local
+### Local (Rust)
 
 #### Setup
 
@@ -245,7 +250,7 @@ execute the code.
   cargo fmt --check -v
   ```
 
-### Docker
+### Docker (Rust)
 
 - Build the image at root of repo:
   ```
@@ -284,7 +289,7 @@ execute the code.
 <summary>Go</summary>
 <br/>
 
-### Local
+### Local (Go)
 
 #### Setup
 
@@ -321,7 +326,7 @@ execute the code.
   test -z $(goenv exec gofmt -l ./fragments)
   ```
 
-### Docker
+### Docker (Go)
 
 - Build the image at root of repo:
   ```
