@@ -9,4 +9,4 @@ COPY *.md .
 RUN npm install
 COPY fragments/ ./fragments/
 ENTRYPOINT ["npm", "run", "fragment", "--"]
-CMD ["fragments/main.node.ts"]
+CMD ["fragments/main.ts"]

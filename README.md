@@ -49,7 +49,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  npm run fragment -- fragments/env_vars/env_vars_utils.node.ts
+  npm run fragment -- fragments/env_vars/env_vars_utils.ts
   ```
 - Run unit tests:
   ```
@@ -84,7 +84,7 @@ execute the code.
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm ff_node fragments/env_vars/env_vars_utils.node.ts
+  docker run --rm ff_node fragments/env_vars/env_vars_utils.ts
   ```
 - Run unit tests:
   ```

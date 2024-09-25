@@ -9,11 +9,11 @@
   },
   "scripts": {
     "fragment": "tsx",
-    "fragments": "npm run fragment -- fragments/main.node.ts",
-    "test": "tsx --test 'fragments/**/*.node.test.ts'",
-    "lint": "eslint --config .eslintrc.json fragments/ --ext node.ts,node.test.ts",
+    "fragments": "npm run fragment -- fragments/main.ts",
+    "test": "tsx --test 'fragments/**/*.test.ts'",
+    "lint": "eslint --config .eslintrc.json fragments/ --ext ts",
     "tsc": "tsc --noEmit --project tsconfig.json",
-    "format": "prettier --print-width 120 --prose-wrap always ./*.md ./fragments/*.node.ts ./fragments/**/*.{node.ts,node.test.ts}",
+    "format": "prettier --print-width 120 --prose-wrap always ./*.md ./fragments/*.ts ./fragments/**/*.ts",
     "format:write": "npm run format -- --write",
     "format:check": "npm run format -- --check"
   },

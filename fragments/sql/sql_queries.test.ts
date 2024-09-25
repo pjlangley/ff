@@ -1,4 +1,4 @@
-import { add_item, get_all_items, get_item_by_ticker, get_items_after_launch_year } from "./sql_queries.node";
+import { add_item, get_all_items, get_item_by_ticker, get_items_after_launch_year } from "./sql_queries";
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 

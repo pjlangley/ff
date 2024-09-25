@@ -1,4 +1,4 @@
-import { get_env_var } from "./env_vars_utils.node";
+import { get_env_var } from "./env_vars_utils";
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 import { env } from "node:process";

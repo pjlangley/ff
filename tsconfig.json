@@ -1,7 +1,6 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
-    "fragments/**/*.node.ts",
-    "fragments/**/*.node.test.ts"
+    "fragments/**/*.ts"
   ]
 }
