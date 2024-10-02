@@ -12,9 +12,9 @@ jobs:
       - name: start redis
         run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest
       - name: run all fragments
-        run: docker run --rm --network ci-network ff_node
+        run: docker run --rm --network ci-network --env CI=$CI ff_node
       - name: unit tests
-        run: docker run --rm --network ci-network --entrypoint npm ff_node run test
+        run: docker run --rm --network ci-network --env CI=$CI --entrypoint npm ff_node run test
       - name: lint
         run: docker run --rm --entrypoint npm ff_node run lint
       - name: typescript check
