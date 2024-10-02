@@ -7,15 +7,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build --force-rm -f docker.node.Dockerfile -t ff_node .
+      - name: docker network
+        run: docker network create ci-network
       - name: start redis
-        uses: supercharge/redis-github-action@1.8.0
-        with:
-          redis-image: redis/redis-stack-server
-          redis-version: latest
+        run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest
       - name: run all fragments
-        run: docker run --rm ff_node
+        run: docker run --rm --network ci-network ff_node
       - name: unit tests
-        run: docker run --rm --entrypoint npm ff_node run test
+        run: docker run --rm --network ci-network --entrypoint npm ff_node run test
       - name: lint
         run: docker run --rm --entrypoint npm ff_node run lint
       - name: typescript check
