@@ -24,11 +24,21 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 
 1. Working with environment variables: [`fragments/env_vars`](./fragments/env_vars/)
 1. Working with SQL: [`fragments/sql`](./fragments/sql/)
+1. Working with Redis: [`fragments/redis`](./fragments/redis/)
 
 ## Running the code
 
-Each programming language supports local environment setup, or you can build and run with Docker instead. If you're
-using [Docker](https://www.docker.com/get-started/) I'll assume you've already installed it and it's running.
+Each programming language supports local environment setup, or you can build and run with Docker instead.
+
+Some fragments expect services to be running on particular ports, such as Redis. The easiest way to provision your local
+environment with the required services is through the provided Docker Compose setup. You'll need
+[Docker](https://www.docker.com/get-started/) installed and running.
+
+Spin up the services before running any commands:
+
+```
+docker-compose up
+```
 
 <details>
 <summary>Node.js</summary>

@@ -7,6 +7,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build --force-rm -f docker.node.Dockerfile -t ff_node .
+      - name: start redis
+        uses: supercharge/redis-github-action@1.8.0
+        with:
+          redis-image: redis/redis-stack-server
+          redis-version: latest
       - name: run all fragments
         run: docker run --rm ff_node
       - name: unit tests
