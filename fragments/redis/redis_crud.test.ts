@@ -15,7 +15,6 @@ describe("redis crud", () => {
 
   test("crud:read", async () => {
     const result = await redisRead("nodejs");
-    result.favourite_coin;
     assert.strictEqual(result.favourite_coin, "BTC");
   });
 
