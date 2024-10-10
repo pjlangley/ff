@@ -24,7 +24,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 
 1. Working with environment variables: [`fragments/env_vars`](./fragments/env_vars/)
 1. Working with SQL: [`fragments/sql`](./fragments/sql/)
-1. Working with Redis: [`fragments/redis`](./fragments/redis/)
+1. Working with Redis: [`fragments/redis_db`](./fragments/redis_db/)
 
 ## Running the code
 
