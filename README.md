@@ -95,15 +95,15 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm ff_node
+  docker run --rm --network host ff_node
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm ff_node fragments/env_vars/env_vars_utils.ts
+  docker run --rm --network host ff_node fragments/env_vars/env_vars_utils.ts
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint npm ff_node run test
+  docker run --rm --network host --entrypoint npm ff_node run test
   ```
 - Run the linter:
   ```
