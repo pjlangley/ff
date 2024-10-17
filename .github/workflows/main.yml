@@ -6,7 +6,7 @@ jobs:
     name: node.js
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/workflows/actions/setup
+      - uses: ./.github/actions/setup
       - run: docker build --force-rm -f docker.node.Dockerfile -t ff_node .
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_node
