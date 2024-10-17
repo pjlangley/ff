@@ -25,8 +25,8 @@ print(f"fragment 'sql/get_all_items' output: {get_all_items()}")
 print(f"fragment 'sql/add_item' output: {add_item(("PEPE", "Pepe", 2023))}")
 
 # redis
-print(f"fragment 'redis/redis_ping' output: {redis_ping()}")
-print(f"fragment 'redis/redis_create' output: {redis_create("python", "bitcoin")}")
-print(f"fragment 'redis/redis_read' output: {redis_read("python")}")
-print(f"fragment 'redis/redis_update' output: {redis_update("python", "pepe")}")
-print(f"fragment 'redis/redis_delete' output: {redis_delete("python")}")
+print(f"fragment 'redis_db/redis_ping' output: {redis_ping()}")
+print(f"fragment 'redis_db/redis_create' output: {redis_create("python", "bitcoin")}")
+print(f"fragment 'redis_db/redis_read' output: {redis_read("python")}")
+print(f"fragment 'redis_db/redis_update' output: {redis_update("python", "pepe")}")
+print(f"fragment 'redis_db/redis_delete' output: {redis_delete("python")}")
