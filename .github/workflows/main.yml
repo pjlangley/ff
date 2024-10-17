@@ -24,11 +24,12 @@ jobs:
     name: python
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: docker build --force-rm -f docker.python.Dockerfile -t ff_python .
       - name: run all fragments
-        run: docker run --rm ff_python
+        run: docker run --rm --network ci-network --env CI=$CI ff_python
       - name: unit tests
-        run: docker run --rm --entrypoint python3 ff_python -m unittest -v --failfast
+        run: docker run --rm --network ci-network --env CI=$CI --entrypoint python3 ff_python -m unittest -v --failfast
       - name: type check
         run: docker run --rm --entrypoint python3 ff_python -m mypy --config-file mypy.ini
       - name: lint

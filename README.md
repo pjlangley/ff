@@ -188,15 +188,15 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm ff_python
+  docker run --rm --network host ff_python
   ```
 - Run a single fragment, e.g.:
   ```
-  docker run --rm --entrypoint python3 ff_python ./fragments/env_vars/env_vars_utils.py
+  docker run --rm --network host --entrypoint python3 ff_python ./fragments/env_vars/env_vars_utils.py
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint python3 ff_python -m unittest -v
+  docker run --rm --network host --entrypoint python3 ff_python -m unittest -v
   ```
 - Run the type check:
   ```
