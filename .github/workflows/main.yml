@@ -6,11 +6,8 @@ jobs:
     name: node.js
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/workflows/actions/setup
       - run: docker build --force-rm -f docker.node.Dockerfile -t ff_node .
-      - name: docker network
-        run: docker network create ci-network
-      - name: start redis
-        run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_node
       - name: unit tests
