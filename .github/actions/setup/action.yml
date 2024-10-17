@@ -5,5 +5,7 @@ runs:
   steps:
     - name: docker network
       run: docker network create ci-network
+      shell: bash
     - name: start redis
       run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest 
+      shell: bash
