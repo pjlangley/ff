@@ -16,7 +16,7 @@ fn init_connection() -> Result<redis::Connection, redis::RedisError> {
     Ok(connection)
 }
 
-pub fn redis_ping() -> Result<String, redis::RedisError> {
+pub fn redis_ping() -> redis::RedisResult<String> {
     let mut connection = init_connection()?;
     let pong: String = redis::cmd("PING").query(&mut connection)?;
     Ok(pong)
