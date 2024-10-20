@@ -268,11 +268,11 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm ff_rust
+  docker run --rm --network host ff_rust
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint cargo ff_rust test
+  docker run --rm --network host --entrypoint cargo ff_rust test
   ```
 - Run the build:
   ```

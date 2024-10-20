@@ -42,11 +42,12 @@ jobs:
     name: rust
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: docker build --force-rm -f docker.rust.Dockerfile -t ff_rust .
       - name: run all fragments
-        run: docker run --rm ff_rust
+        run: docker run --rm --network ci-network --env CI=$CI ff_rust
       - name: unit tests
-        run: docker run --rm --entrypoint cargo ff_rust test --release
+        run: docker run --rm --network ci-network --env CI=$CI --entrypoint cargo ff_rust test --release
       - name: build
         run: docker run --rm --entrypoint cargo ff_rust build --release --bin fragments
       - name: lint

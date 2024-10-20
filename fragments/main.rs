@@ -1,12 +1,15 @@
 mod env_vars;
+mod redis_db;
 mod sql;
 
 fn main() {
+    // env vars
     println!(
         "fragment 'env_vars' output: {}",
         env_vars::env_vars_utils::get_env_var("REPO_NAME")
     );
 
+    // sql
     println!(
         "fragment 'sql/get_item_by_ticker' output: {}",
         sql::sql_queries::get_item_by_ticker("BTC")
@@ -38,5 +41,27 @@ fn main() {
     println!(
         "fragment 'sql/add_item' output: {:?}",
         sql::sql_queries::add_item("PEPE", "Pepe", 2023)
+    );
+
+    // redis
+    println!(
+        "fragment 'redis_db/ping' output: {:?}",
+        redis_db::redis_crud::redis_ping()
+    );
+    println!(
+        "fragment 'redis_db/create' output: {:?}",
+        redis_db::redis_crud::redis_create("rust", "bitcoin")
+    );
+    println!(
+        "fragment 'redis_db/read' output: {:?}",
+        redis_db::redis_crud::redis_read("rust")
+    );
+    println!(
+        "fragment 'redis_db/update' output: {:?}",
+        redis_db::redis_crud::redis_update("rust", "pepe")
+    );
+    println!(
+        "fragment 'redis_db/delete' output: {:?}",
+        redis_db::redis_crud::redis_delete("rust")
     );
 }
