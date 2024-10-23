@@ -13,14 +13,16 @@ var ctx = context.Background()
 func init_client() *redis.Client {
 	url := func() string {
 		if len(env_vars.GetEnvVar("CI")) == 0 {
-			return "localhost:6379"
+			return "redis://localhost:6379"
 		} else {
 			return "redis://redis-stack-server:6379"
 		}
 	}()
-	return redis.NewClient(&redis.Options{
-		Addr: url,
-	})
+	opt, err := redis.ParseURL(url)
+	if err != nil {
+		log.Fatal("Failed to parse redis url", err)
+	}
+	return redis.NewClient(opt)
 }
 
 func RedisPing() string {
