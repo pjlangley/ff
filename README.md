@@ -344,11 +344,11 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm ff_go
+  docker run --rm --network host ff_go
   ```
 - Run unit tests:
   ```
-  docker run --rm --entrypoint go ff_go test ./fragments/...
+  docker run --rm --network host --entrypoint go ff_go test ./fragments/...
   ```
 - Run the build:
   ```

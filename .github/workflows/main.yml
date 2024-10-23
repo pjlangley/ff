@@ -60,11 +60,12 @@ jobs:
     name: go
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: docker build --force-rm -f docker.go.Dockerfile -t ff_go .
       - name: run all fragments
-        run: docker run --rm ff_go
+        run: docker run --rm --network ci-network ff_go
       - name: unit tests
-        run: docker run --rm --entrypoint go ff_go test ./fragments/...
+        run: docker run --rm --network ci-network --entrypoint go ff_go test ./fragments/...
       - name: build
         run: docker run --rm --entrypoint go ff_go build -o .bin/go_ff ./fragments/main.go
       - name: lint
