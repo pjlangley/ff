@@ -15,7 +15,7 @@ describe("redis crud", () => {
 
   test("crud:read", async () => {
     const result = await redisRead("nodejs");
-    assert.strictEqual(result.favourite_coin, "BTC");
+    assert.strictEqual(result.favouriteCoin, "BTC");
   });
 
   test("crud:update", async () => {
@@ -23,7 +23,7 @@ describe("redis crud", () => {
     assert.strictEqual(result, "OK");
 
     const readResult = await redisRead("nodejs");
-    assert.strictEqual(readResult.favourite_coin, "PEPE");
+    assert.strictEqual(readResult.favouriteCoin, "PEPE");
   });
 
   test("crud:delete", async () => {
@@ -31,6 +31,6 @@ describe("redis crud", () => {
     assert.strictEqual(result, "OK");
 
     const readResult = await redisRead("nodejs");
-    assert.strictEqual(readResult.favourite_coin, undefined);
+    assert.strictEqual(readResult.favouriteCoin, undefined);
   });
 });

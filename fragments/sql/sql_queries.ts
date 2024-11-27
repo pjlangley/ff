@@ -25,7 +25,7 @@ interface CryptoCoin {
   launched: number;
 }
 
-const init_db = async () => {
+const initDb = async () => {
   const db = new sqlite.Database(":memory:");
 
   try {
@@ -49,8 +49,8 @@ const init_db = async () => {
   return db;
 };
 
-export const get_item_by_ticker = async (ticker: string) => {
-  const db = await init_db();
+export const getItemByTicker = async (ticker: string) => {
+  const db = await initDb();
   const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
     db.get<CryptoCoin | undefined>("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1", [ticker], (err, row) => {
       if (err) {
@@ -63,10 +63,10 @@ export const get_item_by_ticker = async (ticker: string) => {
   return result;
 };
 
-export const get_items_after_launch_year = async (launch_year: number) => {
-  const db = await init_db();
+export const getItemsAfterLaunchYear = async (launchYear: number) => {
+  const db = await initDb();
   const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
-    db.all<CryptoCoin>("SELECT * FROM crypto_coins WHERE launched > ?", [launch_year], (err, rows) => {
+    db.all<CryptoCoin>("SELECT * FROM crypto_coins WHERE launched > ?", [launchYear], (err, rows) => {
       if (err) {
         reject(err);
       }
@@ -77,8 +77,8 @@ export const get_items_after_launch_year = async (launch_year: number) => {
   return result;
 };
 
-export const get_all_items = async () => {
-  const db = await init_db();
+export const getAllItems = async () => {
+  const db = await initDb();
   const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
     db.all<CryptoCoin>("SELECT * FROM crypto_coins ORDER BY launched DESC", [], (err, rows) => {
       if (err) reject(err);
@@ -89,8 +89,8 @@ export const get_all_items = async () => {
   return result;
 };
 
-export const add_item = async (coin: Omit<CryptoCoin, "id">) => {
-  const db = await init_db();
+export const addItem = async (coin: Omit<CryptoCoin, "id">) => {
+  const db = await initDb();
   const result = await new Promise<string>((resolve, reject) => {
     db.run(
       "INSERT INTO crypto_coins VALUES(NULL, ?1, ?2, ?3)",

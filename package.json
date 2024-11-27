@@ -11,21 +11,21 @@
     "fragment": "tsx",
     "fragments": "npm run fragment -- fragments/main.ts",
     "test": "tsx --test 'fragments/**/*.test.ts'",
-    "lint": "eslint --config .eslintrc.json fragments/ --ext ts",
+    "lint": "eslint --config eslint.config.mjs **/*.ts",
     "tsc": "tsc --noEmit --project tsconfig.json",
     "format": "prettier --print-width 120 --prose-wrap always ./*.md ./fragments/*.ts ./fragments/**/*.ts",
     "format:write": "npm run format -- --write",
     "format:check": "npm run format -- --check"
   },
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
-    "eslint": "^8.57.0",
+    "eslint": "^9.15.0",
     "prettier": "^3.3.3",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.16.0"
   },
   "dependencies": {
     "redis": "^4.7.0",

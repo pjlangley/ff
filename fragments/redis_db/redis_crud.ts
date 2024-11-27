@@ -1,8 +1,8 @@
 import { createClient } from "redis";
-import { get_env_var } from "../env_vars/env_vars_utils";
+import { getEnvVar } from "../env_vars/env_vars_utils";
 
 const initClient = async () => {
-  const isCI = get_env_var("CI");
+  const isCI = getEnvVar("CI");
   const client = createClient({
     url: isCI ? "redis://redis-stack-server:6379" : undefined,
   });
@@ -24,7 +24,7 @@ export const redisPing = async () => {
 export const redisCreate = async (namespace: string, favouriteCoin: string) => {
   const client = await initClient();
   await client.hSet(namespace, {
-    favourite_coin: favouriteCoin,
+    favouriteCoin: favouriteCoin,
   });
   await client.quit();
   return "OK";
@@ -39,7 +39,7 @@ export const redisRead = async (namespace: string) => {
 
 export const redisUpdate = async (namespace: string, favouriteCoin: string) => {
   const client = await initClient();
-  await client.hSet(namespace, "favourite_coin", favouriteCoin);
+  await client.hSet(namespace, "favouriteCoin", favouriteCoin);
   await client.quit();
   return "OK";
 };
