@@ -1,8 +1,8 @@
-import { addItem, getAllItems, getItemByTicker, getItemsAfterLaunchYear } from "./sql_queries";
+import { addItem, getAllItems, getItemByTicker, getItemsAfterLaunchYear } from "./sqlite_crud";
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 
-describe("sql queries", () => {
+describe("sqlite crud", () => {
   describe("getting by ticker", () => {
     test("retrieves a known ticker", async () => {
       const result = await getItemByTicker("BTC");

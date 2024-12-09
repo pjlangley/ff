@@ -1,5 +1,5 @@
 from fragments.env_vars import get_env_var
-from fragments.sql import (
+from fragments.sqlite_db import (
     get_item_by_ticker,
     get_items_after_launch_year,
     get_all_items,
@@ -16,13 +16,13 @@ from fragments.redis_db import (
 # env vars
 print(f"fragment 'env_vars' output: {get_env_var("REPO_NAME")}")
 
-# sql
-print(f"fragment 'sql/get_item_by_ticker' output: {get_item_by_ticker("BTC")}")
+# sqlite
+print(f"fragment 'sqlite_db/get_item_by_ticker' output: {get_item_by_ticker("BTC")}")
 print(
-    f"fragment 'sql/get_items_after_launch_year' output: {get_items_after_launch_year(2010)}"
+    f"fragment 'sqlite_db/get_items_after_launch_year' output: {get_items_after_launch_year(2010)}"
 )
-print(f"fragment 'sql/get_all_items' output: {get_all_items()}")
-print(f"fragment 'sql/add_item' output: {add_item(("PEPE", "Pepe", 2023))}")
+print(f"fragment 'sqlite_db/get_all_items' output: {get_all_items()}")
+print(f"fragment 'sqlite_db/add_item' output: {add_item(("PEPE", "Pepe", 2023))}")
 
 # redis
 print(f"fragment 'redis_db/redis_ping' output: {redis_ping()}")

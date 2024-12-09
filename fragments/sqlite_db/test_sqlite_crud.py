@@ -1,6 +1,6 @@
 import unittest
 import sqlite3
-from fragments.sql.sql_queries import (
+from fragments.sqlite_db.sqlite_crud import (
     get_item_by_ticker,
     get_items_after_launch_year,
     get_all_items,

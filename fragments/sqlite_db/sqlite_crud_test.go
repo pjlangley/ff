@@ -1,4 +1,4 @@
-package sql_queries
+package sqlite_crud
 
 import (
 	"testing"
