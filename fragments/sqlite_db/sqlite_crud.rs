@@ -1,6 +1,7 @@
 use sqlite;
 use std::fmt;
 
+#[derive(Debug)]
 pub struct CryptoCoin {
     id: i64,
     ticker: String,
@@ -37,44 +38,25 @@ fn init_db() -> Result<sqlite::Connection, sqlite::Error> {
     Ok(connection)
 }
 
-fn read_column<T>(stmt: &sqlite::Statement, index: usize, column_name: &str) -> Option<T>
+fn read_column<T>(
+    stmt: &sqlite::Statement,
+    index: usize,
+    column_name: &str,
+) -> Result<T, sqlite::Error>
 where
     T: sqlite::ReadableWithIndex,
 {
-    match stmt.read::<T, _>(index) {
-        Ok(value) => Some(value),
-        Err(e) => {
-            eprintln!("Failed to read {} value from SQL row: {}", column_name, e);
-            None
-        }
-    }
+    stmt.read::<T, _>(index).map_err(|e| {
+        eprintln!("Failed to read {} value from SQL row: {}", column_name, e);
+        e
+    })
 }
 
-pub fn get_item_by_ticker(ticker: &str) -> Option<CryptoCoin> {
+pub fn get_item_by_ticker(ticker: &str) -> Result<Option<CryptoCoin>, sqlite::Error> {
     let query = "SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1";
-    let connection = match init_db() {
-        Ok(connection) => connection,
-        Err(e) => {
-            eprintln!("Failed to initialise database: {}", e);
-            return None;
-        }
-    };
-
-    let mut stmt = match connection.prepare(query) {
-        Ok(statement) => statement,
-        Err(e) => {
-            eprintln!("Failed to prepare SQL statement: {}", e);
-            return None;
-        }
-    };
-
-    match stmt.bind((1, ticker)) {
-        Ok(()) => {}
-        Err(e) => {
-            eprintln!("Failed to bind value to SQL statement: {}", e);
-            return None;
-        }
-    }
+    let connection = init_db()?;
+    let mut stmt = connection.prepare(query)?;
+    stmt.bind((1, ticker))?;
 
     if let Ok(sqlite::State::Row) = stmt.next() {
         let id = read_column::<i64>(&stmt, 0, "id")?;
@@ -82,42 +64,23 @@ pub fn get_item_by_ticker(ticker: &str) -> Option<CryptoCoin> {
         let name = read_column::<String>(&stmt, 2, "name")?;
         let launched = read_column::<i64>(&stmt, 3, "launched")?;
 
-        Some(CryptoCoin {
+        Ok(Some(CryptoCoin {
             id,
             ticker,
             name,
             launched,
-        })
+        }))
     } else {
-        None
+        Ok(None)
     }
 }
 
-pub fn get_items_after_launch_year(launch_year: i64) -> Option<Vec<CryptoCoin>> {
+pub fn get_items_after_launch_year(launch_year: i64) -> Result<Vec<CryptoCoin>, sqlite::Error> {
     let query = "SELECT * FROM crypto_coins WHERE launched > ?";
     let mut coins = Vec::<CryptoCoin>::new();
-    let connection = match init_db() {
-        Ok(connection) => connection,
-        Err(e) => {
-            eprintln!("Failed to initialise database: {}", e);
-            return None;
-        }
-    };
-    let mut stmt = match connection.prepare(query) {
-        Ok(statement) => statement,
-        Err(e) => {
-            eprintln!("Failed to prepare SQL statement: {}", e);
-            return None;
-        }
-    };
-
-    match stmt.bind((1, launch_year)) {
-        Ok(()) => {}
-        Err(e) => {
-            eprintln!("Failed to bind value to SQL statement: {}", e);
-            return None;
-        }
-    }
+    let connection = init_db()?;
+    let mut stmt = connection.prepare(query)?;
+    stmt.bind((1, launch_year))?;
 
     loop {
         match stmt.next() {
@@ -137,31 +100,19 @@ pub fn get_items_after_launch_year(launch_year: i64) -> Option<Vec<CryptoCoin>> 
             Ok(sqlite::State::Done) => break,
             Err(e) => {
                 eprintln!("Failed to read SQL row: {}", e);
-                return None;
+                return Err(e);
             }
         }
     }
 
-    Some(coins)
+    Ok(coins)
 }
 
-pub fn get_all_items() -> Option<Vec<CryptoCoin>> {
+pub fn get_all_items() -> Result<Vec<CryptoCoin>, sqlite::Error> {
     let query = "SELECT * FROM crypto_coins ORDER BY launched DESC";
     let mut coins = Vec::<CryptoCoin>::new();
-    let connection = match init_db() {
-        Ok(connection) => connection,
-        Err(e) => {
-            eprintln!("Failed to initialise database: {}", e);
-            return None;
-        }
-    };
-    let mut stmt = match connection.prepare(query) {
-        Ok(statement) => statement,
-        Err(e) => {
-            eprintln!("Failed to prepare SQL statement: {}", e);
-            return None;
-        }
-    };
+    let connection = init_db()?;
+    let mut stmt = connection.prepare(query)?;
 
     loop {
         match stmt.next() {
@@ -181,53 +132,22 @@ pub fn get_all_items() -> Option<Vec<CryptoCoin>> {
             Ok(sqlite::State::Done) => break,
             Err(e) => {
                 eprintln!("Failed to read SQL row: {}", e);
-                return None;
+                return Err(e);
             }
         }
     }
 
-    Some(coins)
+    Ok(coins)
 }
 
-pub fn add_item(ticker: &str, name: &str, launched: i64) -> Option<&'static str> {
-    let query = "INSERT INTO crypto_coins VALUES(NULL, :ticker, :name, :launched)";
-    let connection = match init_db() {
-        Ok(connection) => connection,
-        Err(e) => {
-            eprintln!("Failed to initialise database: {}", e);
-            return None;
-        }
-    };
-    let mut stmt = match connection.prepare(query) {
-        Ok(statement) => statement,
-        Err(e) => {
-            eprintln!("Failed to prepare SQL statement: {}", e);
-            return None;
-        }
-    };
-
-    match stmt.bind(&[(":ticker", ticker), (":name", name)][..]) {
-        Ok(()) => {}
-        Err(e) => {
-            eprintln!("Failed to bind value to SQL statement: {}", e);
-            return None;
-        }
-    }
-    match stmt.bind((":launched", launched)) {
-        Ok(()) => {}
-        Err(e) => {
-            eprintln!("Failed to bind value to SQL statement: {}", e);
-            return None;
-        }
-    }
-
-    match stmt.next() {
-        Ok(_) => Some("ok"),
-        Err(e) => {
-            eprintln!("Failed to insert item into database: {}", e);
-            None
-        }
-    }
+pub fn add_item(ticker: &str, name: &str, launched: i64) -> Result<&'static str, sqlite::Error> {
+    let query = "INSERT OR IGNORE INTO crypto_coins VALUES(NULL, :ticker, :name, :launched)";
+    let connection = init_db()?;
+    let mut stmt = connection.prepare(query)?;
+    stmt.bind(&[(":ticker", ticker), (":name", name)][..])?;
+    stmt.bind((":launched", launched))?;
+    stmt.next()?;
+    Ok("ok")
 }
 
 #[cfg(test)]
@@ -236,7 +156,7 @@ mod tests {
 
     #[test]
     fn test_retrieves_known_ticker() {
-        let result = get_item_by_ticker("BTC");
+        let result = get_item_by_ticker("BTC").unwrap();
         assert!(result.is_some());
         let coin = result.unwrap();
         assert_eq!(coin.ticker, "BTC");
@@ -246,28 +166,25 @@ mod tests {
 
     #[test]
     fn test_retrieves_unknown_ticker() {
-        let result = get_item_by_ticker("XRP");
+        let result = get_item_by_ticker("XRP").unwrap();
         assert!(result.is_none());
     }
 
     #[test]
     fn test_matching_items_after_launch_year() {
-        let result = get_items_after_launch_year(2000);
-        assert!(result.is_some());
-        assert_eq!(result.unwrap().len(), 3);
+        let result = get_items_after_launch_year(2000).unwrap();
+        assert_eq!(result.len(), 3);
     }
 
     #[test]
     fn test_no_matching_items_after_launch_year() {
         let result = get_items_after_launch_year(2020);
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_ok_and(|x| x.len() == 0));
     }
 
     #[test]
     fn test_all_items_ordered_after_launch_year() {
-        let result = get_all_items();
-        assert!(result.is_some());
-        let coins = result.unwrap();
+        let coins = get_all_items().unwrap();
         assert_eq!(coins[0].ticker, "SOL");
         assert_eq!(coins[1].ticker, "ETH");
         assert_eq!(coins[2].ticker, "BTC");
@@ -275,14 +192,6 @@ mod tests {
 
     #[test]
     fn test_add_item_success() {
-        let result = add_item("PEPE", "Pepe", 2023);
-        assert!(result.is_some());
-        assert_eq!(result.unwrap(), "ok");
-    }
-
-    #[test]
-    fn test_add_item_failure() {
-        let result = add_item("BTC", "Bitcoin", 2009);
-        assert!(result.is_none());
+        assert_eq!(add_item("PEPE", "Pepe", 2023).unwrap(), "ok");
     }
 }

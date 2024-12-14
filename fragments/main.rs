@@ -11,36 +11,38 @@ fn main() {
 
     // sqlite
     println!(
-        "fragment 'sqlite_db/get_item_by_ticker' output: {}",
+        "fragment 'sqlite_db/get_item_by_ticker' output: {:?}",
         sqlite_db::sqlite_crud::get_item_by_ticker("BTC")
-            .unwrap_or_else(|| panic!("Expected BTC coin but got None"))
+            .unwrap_or_else(|e| panic!("Expected item by ticker result but got error: {:?}", e))
     );
 
-    let items_after_launch_year = sqlite_db::sqlite_crud::get_items_after_launch_year(2010)
-        .unwrap_or_else(|| panic!("Expected results but got None"));
+    let sqlite_db_items_after_launch_year =
+        sqlite_db::sqlite_crud::get_items_after_launch_year(2010)
+            .unwrap_or_else(|e| panic!("Expected coins after launch year but got error: {:?}", e));
     println!(
         "fragment 'sqlite_db/get_items_after_launch_year' - found {} items",
-        items_after_launch_year.len()
+        sqlite_db_items_after_launch_year.len()
     );
     println!(
         "fragment 'sqlite_db/get_items_after_launch_year' - item 1: {}",
-        items_after_launch_year[0]
+        sqlite_db_items_after_launch_year[0]
     );
     println!(
         "fragment 'sqlite_db/get_items_after_launch_year' - item 2: {}",
-        items_after_launch_year[1]
+        sqlite_db_items_after_launch_year[1]
     );
 
-    let all_items = sqlite_db::sqlite_crud::get_all_items()
-        .unwrap_or_else(|| panic!("Expected coins but got None"));
     println!(
-        "fragment 'ssqlite_dbql/get_all_items' - found {} items",
-        all_items.len()
+        "fragment 'sqlite_dbql/get_all_items' - found {} items",
+        sqlite_db::sqlite_crud::get_all_items()
+            .unwrap_or_else(|e| panic!("Expected coins but got error: {:?}", e))
+            .len()
     );
 
     println!(
         "fragment 'sqlite_db/add_item' output: {:?}",
         sqlite_db::sqlite_crud::add_item("PEPE", "Pepe", 2023)
+            .unwrap_or_else(|e| panic!("Expected to add item but got error: {:?}", e))
     );
 
     // redis
