@@ -1,5 +1,4 @@
 import unittest
-import sqlite3
 from fragments.sqlite_db.sqlite_crud import (
     get_item_by_ticker,
     get_items_after_launch_year,
@@ -32,8 +31,7 @@ class TestSqlQueries(unittest.TestCase):
         self.assertEqual(add_item(("PEPE", "Pepe", 2023)), "ok")
 
     def test_add_item_duplicate(self):
-        with self.assertRaises(sqlite3.IntegrityError):
-            add_item(("BTC", "Bitcoin", 2009))
+        self.assertEqual(add_item(("BTC", "Bitcoin", 2009)), "ok")
 
 
 if __name__ == "__main__":

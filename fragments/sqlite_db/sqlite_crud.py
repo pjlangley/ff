@@ -68,7 +68,7 @@ def add_item(coin: Tuple[str, str, int]) -> Literal["ok"]:
     connection = init_db()
     cursor = connection.cursor()
     params = (ticker, name, launched)
-    cursor.execute("INSERT INTO crypto_coins VALUES(NULL, ?, ?, ?)", params)
+    cursor.execute("INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?, ?, ?)", params)
     connection.commit()
     connection.close()
 

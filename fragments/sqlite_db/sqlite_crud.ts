@@ -93,7 +93,7 @@ export const addItem = async (coin: Omit<CryptoCoin, "id">) => {
   const db = await initDb();
   const result = await new Promise<string>((resolve, reject) => {
     db.run(
-      "INSERT INTO crypto_coins VALUES(NULL, ?1, ?2, ?3)",
+      "INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?1, ?2, ?3)",
       { 1: coin.ticker, 2: coin.name, 3: coin.launched },
       (err) => {
         if (err) reject(err);

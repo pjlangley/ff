@@ -46,8 +46,13 @@ describe("sqlite crud", () => {
       assert.strictEqual(result, "ok");
     });
 
-    test("fails because ticker already exists", async () => {
-      assert.rejects(addItem({ ticker: "BTC", name: "Bitcoin", launched: 2009 }));
+    test("handles duplicates", async () => {
+      const result = await addItem({
+        ticker: "BTC",
+        name: "Bitcoin",
+        launched: 2009,
+      });
+      assert.strictEqual(result, "ok");
     });
   });
 });

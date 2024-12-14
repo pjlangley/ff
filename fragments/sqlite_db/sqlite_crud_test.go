@@ -58,3 +58,12 @@ func TestAddItem(t *testing.T) {
 		t.Errorf("Expected 'newId' to be 4, but got %d instead", newId)
 	}
 }
+
+func TestAddItemDuplicate(t *testing.T) {
+	coin := CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2009}
+	_, newId := AddItem(coin)
+
+	if newId != 3 {
+		t.Errorf("Expected 'newId' to be 3, but got %d instead", newId)
+	}
+}

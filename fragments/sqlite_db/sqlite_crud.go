@@ -132,7 +132,7 @@ func GetAllItems() []CryptoCoin {
 func AddItem(coin CryptoCoinWithoutId) (string, int64) {
 	database := init_db()
 	defer database.Close()
-	query := `INSERT INTO crypto_coins VALUES(NULL, ?, ?, ?);`
+	query := `INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?, ?, ?);`
 	result, err := database.Exec(query, coin.Ticker, coin.Name, coin.Launched)
 	if err != nil {
 		log.Fatal("Failed to add coin to crypto_coins table:", err)
