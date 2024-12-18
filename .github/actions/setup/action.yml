@@ -9,3 +9,6 @@ runs:
     - name: start redis
       run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest 
       shell: bash
+    - name: start postgres
+      run: docker run -d --name postgres -e POSTGRES_PASSWORD=pgpass --network ci-network -p 5432:5432 postgres:latest 
+      shell: bash
