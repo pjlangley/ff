@@ -174,11 +174,11 @@ execute the code.
   ```
 - Run the formatter:
   ```
-  python3 -m black ./fragments
+  python3 -m black ./fragments --line-length 120
   ```
 - Run the format check:
   ```
-  python3 -m black ./fragments --check
+  python3 -m black ./fragments --check --line-length 120
   ```
 
 ### Docker (Python)
@@ -209,11 +209,11 @@ execute the code.
   ```
 - Run the formatter:
   ```
-  docker run --rm --entrypoint python3 ff_python -m black ./fragments
+  docker run --rm --entrypoint python3 ff_python -m black ./fragments --line-length 120
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint python3 ff_python -m black ./fragments --check
+  docker run --rm --entrypoint python3 ff_python -m black ./fragments --check --line-length 120
   ```
 
 </details>
