@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 sqlite = "0.36.0"
 redis = "0.27.5"
+postgres = "0.19.9"
 
 [[bin]]
 name = "fragments"
