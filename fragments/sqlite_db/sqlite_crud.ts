@@ -104,3 +104,35 @@ export const addItem = async (coin: Omit<CryptoCoin, "id">) => {
 
   return result;
 };
+
+export const updateItem = async (coin: Omit<CryptoCoin, "id">) => {
+  const db = await initDb();
+  const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
+    db.get<CryptoCoin | undefined>(
+      "UPDATE crypto_coins SET name = ?1, launched = ?2 WHERE ticker = ?3 RETURNING *",
+      {
+        1: coin.name,
+        2: coin.launched,
+        3: coin.ticker,
+      },
+      (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      },
+    );
+  });
+
+  return result;
+};
+
+export const deleteItem = async (ticker: string) => {
+  const db = await initDb();
+  const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
+    db.get<CryptoCoin | undefined>("DELETE FROM crypto_coins WHERE ticker = ? RETURNING *", [ticker], (err, row) => {
+      if (err) reject(err);
+      resolve(row);
+    });
+  });
+
+  return result;
+};

@@ -1,6 +1,13 @@
 import { getEnvVar } from "./env_vars/env_vars_utils";
 import { redisCreate, redisDelete, redisPing, redisRead, redisUpdate } from "./redis_db/redis_crud";
-import { getItemByTicker, getItemsAfterLaunchYear, getAllItems, addItem } from "./sqlite_db/sqlite_crud";
+import {
+  getItemByTicker,
+  getItemsAfterLaunchYear,
+  getAllItems,
+  addItem,
+  updateItem,
+  deleteItem,
+} from "./sqlite_db/sqlite_crud";
 import {
   getItemByTicker as pgGetItemByTicker,
   getItemsAfterLaunchYear as pgGetItemsAfterLaunchYear,
@@ -19,6 +26,11 @@ import {
   console.log('fragment "sqlite_db/getItemsAfterLaunchYear" output:', await getItemsAfterLaunchYear(2010));
   console.log('fragment "sqlite_db/getAllItems" output:', await getAllItems());
   console.log('fragment "sqlite_db/addItem" output:', await addItem({ ticker: "PEPE", name: "Pepe", launched: 2023 }));
+  console.log(
+    'fragment "sqlite_db/updateItem" output:',
+    await updateItem({ ticker: "BTC", name: "Bitcoin", launched: 2009 }),
+  );
+  console.log('fragment "sqlite_db/deleteItem" output:', await deleteItem("ETH"));
 
   // redis
   console.log('fragment "redis_db/redisPing" output:', await redisPing());

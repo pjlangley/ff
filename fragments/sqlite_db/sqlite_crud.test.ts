@@ -1,4 +1,4 @@
-import { addItem, getAllItems, getItemByTicker, getItemsAfterLaunchYear } from "./sqlite_crud";
+import { addItem, deleteItem, getAllItems, getItemByTicker, getItemsAfterLaunchYear, updateItem } from "./sqlite_crud";
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 
@@ -53,6 +53,38 @@ describe("sqlite crud", () => {
         launched: 2009,
       });
       assert.strictEqual(result, "ok");
+    });
+  });
+
+  describe("updating items", () => {
+    test("updates existing item", async () => {
+      const result = await updateItem({
+        ticker: "BTC",
+        name: "Bitcoin",
+        launched: 2009,
+      });
+      assert.strictEqual(result!.ticker, "BTC");
+    });
+
+    test("updates nonexistent item", async () => {
+      const result = await updateItem({
+        ticker: "XRP",
+        name: "Ripple",
+        launched: 2012,
+      });
+      assert.strictEqual(result, undefined);
+    });
+  });
+
+  describe("deleting items", () => {
+    test("deletes existing item", async () => {
+      const result = await deleteItem("BTC");
+      assert.strictEqual(result!.ticker, "BTC");
+    });
+
+    test("deletes nonexistent item", async () => {
+      const result = await deleteItem("XRP");
+      assert.strictEqual(result, undefined);
     });
   });
 });
