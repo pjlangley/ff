@@ -4,10 +4,12 @@ from fragments.sqlite_db.sqlite_crud import (
     get_items_after_launch_year,
     get_all_items,
     add_item,
+    update_item,
+    delete_item,
 )
 
 
-class TestSqlQueries(unittest.TestCase):
+class TestSqliteCrud(unittest.TestCase):
 
     def test_get_item_by_ticker(self):
         self.assertEqual(get_item_by_ticker("BTC"), (1, "BTC", "Bitcoin", 2009))
@@ -32,6 +34,18 @@ class TestSqlQueries(unittest.TestCase):
 
     def test_add_item_duplicate(self):
         self.assertEqual(add_item(("BTC", "Bitcoin", 2009)), "ok")
+
+    def test_update_item(self):
+        self.assertEqual(update_item(("BTC", "Bitcoin", 2008)), (1, "BTC", "Bitcoin", 2008))
+
+    def test_update_item_not_found(self):
+        self.assertEqual(update_item(("XRP", "Ripple", 2012)), None)
+
+    def test_delete_item(self):
+        self.assertEqual(delete_item("BTC"), (1, "BTC", "Bitcoin", 2009))
+
+    def test_delete_item_not_found(self):
+        self.assertEqual(delete_item("XRP"), None)
 
 
 if __name__ == "__main__":
