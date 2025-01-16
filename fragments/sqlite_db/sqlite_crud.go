@@ -144,3 +144,39 @@ func AddItem(coin CryptoCoinWithoutId) (string, int64) {
 
 	return "ok", newId
 }
+
+func UpdateItem(coin CryptoCoinWithoutId) *CryptoCoin {
+	database := init_db()
+	defer database.Close()
+	query := `UPDATE crypto_coins SET name = ?, launched = ? WHERE ticker = ? RETURNING *;`
+	var result CryptoCoin
+	err := database.QueryRow(query, coin.Name, coin.Launched, coin.Ticker).Scan(&result.id, &result.ticker, &result.name, &result.launched)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Printf("no coin with ticker %s", coin.Ticker)
+		return nil
+	case err != nil:
+		log.Printf("Error updating coin: %v", err)
+		return nil
+	default:
+		return &result
+	}
+}
+
+func DeleteItem(ticker string) *CryptoCoin {
+	database := init_db()
+	defer database.Close()
+	query := `DELETE FROM crypto_coins WHERE ticker = ? RETURNING *;`
+	var coin CryptoCoin
+	err := database.QueryRow(query, ticker).Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Printf("no coin with ticker %s", ticker)
+		return nil
+	case err != nil:
+		log.Printf("Error deleting coin: %v", err)
+		return nil
+	default:
+		return &coin
+	}
+}

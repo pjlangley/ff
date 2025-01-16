@@ -20,6 +20,9 @@ func main() {
 	sqliteOk, sqliteNewId := sqlite_crud.AddItem(sqlite_crud.CryptoCoinWithoutId{Ticker: "PEPE", Name: "Pepe", Launched: 2023})
 	fmt.Printf("fragment 'sqlite_db/AddItem' output: ok=%s, newId=%d\n", sqliteOk, sqliteNewId)
 
+	fmt.Println("fragment 'sqlite_db/UpdateItem' output:", sqlite_crud.UpdateItem(sqlite_crud.CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2008}))
+	fmt.Println("fragment 'sqlite_db/DeleteItem' output:", sqlite_crud.DeleteItem("ETH"))
+
 	// redis
 	fmt.Println("fragment 'redis_db/ping' output:", redis_crud.RedisPing())
 	fmt.Println("fragment 'redis_db/create' output:", redis_crud.RedisCreate("go", "bitcoin"))

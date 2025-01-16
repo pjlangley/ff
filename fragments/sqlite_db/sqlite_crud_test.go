@@ -67,3 +67,47 @@ func TestAddItemDuplicate(t *testing.T) {
 		t.Errorf("Expected 'newId' to be 3, but got %d instead", newId)
 	}
 }
+
+func TestUpdateItem(t *testing.T) {
+	coin := CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2008}
+	result := UpdateItem(coin)
+
+	if result == nil {
+		t.Error("Expected update to return coin")
+		t.FailNow()
+	}
+
+	if result.ticker != "BTC" {
+		t.Errorf("Expected ticker to be BTC, but got %s", result.ticker)
+	}
+}
+
+func TestUpdateItem_NotFound(t *testing.T) {
+	coin := CryptoCoinWithoutId{Ticker: "XRP", Name: "Ripple", Launched: 2012}
+	result := UpdateItem(coin)
+
+	if result != nil {
+		t.FailNow()
+	}
+}
+
+func TestDeleteItem(t *testing.T) {
+	result := DeleteItem("ETH")
+
+	if result == nil {
+		t.Error("Expected delete to return coin")
+		t.FailNow()
+	}
+
+	if result.ticker != "ETH" {
+		t.Errorf("Expected ticker to be ETH, but got %s", result.ticker)
+	}
+}
+
+func TestDeleteItem_NotFound(t *testing.T) {
+	result := DeleteItem("XRP")
+
+	if result != nil {
+		t.FailNow()
+	}
+}
