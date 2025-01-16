@@ -39,11 +39,20 @@ fn main() {
             .unwrap_or_else(|e| panic!("Expected coins but got error: {:?}", e))
             .len()
     );
-
     println!(
         "fragment 'sqlite_db/add_item' output: {:?}",
         sqlite_db::sqlite_crud::add_item("PEPE", "Pepe", 2023)
             .unwrap_or_else(|e| panic!("Expected to add item but got error: {:?}", e))
+    );
+    println!(
+        "fragment 'sqlite_db/update_item' output: {:?}",
+        sqlite_db::sqlite_crud::update_item("BTC", "Bitcoin", 2008)
+            .unwrap_or_else(|e| panic!("Expected to update item but got error: {:?}", e))
+    );
+    println!(
+        "fragment 'sqlite_db/delete_item' output: {:?}",
+        sqlite_db::sqlite_crud::delete_item("ETH")
+            .unwrap_or_else(|e| panic!("Expected to delete item but got error: {:?}", e))
     );
 
     // redis

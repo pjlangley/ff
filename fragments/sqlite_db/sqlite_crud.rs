@@ -150,6 +150,57 @@ pub fn add_item(ticker: &str, name: &str, launched: i64) -> Result<&'static str,
     Ok("ok")
 }
 
+pub fn update_item(
+    ticker: &str,
+    name: &str,
+    launched: i64,
+) -> Result<Option<CryptoCoin>, sqlite::Error> {
+    let query = "UPDATE crypto_coins SET name = :name, launched = :launched WHERE ticker = :ticker RETURNING *";
+    let connection = init_db()?;
+    let mut stmt = connection.prepare(query)?;
+    stmt.bind(&[(":ticker", ticker), (":name", name)][..])?;
+    stmt.bind((":launched", launched))?;
+
+    if let Ok(sqlite::State::Row) = stmt.next() {
+        let id = read_column::<i64>(&stmt, 0, "id")?;
+        let ticker = read_column::<String>(&stmt, 1, "ticker")?;
+        let name = read_column::<String>(&stmt, 2, "name")?;
+        let launched = read_column::<i64>(&stmt, 3, "launched")?;
+
+        Ok(Some(CryptoCoin {
+            id,
+            ticker,
+            name,
+            launched,
+        }))
+    } else {
+        Ok(None)
+    }
+}
+
+pub fn delete_item(ticker: &str) -> Result<Option<CryptoCoin>, sqlite::Error> {
+    let query = "DELETE FROM crypto_coins WHERE ticker = :ticker RETURNING *";
+    let connection = init_db()?;
+    let mut stmt = connection.prepare(query)?;
+    stmt.bind((1, ticker))?;
+
+    if let Ok(sqlite::State::Row) = stmt.next() {
+        let id = read_column::<i64>(&stmt, 0, "id")?;
+        let ticker = read_column::<String>(&stmt, 1, "ticker")?;
+        let name = read_column::<String>(&stmt, 2, "name")?;
+        let launched = read_column::<i64>(&stmt, 3, "launched")?;
+
+        Ok(Some(CryptoCoin {
+            id,
+            ticker,
+            name,
+            launched,
+        }))
+    } else {
+        Ok(None)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -193,5 +244,37 @@ mod tests {
     #[test]
     fn test_add_item_success() {
         assert_eq!(add_item("PEPE", "Pepe", 2023).unwrap(), "ok");
+    }
+
+    #[test]
+    fn test_update_item_success() {
+        let result = update_item("BTC", "Bitcoin", 2008).unwrap();
+        assert!(result.is_some());
+        let coin = result.unwrap();
+        assert_eq!(coin.ticker, "BTC");
+        assert_eq!(coin.name, "Bitcoin");
+        assert_eq!(coin.launched, 2008);
+    }
+
+    #[test]
+    fn test_update_item_nonexistent() {
+        let result = update_item("XRP", "Ripple", 2012).unwrap();
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_delete_item_success() {
+        let result = delete_item("ETH").unwrap();
+        assert!(result.is_some());
+        let coin = result.unwrap();
+        assert_eq!(coin.ticker, "ETH");
+        assert_eq!(coin.name, "Ethereum");
+        assert_eq!(coin.launched, 2015);
+    }
+
+    #[test]
+    fn test_delete_item_nonexistent() {
+        let result = delete_item("XRP").unwrap();
+        assert!(result.is_none());
     }
 }
