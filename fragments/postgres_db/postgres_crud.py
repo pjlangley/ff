@@ -25,10 +25,6 @@ def init_db() -> psycopg.Connection:
       name VARCHAR(30) NOT NULL,
       launched SMALLINT NOT NULL
     );
-    """
-    )
-    cursor.execute(
-        """
     INSERT INTO crypto_coins (ticker, name, launched) VALUES
     ('BTC', 'Bitcoin', 2009),
     ('ETH', 'Ethereum', 2015),

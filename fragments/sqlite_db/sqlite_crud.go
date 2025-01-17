@@ -32,22 +32,16 @@ func init_db() *sql.DB {
 			ticker TEXT NOT NULL UNIQUE,
 			name TEXT NOT NULL,
 			launched INTEGER NOT NULL
-		);`
-	_, err = db.Exec(createTableQuery)
-
-	if err != nil {
-		log.Fatal("Failed to create table:", err)
-	}
-
-	tableSeed := `
+		);
 		INSERT INTO crypto_coins VALUES
 		(NULL, 'BTC', 'Bitcoin', 2009),
 		(NULL, 'ETH', 'Ethereum', 2015),
-		(NULL, 'SOL', 'Solana', 2020);`
-	_, err = db.Exec(tableSeed)
+		(NULL, 'SOL', 'Solana', 2020);
+		`
+	_, err = db.Exec(createTableQuery)
 
 	if err != nil {
-		log.Fatal("Failed to seed crypto_coins table:", err)
+		log.Fatal("Failed to setup db table:", err)
 	}
 
 	return db

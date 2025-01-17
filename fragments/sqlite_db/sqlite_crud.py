@@ -7,7 +7,7 @@ CryptoCoin = Tuple[int, str, str, int]
 def init_db() -> sqlite3.Connection:
     connection = sqlite3.connect(":memory:")
     cursor = connection.cursor()
-    cursor.execute(
+    cursor.executescript(
         """
     CREATE TABLE IF NOT EXISTS crypto_coins (
       id INTEGER PRIMARY KEY,
@@ -15,10 +15,6 @@ def init_db() -> sqlite3.Connection:
       name TEXT NOT NULL,
       launched INTEGER NOT NULL
     );
- """
-    )
-    cursor.execute(
-        """
     INSERT INTO crypto_coins VALUES
     (NULL, 'BTC', 'Bitcoin', 2009),
     (NULL, 'ETH', 'Ethereum', 2015),

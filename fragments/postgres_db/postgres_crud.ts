@@ -8,9 +8,6 @@ CREATE TABLE IF NOT EXISTS crypto_coins (
   name VARCHAR(30) NOT NULL,
   launched SMALLINT NOT NULL
 );
-`;
-
-const DB_SEED_SQL = `
 INSERT INTO crypto_coins (ticker, name, launched) VALUES
 ('BTC', 'Bitcoin', 2009),
 ('ETH', 'Ethereum', 2015),
@@ -36,7 +33,6 @@ const initClient = async () => {
   });
   await client.connect();
   await client.query(INIT_DB_SQL);
-  await client.query(DB_SEED_SQL);
   return client;
 };
 

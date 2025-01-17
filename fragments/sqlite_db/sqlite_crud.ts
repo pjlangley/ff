@@ -9,9 +9,6 @@ CREATE TABLE IF NOT EXISTS crypto_coins (
   name TEXT NOT NULL,
   launched INTEGER NOT NULL
 );
-`;
-
-const DB_SEED_SQL = `
 INSERT INTO crypto_coins VALUES
 (NULL, 'BTC', 'Bitcoin', 2009),
 (NULL, 'ETH', 'Ethereum', 2015),
@@ -30,15 +27,9 @@ const initDb = async () => {
 
   try {
     await new Promise((resolve, reject) => {
-      db.serialize(() => {
-        db.run(INIT_DB_SQL, [], (err) => {
-          if (err) reject(err);
-        });
-
-        db.run(DB_SEED_SQL, [], (err) => {
-          if (err) reject(err);
-          resolve({});
-        });
+      db.exec(INIT_DB_SQL, (err) => {
+        if (err) reject(err);
+        resolve({});
       });
     });
   } catch (e) {
