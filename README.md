@@ -56,7 +56,7 @@ execute the code.
 - `nvm install 22` if you don't already have this version
 - `nvm use 22`
 - Run `npm install` at root of repo
-- Install [`dvm`](https://deno.land/x/dvm) for linting and formatting
+- Install [`dvm`](https://deno.land/x/dvm) for linting and formatting with deno
 - `dvm install 2.1.6` if you don't already have this version
 - `dvm use 2.1.6`
 
