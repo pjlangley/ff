@@ -11,22 +11,17 @@
     "fragment": "tsx",
     "fragments": "npm run fragment -- fragments/main.ts",
     "test": "tsx --test 'fragments/**/*.test.ts'",
-    "lint": "eslint --config eslint.config.mjs **/*.ts",
+    "lint": "deno lint",
     "tsc": "tsc --noEmit --project tsconfig.json",
-    "format": "prettier --print-width 120 --prose-wrap always ./*.md ./fragments/*.ts ./fragments/**/*.ts",
-    "format:write": "npm run format -- --write",
-    "format:check": "npm run format -- --check"
+    "format:write": "deno fmt",
+    "format:check": "deno fmt --check"
   },
   "devDependencies": {
-    "@eslint/js": "^9.15.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.10",
-    "eslint": "^9.15.0",
-    "prettier": "^3.3.3",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3",
-    "typescript-eslint": "^8.16.0"
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "pg": "^8.13.1",

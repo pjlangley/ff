@@ -1,18 +1,18 @@
 import { getEnvVar } from "./env_vars/env_vars_utils";
 import { redisCreate, redisDelete, redisPing, redisRead, redisUpdate } from "./redis_db/redis_crud";
 import {
+  addItem,
+  deleteItem,
+  getAllItems,
   getItemByTicker,
   getItemsAfterLaunchYear,
-  getAllItems,
-  addItem,
   updateItem,
-  deleteItem,
 } from "./sqlite_db/sqlite_crud";
 import {
+  addItem as pgAddItem,
+  getAllItems as pgGetAllItems,
   getItemByTicker as pgGetItemByTicker,
   getItemsAfterLaunchYear as pgGetItemsAfterLaunchYear,
-  getAllItems as pgGetAllItems,
-  addItem as pgAddItem,
   removeItem as pgRemoveItem,
   updateItem as pgUpdateItem,
 } from "./postgres_db/postgres_crud";

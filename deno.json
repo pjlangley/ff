@@ -1,0 +1,20 @@
+{
+  "lint": {
+    "include": [
+      "fragments/**/*.ts",
+      "fragments/**/*.test.ts"
+    ],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["camelcase"]
+    }
+  },
+  "fmt": {
+    "lineWidth": 120,
+    "include": [
+      "fragments/**/*.ts",
+      "fragments/**/*.test.ts",
+      "*.md"
+    ]
+  }
+}

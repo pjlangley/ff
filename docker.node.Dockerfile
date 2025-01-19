@@ -1,10 +1,11 @@
-FROM node:22
+FROM node:22-bullseye
+COPY --from=denoland/deno:bin-2.1.6 /deno /usr/local/bin/deno
 ENV REPO_NAME=ff
 WORKDIR /usr/src/app
 COPY package*.json .
 COPY tsconfig.json .
-COPY eslint.config.mjs .
 COPY .npmrc .
+COPY deno.json .
 COPY *.md .
 RUN npm install
 COPY fragments/ ./fragments/
