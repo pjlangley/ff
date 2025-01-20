@@ -63,7 +63,7 @@ jobs:
       - uses: ./.github/actions/setup
       - run: docker build --force-rm -f docker.go.Dockerfile -t ff_go .
       - name: run all fragments
-        run: docker run --rm --network ci-network --env CI=$CI --entrypoint .bin/go_ff
+        run: docker run --rm --network ci-network --env CI=$CI --entrypoint .bin/go_ff ff_go
       - name: unit tests
         run: docker run --rm --network ci-network --env CI=$CI --entrypoint go ff_go test ./fragments/...
       - name: lint
