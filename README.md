@@ -350,6 +350,10 @@ execute the code.
   ```
   docker run --rm --network host ff_go
   ```
+- Run built binary:
+  ```
+  docker run --rm --network host --entrypoint .bin/ff_go ff_go
+  ```
 - Run unit tests:
   ```
   docker run --rm --network host --entrypoint go ff_go test ./fragments/...

@@ -10,5 +10,6 @@ COPY fragments ./fragments/
 WORKDIR /usr/src/app/fragments
 RUN go mod tidy
 WORKDIR /usr/src/app
+RUN go build -o .bin/go_ff ./fragments/main.go
 ENTRYPOINT ["go"]
 CMD ["run", "fragments/main.go"]
