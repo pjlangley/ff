@@ -35,7 +35,7 @@ jobs:
       - name: lint
         run: docker run --rm --entrypoint python3 ff_python -m pylint ./fragments --rcfile ./pylintrc
       - name: format check
-        run: docker run --rm --entrypoint python3 ff_python -m black ./fragments --check --line-length 120
+        run: docker run --rm --entrypoint python3 ff_python -m black ./fragments --check
 
   ff_rust:
     runs-on: ubuntu-latest
