@@ -249,7 +249,7 @@ execute the code.
   ```
 - Run the build:
   ```
-  cargo build --release --bin fragments
+  cargo build -v --release --bin fragments
   ```
 - Run the linter:
   ```
@@ -274,13 +274,17 @@ execute the code.
   ```
   docker run --rm --network host ff_rust
   ```
+- Run built binary:
+  ```
+  docker run --rm --network host --entrypoint target/release/fragments ff_rust
+  ```
 - Run unit tests:
   ```
   docker run --rm --network host --entrypoint cargo ff_rust test
   ```
 - Run the build:
   ```
-  docker run --rm --entrypoint cargo ff_rust build --release --bin fragments
+  docker run --rm --entrypoint cargo ff_rust build -v --release --bin fragments
   ```
 - Run the linter:
   ```

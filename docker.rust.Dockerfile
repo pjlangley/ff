@@ -6,5 +6,6 @@ COPY Cargo.toml .
 RUN rustup component add clippy
 RUN rustup component add rustfmt
 COPY fragments ./fragments/
+RUN cargo build -v --release --bin fragments
 ENTRYPOINT ["cargo"]
 CMD ["run", "--bin", "fragments"]
