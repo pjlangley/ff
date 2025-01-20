@@ -325,7 +325,7 @@ execute the code.
   ```
 - Run the build:
   ```
-  goenv exec go build -o .bin/go_ff ./fragments/main.go
+  goenv exec go build -v -o .bin/go_ff ./fragments/main.go
   ```
 - Run the linter:
   ```
@@ -360,7 +360,7 @@ execute the code.
   ```
 - Run the build:
   ```
-  docker run --rm --entrypoint go ff_go build -o .bin/go_ff ./fragments/main.go
+  docker run --rm --entrypoint go ff_go build -v -o .bin/go_ff ./fragments/main.go
   ```
 - Run the linter:
   ```
