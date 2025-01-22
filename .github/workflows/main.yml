@@ -29,13 +29,13 @@ jobs:
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_python
       - name: unit tests
-        run: docker run --rm --network ci-network --env CI=$CI --entrypoint python3 ff_python -m unittest -v --failfast
+        run: docker run --rm --network ci-network --env CI=$CI ff_python -m unittest -v --failfast
       - name: type check
-        run: docker run --rm --entrypoint python3 ff_python -m mypy --config-file mypy.ini
+        run: docker run --rm --entrypoint mypy ff_python --config-file mypy.ini
       - name: lint
-        run: docker run --rm --entrypoint python3 ff_python -m pylint ./fragments --rcfile ./pylintrc
+        run: docker run --rm --entrypoint pylint ff_python ./fragments --rcfile ./pylintrc
       - name: format check
-        run: docker run --rm --entrypoint python3 ff_python -m black ./fragments --check
+        run: docker run --rm --entrypoint black ff_python ./fragments --check
 
   ff_rust:
     runs-on: ubuntu-latest

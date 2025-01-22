@@ -140,48 +140,39 @@ execute the code.
 - Create a
   [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/):
   ```
-  python3 -m venv .venv
+  python3 -m venv --clear .venv
   ```
 - Activate the virtual environment: `source .venv/bin/activate`
-- Ensure the Python interpreter being used is the virtual environment: `which python3`
-- Create a `.pth` file in the virtual environment to set the repo in the Python path:
-  ```
-  touch .venv/lib/python3.12/site-packages/ff.pth
-  pwd > .venv/lib/python3.12/site-packages/ff.pth
-  ```
-- Install dependencies: `python3 -m pip install -r requirements.txt`
-- Verify it's been installed with `python3 -m pip list`
+- Ensure the Python interpreter being used is the virtual environment: `which python`
+- Install dependencies: `pip install -r requirements.txt`
+- Verify it's been installed with `pip list`
 - You can run `deactivate` to exit the virtual environment at any time
 
 #### Run
 
 - Run all fragments:
   ```
-  python3 ./fragments/main.py
-  ```
-- Run a single fragment, e.g.:
-  ```
-  python3 ./fragments/env_vars/env_vars_utils.py
+  python -m fragments.main
   ```
 - Run unit tests:
   ```
-  python3 -m unittest -v
+  python -m unittest -v
   ```
 - Run the type check:
   ```
-  python3 -m mypy --config-file mypy.ini
+  mypy --config-file mypy.ini
   ```
 - Run the linter:
   ```
-  python3 -m pylint ./fragments --rcfile ./pylintrc
+  pylint ./fragments --rcfile ./pylintrc
   ```
 - Run the formatter:
   ```
-  python3 -m black ./fragments
+  black ./fragments
   ```
 - Run the format check:
   ```
-  python3 -m black ./fragments --check
+  black ./fragments --check
   ```
 
 ### Docker (Python)
@@ -194,29 +185,25 @@ execute the code.
   ```
   docker run --rm --network host ff_python
   ```
-- Run a single fragment, e.g.:
-  ```
-  docker run --rm --network host --entrypoint python3 ff_python ./fragments/env_vars/env_vars_utils.py
-  ```
 - Run unit tests:
   ```
-  docker run --rm --network host --entrypoint python3 ff_python -m unittest -v
+  docker run --rm --network host ff_python -m unittest -v
   ```
 - Run the type check:
   ```
-  docker run --rm --entrypoint python3 ff_python -m mypy --config-file mypy.ini
+  docker run --rm --entrypoint mypy ff_python --config-file mypy.ini
   ```
 - Run the linter:
   ```
-  docker run --rm --entrypoint python3 ff_python -m pylint ./fragments --rcfile ./pylintrc
+  docker run --rm --entrypoint pylint ff_python ./fragments --rcfile ./pylintrc
   ```
 - Run the formatter:
   ```
-  docker run --rm --entrypoint python3 ff_python -m black ./fragments
+  docker run --rm --entrypoint black ff_python ./fragments
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint python3 ff_python -m black ./fragments --check
+  docker run --rm --entrypoint black ff_python ./fragments --check
   ```
 
 </details>
