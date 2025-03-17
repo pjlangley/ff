@@ -1,0 +1,4 @@
+json_rpc_url: http://127.0.0.1:8899
+websocket_url: ws://127.0.0.1:8900
+keypair_path: /root/.config/solana/id.json
+commitment: confirmed

@@ -1,0 +1,5 @@
+fragments/blockchain/solana/target/*
+!fragments/blockchain/solana/target/idl
+!fragments/blockchain/solana/target/types
+fragments/blockchain/solana/.anchor/
+/solana.id.json

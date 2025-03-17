@@ -14,7 +14,7 @@
     "include": [
       "fragments/**/*.ts",
       "fragments/**/*.test.ts",
-      "*.md"
+      "**/*.md"
     ]
   }
 }

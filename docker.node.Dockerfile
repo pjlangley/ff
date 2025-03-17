@@ -7,6 +7,7 @@ COPY tsconfig.json .
 COPY .npmrc .
 COPY deno.json .
 COPY *.md .
+COPY docker_hub/ docker_hub/
 RUN npm install
 COPY fragments/ ./fragments/
 ENTRYPOINT ["npm", "run", "fragment", "--"]

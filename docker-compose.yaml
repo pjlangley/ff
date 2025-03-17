@@ -10,3 +10,21 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pgpass
+  solana_validator:
+    build:
+      context: .
+      dockerfile: docker.solana.Dockerfile
+    image: ff_solana
+    profiles:
+      - blockchain
+    ports:
+      - 8899:8899
+      - 1024:1024
+      - 1027:1027
+      - 8900:8900
+    entrypoint: ["solana-test-validator"]
+    command:
+      - "--ticks-per-slot"
+      - "256"
+      - "--limit-ledger-size"
+      - "5000"

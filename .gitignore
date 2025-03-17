@@ -13,3 +13,13 @@ __pycache__/
 
 # go
 /.bin
+
+# blockchain
+/solana.id.json
+.anchor
+/fragments/blockchain/solana/target/*
+!/fragments/blockchain/solana/target/idl
+!/fragments/blockchain/solana/target/types
+
+# misc
+.DS_Store

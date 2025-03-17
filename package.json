@@ -10,16 +10,18 @@
   "scripts": {
     "fragment": "tsx",
     "fragments": "npm run fragment -- fragments/main.ts",
-    "test": "tsx --test 'fragments/**/*.test.ts'",
+    "test": "tsx --test fragments/*/*.test.ts",
     "lint": "deno lint",
     "tsc": "tsc --noEmit --project tsconfig.json",
     "format:write": "deno fmt",
     "format:check": "deno fmt --check"
   },
   "devDependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.10",
+    "anchor-bankrun": "^0.5.0",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3"
   },

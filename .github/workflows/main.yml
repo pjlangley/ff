@@ -1,4 +1,9 @@
-on: [push]
+name: core fragments
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   ff_node:
