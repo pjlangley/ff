@@ -1,0 +1,5 @@
+[toolchain]
+# channel should match https://github.com/anza-xyz/agave/blob/v2.1.9/rust-toolchain.toml
+channel = "1.81.0" 
+components = ["rustfmt", "clippy"]
+profile = "minimal"
