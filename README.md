@@ -496,9 +496,14 @@ The following commands apply to the TypeScript file(s):
 #### Docker (Anchor)
 
 > [!WARNING]
-> Command `anchor test` doesn't currently work on macOS (arm64):
-> `Error: Cannot find module 'solana-bankrun-linux-arm64-gnu'`. Perhaps there's not a Bankrun binary for linux+arm64 at
-> the time of writing.
+> Command `anchor test` in Docker doesn't currently work with linux (arm64):
+>
+> ```
+> Error: Cannot find module 'solana-bankrun-linux-arm64-gnu'
+> ```
+>
+> There's not a Bankrun binary for linux+arm64 at the time of writing. See
+> https://github.com/kevinheavey/solana-bankrun/tree/main/npm
 
 - Build the Anchor image at root of repo (depends on the `ff_solana_builder` image):
   ```
