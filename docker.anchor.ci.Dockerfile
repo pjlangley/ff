@@ -1,9 +1,5 @@
 FROM pjlangley/ff_solana_builder:2.1.9
 
-# rust version to match https://github.com/anza-xyz/agave/blob/v2.1.9/rust-toolchain.toml
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.81.0
-ENV PATH="/root/.cargo/bin:${PATH}"
-
 WORKDIR /anchor
 RUN cargo install --git https://github.com/coral-xyz/anchor --tag v0.30.1 anchor-cli
 
