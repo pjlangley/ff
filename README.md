@@ -241,7 +241,7 @@ execute the code.
   ```
 - Run the build:
   ```
-  cargo build -v --release --bin fragments
+  cargo build -v --bin fragments
   ```
 - Run the linter:
   ```
@@ -268,7 +268,7 @@ execute the code.
   ```
 - Run built binary:
   ```
-  docker run --rm --network host --entrypoint target/release/fragments ff_rust
+  docker run --rm --network host --entrypoint target/debug/fragments ff_rust
   ```
 - Run unit tests:
   ```
@@ -276,7 +276,7 @@ execute the code.
   ```
 - Run the build:
   ```
-  docker run --rm --entrypoint cargo ff_rust build -v --release --bin fragments
+  docker run --rm --entrypoint cargo ff_rust build -v --bin fragments
   ```
 - Run the linter:
   ```

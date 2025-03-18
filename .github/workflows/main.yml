@@ -50,9 +50,9 @@ jobs:
       - uses: ./.github/actions/setup
       - run: docker build --force-rm -f docker.rust.Dockerfile -t ff_rust .
       - name: run all fragments
-        run: docker run --rm --network ci-network --env CI=$CI --entrypoint target/release/fragments ff_rust
+        run: docker run --rm --network ci-network --env CI=$CI --entrypoint target/debug/fragments ff_rust
       - name: unit tests
-        run: docker run --rm --network ci-network --env CI=$CI --entrypoint cargo ff_rust test --release
+        run: docker run --rm --network ci-network --env CI=$CI --entrypoint cargo ff_rust test
       - name: lint
         run: docker run --rm --entrypoint cargo ff_rust clippy -- -D warnings
       - name: format check
