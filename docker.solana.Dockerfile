@@ -7,8 +7,7 @@ RUN apt-get update && \
     libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make libprotobuf-dev protobuf-compiler \
     git build-essential curl
 
-# rust version to match https://github.com/anza-xyz/agave/blob/v2.1.9/rust-toolchain.toml
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.81.0
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # build from source - arm64/aarch64 (i.e. macos m2) linux binary not in https://release.anza.xyz
