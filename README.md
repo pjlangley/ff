@@ -223,11 +223,11 @@ execute the code.
 
 ##### Setup
 
-- Install [Rust](https://www.rust-lang.org/tools/install)
-- `rustup toolchain install 1.79.0` if you don't already have this version installed
-- `rustc --version` to confirm the above version is being used
-- Add `clippy` for enhanced linting: `rustup component add clippy`
-- Add `rustfmt` for formatting: `rustup component add rustfmt`
+- Install [rustup](https://www.rust-lang.org/tools/install)
+
+> [!NOTE]
+> All `cargo` commands will use the Rust version and components as specified in
+> [`./rust-toolchain.toml`](./rust-toolchain.toml)
 
 ##### Run
 

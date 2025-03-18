@@ -3,9 +3,9 @@ WORKDIR /usr/src/myapp
 ENV REPO_NAME=ff
 COPY Cargo.lock .
 COPY Cargo.toml .
-RUN rustup component add clippy
-RUN rustup component add rustfmt
+COPY rust-toolchain.toml .
 COPY fragments ./fragments/
-RUN cargo build -v --release --bin fragments
+RUN cargo build -v --bin fragments
+
 ENTRYPOINT ["cargo"]
 CMD ["run", "--bin", "fragments"]
