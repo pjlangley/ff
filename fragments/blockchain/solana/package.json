@@ -1,6 +1,6 @@
 {
   "name": "ff-solana",
-  "description": "slim version of the root package.json for `anchor test` in `docker.anchor.Dockerfile`",
+  "description": "slim version of the root package.json for `anchor test` in `docker.anchor[.ci].Dockerfile`",
   "version": "0.0.1",
   "author": "pjlangley",
   "license": "Unlicense",
