@@ -110,9 +110,14 @@ execute the code.
 
 #### Docker (Node.js)
 
-- Build the image at root of repo:
+- Build the image at root of repo (with optional build args):
   ```
-  docker build --force-rm -f docker.node.Dockerfile -t ff_node .
+  docker build \
+    --force-rm \
+    --build-arg NODE_VERSION=22 \
+    --build-arg DENO_VERSION=2.1.6 \
+    -f docker.node.Dockerfile \
+    -t ff_node .
   ```
 - Run all fragments:
   ```
@@ -188,9 +193,13 @@ execute the code.
 
 #### Docker (Python)
 
-- Build the image at root of repo:
+- Build the image at root of repo (with optional build args):
   ```
-  docker build --force-rm -f docker.python.Dockerfile -t ff_python .
+  docker build \
+    --force-rm \
+    --build-arg PYTHON_VERSION=3.12.4 \
+    -f docker.python.Dockerfile \
+    -t ff_python .
   ```
 - Run all fragments:
   ```
@@ -258,9 +267,13 @@ execute the code.
 
 #### Docker (Rust)
 
-- Build the image at root of repo:
+- Build the image at root of repo (with optional build args):
   ```
-  docker build --force-rm -f docker.rust.Dockerfile -t ff_rust .
+  docker build \
+    --force-rm \
+    --build-arg RUST_VERSION=1.79.0 \
+    -f docker.rust.Dockerfile \
+    -t ff_rust .
   ```
 - Run all fragments:
   ```
@@ -332,9 +345,15 @@ execute the code.
 
 #### Docker (Go)
 
-- Build the image at root of repo:
+- Build the image at root of repo (with optional build args):
   ```
-  docker build --force-rm -f docker.go.Dockerfile -t ff_go .
+  docker build \
+    --force-rm \
+    --build-arg GO_VERSION=1.23.1 \
+    --build-arg ALPINE_VERSION=3.20 \
+    --build-arg GO_CI_LINT_VERSION=1.61.0 \
+    -f docker.go.Dockerfile \
+    -t ff_go .
   ```
 - Run all fragments:
   ```

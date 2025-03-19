@@ -1,4 +1,6 @@
-FROM python:3.12.4
+ARG PYTHON_VERSION=3.12.4
+
+FROM python:${PYTHON_VERSION}
 ENV REPO_NAME=ff
 WORKDIR /usr/src/app
 COPY mypy.ini .
@@ -7,5 +9,6 @@ COPY pyproject.toml .
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY fragments/ ./fragments/
+
 ENTRYPOINT ["python"]
 CMD ["-m", "fragments.main"]

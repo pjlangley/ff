@@ -1,4 +1,6 @@
-FROM rust:1.79.0
+ARG RUST_VERSION=1.79.0
+
+FROM rust:${RUST_VERSION}
 WORKDIR /usr/src/myapp
 ENV REPO_NAME=ff
 COPY Cargo.lock .

@@ -12,7 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: docker build --force-rm -f docker.node.Dockerfile -t ff_node .
+      - run: |
+          docker build \
+            --force-rm \
+            --build-arg NODE_VERSION=22 \
+            --build-arg DENO_VERSION=2.1.6 \
+            -f docker.node.Dockerfile \
+            -t ff_node .
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_node
       - name: unit tests
@@ -30,7 +36,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: docker build --force-rm -f docker.python.Dockerfile -t ff_python .
+      - run: |
+          docker build \
+            --force-rm \
+            --build-arg PYTHON_VERSION=3.12.4 \
+            -f docker.python.Dockerfile \
+            -t ff_python .
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_python
       - name: unit tests
@@ -48,7 +59,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: docker build --force-rm -f docker.rust.Dockerfile -t ff_rust .
+      - run: |
+          docker build \
+            --force-rm \
+            --build-arg RUST_VERSION=1.79.0 \
+            -f docker.rust.Dockerfile \
+            -t ff_rust .
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI --entrypoint target/debug/fragments ff_rust
       - name: unit tests
@@ -64,7 +80,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: docker build --force-rm -f docker.go.Dockerfile -t ff_go .
+      - run: |
+          docker build \
+            --force-rm \
+            --build-arg GO_VERSION=1.23.1 \
+            --build-arg ALPINE_VERSION=3.20 \
+            --build-arg GO_CI_LINT_VERSION=1.61.0 \
+            -f docker.go.Dockerfile \
+            -t ff_go .
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI --entrypoint .bin/go_ff ff_go
       - name: unit tests
