@@ -479,9 +479,14 @@ The following commands apply to the TypeScript file(s):
 
 #### Docker (Solana)
 
-- Build the Solana **builder** image at root of repo:
+- Build the Solana **builder** image at root of repo (with optional build args):
   ```
-  docker build --force-rm -f docker.solana.Dockerfile --target builder -t ff_solana_builder .
+  docker build \
+    --force-rm \
+    --build-arg AGAVE_VERSION=2.1.9 \
+    -f docker.solana.Dockerfile \
+    --target builder \
+    -t ff_solana_builder .
   ```
 - Build the Solana **final** image at root of repo:
   ```
@@ -524,9 +529,15 @@ The following commands apply to the TypeScript file(s):
 > There's not a Bankrun binary for linux+arm64 at the time of writing. See
 > https://github.com/kevinheavey/solana-bankrun/tree/main/npm
 
-- Build the Anchor image at root of repo (depends on the `ff_solana_builder` image):
+- Build the Anchor image at root of repo with optional build args (depends on the `ff_solana_builder` image):
   ```
-  docker build --force-rm -f docker.anchor.Dockerfile -t ff_anchor .
+  docker build \
+    --force-rm \
+    --build-arg ANCHOR_VERSION=0.30.1 \
+    --build-arg NODE_VERSION=22.14.0 \
+    --build-arg NVM_VERSION=0.39.2 \
+    -f docker.anchor.Dockerfile \
+    -t ff_anchor .
   ```
 - Run the linter:
   ```

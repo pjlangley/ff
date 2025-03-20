@@ -1,6 +1,9 @@
 # need GLIBC >= 2.38 for `anchor build`
 FROM ubuntu:24.04 AS builder
 
+ARG AGAVE_VERSION=2.1.9
+ENV AGAVE_VERSION=${AGAVE_VERSION}
+
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
@@ -12,7 +15,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 # build from source - arm64/aarch64 (i.e. macos m2) linux binary not in https://release.anza.xyz
 # see https://github.com/anza-xyz/agave
-RUN git clone --branch v2.1.9 --depth 1 https://github.com/anza-xyz/agave.git /agave
+RUN git clone --branch v${AGAVE_VERSION} --depth 1 https://github.com/anza-xyz/agave.git /agave
 WORKDIR /agave
 RUN ./scripts/cargo-install-all.sh --debug .
 ENV PATH="/agave/bin:${PATH}"
