@@ -8,8 +8,7 @@
     "npm": "^10"
   },
   "scripts": {
-    "fragment": "tsx",
-    "fragments": "npm run fragment -- fragments/main.ts",
+    "fragments": "tsx fragments/main.ts",
     "test": "tsx --test fragments/*/*.test.ts",
     "lint": "deno lint",
     "tsc": "tsc --noEmit --project tsconfig.json",

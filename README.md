@@ -81,31 +81,27 @@ execute the code.
 
 - Run all fragments:
   ```
-  npm run fragments
-  ```
-- Run a single fragment, e.g.:
-  ```
-  npm run fragment -- fragments/env_vars/env_vars_utils.ts
+  node --run fragments
   ```
 - Run unit tests:
   ```
-  npm run test
+  node --run test
   ```
 - Run the linter:
   ```
-  npm run lint
+  node --run lint
   ```
 - Run the TypeScript check:
   ```
-  npm run tsc
+  node --run tsc
   ```
 - Run the formatter:
   ```
-  npm run format:write
+  node --run format:write
   ```
 - Run the format check:
   ```
-  npm run format:check
+  node --run format:check
   ```
 
 #### Docker (Node.js)
@@ -123,25 +119,21 @@ execute the code.
   ```
   docker run --rm --network host ff_node
   ```
-- Run a single fragment, e.g.:
-  ```
-  docker run --rm --network host ff_node fragments/env_vars/env_vars_utils.ts
-  ```
 - Run unit tests:
   ```
-  docker run --rm --network host --entrypoint npm ff_node run test
+  docker run --rm --network host ff_node --run test
   ```
 - Run the linter:
   ```
-  docker run --rm --entrypoint npm ff_node run lint
+  docker run --rm ff_node --run lint
   ```
 - Run the TypeScript check:
   ```
-  docker run --rm --entrypoint npm ff_node run tsc
+  docker run --rm ff_node --run tsc
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint npm ff_node run format:check
+  docker run --rm ff_node --run format:check
   ```
 
 ### Python
@@ -418,19 +410,19 @@ The following commands apply to the TypeScript file(s):
 
 - Run the linter:
   ```
-  npm run lint
+  node --run lint
   ```
 - Run the TypeScript check:
   ```
-  npm run tsc
+  node --run tsc
   ```
 - Run the formatter:
   ```
-  npm run format:write
+  node --run format:write
   ```
 - Run the format check:
   ```
-  npm run format:check
+  node --run format:check
   ```
 
 > [!IMPORTANT]

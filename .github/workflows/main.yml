@@ -22,13 +22,13 @@ jobs:
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_node
       - name: unit tests
-        run: docker run --rm --network ci-network --env CI=$CI --entrypoint npm ff_node run test
+        run: docker run --rm --network ci-network --env CI=$CI ff_node --run test
       - name: lint
-        run: docker run --rm --entrypoint npm ff_node run lint
+        run: docker run --rm ff_node --run lint
       - name: typescript check
-        run: docker run --rm --entrypoint npm ff_node run tsc
+        run: docker run --rm ff_node --run tsc
       - name: format check
-        run: docker run --rm --entrypoint npm ff_node run format:check
+        run: docker run --rm ff_node --run format:check
 
   ff_python:
     runs-on: ubuntu-latest

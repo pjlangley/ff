@@ -16,5 +16,5 @@ COPY docker_hub/ docker_hub/
 RUN npm install
 COPY fragments/ ./fragments/
 
-ENTRYPOINT ["npm", "run", "fragment", "--"]
-CMD ["fragments/main.ts"]
+ENTRYPOINT ["node"]
+CMD ["--run", "fragments"]
