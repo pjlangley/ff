@@ -12,4 +12,4 @@ cluster = "Localnet"
 wallet = "../../../solana.id.json"
 
 [scripts]
-test = "npm test"
+test = "node --run test"
