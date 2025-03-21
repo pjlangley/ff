@@ -137,7 +137,6 @@ jobs:
           build-args: |
             ANCHOR_VERSION=${{ env.ANCHOR_VERSION }}
             NODE_VERSION=22.14.0
-            NVM_VERSION=0.39.2
 
       - name: get image id
         id: image_id
