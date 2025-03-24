@@ -3,6 +3,7 @@ services:
     image: redis/redis-stack-server:latest
     ports:
       - 6379:6379
+
   postgres:
     image: postgres:latest
     ports:
@@ -10,6 +11,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pgpass
+
   solana_validator:
     build:
       context: .
@@ -22,9 +24,42 @@ services:
       - 1024:1024
       - 1027:1027
       - 8900:8900
-    entrypoint: ["solana-test-validator"]
+    volumes:
+      - ./solana-cli.ci.yml:/usr/ff/solana-cli.ci.yml
+      - ./solana_docker_entrypoint.sh:/usr/ff/entrypoint.sh
+    healthcheck:
+      test: [
+        "CMD",
+        "solana", "--config", "/usr/ff/solana-cli.ci.yml",
+        "cluster-version", "--url", "http://localhost:8899"
+      ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    entrypoint: ["/usr/ff/entrypoint.sh"]
     command:
+      - "solana-test-validator"
       - "--ticks-per-slot"
       - "256"
       - "--limit-ledger-size"
       - "5000"
+
+  solana_logs:
+    build:
+      context: .
+      dockerfile: docker.solana.Dockerfile
+    image: ff_solana
+    depends_on:
+      solana_validator:
+        condition: service_healthy
+    profiles:
+      - blockchain
+    network_mode: host
+    volumes:
+      - ./solana-cli.ci.yml:/usr/ff/solana-cli.ci.yml
+    command:
+      - "--config"
+      - "/usr/ff/solana-cli.ci.yml"
+      - "logs"
+      - "--verbose"
