@@ -5,7 +5,7 @@ export const createKeyPair = async () => {
   return keypair;
 };
 
-export const getAddress = async (publicKey: CryptoKey) => {
-  const address = await getAddressFromPublicKey(publicKey);
+export const getAddress = async (keypair: CryptoKeyPair) => {
+  const address = await getAddressFromPublicKey(keypair.publicKey);
   return address;
 };

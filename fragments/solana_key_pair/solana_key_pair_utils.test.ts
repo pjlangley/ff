@@ -11,7 +11,7 @@ describe("solana key pair utils", () => {
 
   test("getAddress", async () => {
     const keyPair = await createKeyPair();
-    const result = await getAddress(keyPair.publicKey);
+    const result = await getAddress(keyPair);
     assert.strictEqual(result.length, 44);
   });
 });

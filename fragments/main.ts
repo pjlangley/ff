@@ -56,5 +56,5 @@ import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_uti
 
   // solana key pairs
   console.log('fragment "solana_key_pair/createKeyPair" output:', await createKeyPair());
-  console.log('fragment "solana_key_pair/getAddress" output:', await getAddress((await createKeyPair()).publicKey));
+  console.log('fragment "solana_key_pair/getAddress" output:', await getAddress(await createKeyPair()));
 })();
