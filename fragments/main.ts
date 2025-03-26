@@ -16,6 +16,7 @@ import {
   removeItem as pgRemoveItem,
   updateItem as pgUpdateItem,
 } from "./postgres_db/postgres_crud";
+import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_utils";
 
 (async () => {
   // env vars
@@ -52,4 +53,8 @@ import {
     'fragment "postgres_db/updateItem" output:',
     await pgUpdateItem({ ticker: "ETH", name: "Ethereum", launched: 2015 }),
   );
+
+  // solana key pairs
+  console.log('fragment "solana_key_pair/createKeyPair" output:', await createKeyPair());
+  console.log('fragment "solana_key_pair/getAddress" output:', await getAddress((await createKeyPair()).publicKey));
 })();

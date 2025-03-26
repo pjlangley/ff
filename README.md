@@ -30,6 +30,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with SQLite: [`fragments/sqlite_db`](./fragments/sqlite_db/)
 1. Working with Redis: [`fragments/redis_db`](./fragments/redis_db/)
 1. Working with PostgreSQL: [`fragments/postgres_db`](./fragments/postgres_db/)
+1. Working with Solana key pairs: [`fragments/solana_key_pair`](./fragments/solana_key_pair/)
 
 ### Blockchain programs
 
