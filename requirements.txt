@@ -3,3 +3,5 @@ black==24.4.2
 pylint==3.2.5
 redis==5.1.0
 psycopg[binary,pool]==3.2.3
+solders==0.26.0
+base58==2.1.1

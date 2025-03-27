@@ -22,6 +22,7 @@ from fragments.postgres_db import (
     remove_item as pg_remove_item,
     update_item as pg_update_item,
 )
+from fragments.solana_key_pair import create_key_pair, get_address
 
 # env vars
 print(f"fragment 'env_vars' output: {get_env_var("REPO_NAME")}")
@@ -48,3 +49,7 @@ print(f"fragment 'postgres_db/get_all_items' output: {pg_get_all_items()}")
 print(f"fragment 'postgres_db/add_item' output: {pg_add_item(("PEPE", "Pepe", 2023))}")
 print(f"fragment 'postgres_db/update_item' output: {pg_update_item(("PEPE", "Pepe", 2023))}")
 print(f"fragment 'postgres_db/remove_item' output: {pg_remove_item("PEPE")}")
+
+# solana key pair
+print(f"fragment 'solana_key_pair/create_key_pair' output: {create_key_pair()}")
+print(f"fragment 'solana_key_pair/get_address' output: {get_address(create_key_pair())}")
