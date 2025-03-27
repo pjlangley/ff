@@ -2,8 +2,7 @@ from solders.keypair import Keypair
 
 
 def create_key_pair():
-    keypair = Keypair()
-    return keypair
+    return Keypair()
 
 
 def get_address(keypair: Keypair):
