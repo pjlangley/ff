@@ -1,4 +1,10 @@
 import { generateKeyPair, getAddressFromPublicKey } from "@solana/kit";
+import { webcrypto } from "node:crypto";
+
+interface CryptoKeyPair {
+  publicKey: webcrypto.CryptoKey;
+  privateKey: webcrypto.CryptoKey;
+}
 
 export const createKeyPair = async () => {
   const keypair = await generateKeyPair();
