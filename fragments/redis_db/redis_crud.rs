@@ -24,7 +24,7 @@ pub fn redis_ping() -> redis::RedisResult<String> {
 
 pub fn redis_create(namespace: &str, favourite_coin: &str) -> redis::RedisResult<String> {
     let mut connection = init_connection()?;
-    connection.hset(namespace, "favourite_coin", favourite_coin)?;
+    connection.hset::<_, _, _, ()>(namespace, "favourite_coin", favourite_coin)?;
     Ok("OK".to_string())
 }
 
@@ -41,7 +41,7 @@ pub fn redis_update(namespace: &str, favourite_coin: &str) -> redis::RedisResult
 
 pub fn redis_delete(namespace: &str) -> redis::RedisResult<String> {
     let mut connection = init_connection()?;
-    connection.del(namespace)?;
+    connection.del::<_, ()>(namespace)?;
     Ok("OK".to_string())
 }
 

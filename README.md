@@ -263,7 +263,7 @@ execute the code.
   ```
   docker build \
     --force-rm \
-    --build-arg RUST_VERSION=1.79.0 \
+    --build-arg RUST_VERSION=1.85.1 \
     -f docker.rust.Dockerfile \
     -t ff_rust .
   ```
