@@ -4,6 +4,7 @@ import (
 	"ff/env_vars"
 	postgres_crud "ff/postgres_db"
 	redis_crud "ff/redis_db"
+	solana_key_pair_utils "ff/solana_key_pair"
 	sqlite_crud "ff/sqlite_db"
 	"fmt"
 )
@@ -48,4 +49,9 @@ func main() {
 
 	pgDeleteCoin, pgDeleteCoinErr := postgres_crud.DeleteItem("PEPE")
 	fmt.Println("fragment 'postgres_db/DeleteItem' output:", pgDeleteCoin, "Error:", pgDeleteCoinErr)
+
+	// solana key pair
+	solanaKeypair, solanaKeypairErr := solana_key_pair_utils.CreateKeyPair()
+	fmt.Println("fragment 'solana_key_pair/CreateKeyPair' output:", solanaKeypair, "Error:", solanaKeypairErr)
+	fmt.Println("fragment 'solana_key_pair/GetAddress' output:", solana_key_pair_utils.GetAddress(solanaKeypair))
 }
