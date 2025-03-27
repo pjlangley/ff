@@ -19,7 +19,7 @@ class TestSolanaKeyPair(unittest.TestCase):
     def test_solana_get_address(self):
         keypair = create_key_pair()
         address = get_address(keypair)
-        self.assertEqual(len(str(address)), 44)
+        self.assertEqual(address, keypair.pubkey())
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import { createKeyPair, getAddress } from "./solana_key_pair_utils";
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
+import { assertIsAddress } from "@solana/kit";
 
 describe("solana key pair utils", () => {
   test("createKeyPair", async () => {
@@ -12,6 +13,6 @@ describe("solana key pair utils", () => {
   test("getAddress", async () => {
     const keyPair = await createKeyPair();
     const result = await getAddress(keyPair);
-    assert.strictEqual(result.length, 44);
+    assertIsAddress(result);
   });
 });
