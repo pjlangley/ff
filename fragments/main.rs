@@ -1,6 +1,7 @@
 mod env_vars;
 mod postgres_db;
 mod redis_db;
+mod solana_key_pair;
 mod sqlite_db;
 
 fn main() {
@@ -120,5 +121,17 @@ fn main() {
         "fragment 'postgres_db/delete_item' output: {:?}",
         postgres_db::postgres_crud::delete_item("PEPE")
             .unwrap_or_else(|e| panic!("Expected to add item but got error: {:?}", e))
+    );
+
+    // solana key pair
+    println!(
+        "fragment 'solana_key_pair/create_key_pair' output: {:?}",
+        solana_key_pair::solana_key_pair_utils::create_key_pair()
+    );
+    println!(
+        "fragment 'solana_key_pair/get_address' output: {:?}",
+        solana_key_pair::solana_key_pair_utils::get_address(
+            &solana_key_pair::solana_key_pair_utils::create_key_pair()
+        )
     );
 }
