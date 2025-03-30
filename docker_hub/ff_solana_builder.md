@@ -10,8 +10,8 @@ Details:
 - It's designed to support the [Solana CLI](https://docs.anza.xyz/cli/) and the
   [Anchor CLI](https://www.anchor-lang.com/docs/references/cli) by installing the necessary dependencies and build tools
   to extend from
-- See this [Dockerfile](https://github.com/pjlangley/ff/blob/main/docker.solana.ci.Dockerfile) for details of what's
-  inside
+- See this [Dockerfile](https://github.com/pjlangley/ff/blob/main/docker.solana_builder.ci.Dockerfile) for details of
+  what's inside
 - Currently, only the **amd64** OS/Arch is supported
 
 ## Usage

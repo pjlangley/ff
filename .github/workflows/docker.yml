@@ -19,6 +19,8 @@ jobs:
       ff_solana_builder_docs: ${{ steps.filter.outputs.ff_solana_builder_docs }}
       ff_anchor: ${{ steps.filter.outputs.ff_anchor }}
       ff_anchor_docs: ${{ steps.filter.outputs.ff_anchor_docs }}
+      ff_solana: ${{ steps.filter.outputs.ff_solana }}
+      ff_solana_docs: ${{ steps.filter.outputs.ff_solana_docs }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -28,13 +30,17 @@ jobs:
             workflow_cfg:
               - '.github/workflows/docker.yml'
             ff_solana_builder:
-              - 'docker.solana.ci.Dockerfile'
+              - 'docker.solana_builder.ci.Dockerfile'
             ff_solana_builder_docs:
               - 'docker_hub/ff_solana_builder.md'
             ff_anchor:
               - 'docker.anchor.ci.Dockerfile'
             ff_anchor_docs:
               - 'docker_hub/ff_anchor.md'
+            ff_solana:
+              - 'docker.solana.ci.Dockerfile'
+            ff_solana_docs:
+              - 'docker_hub/ff_solana.md'
 
   ff_solana_builder:
     runs-on: ubuntu-latest
@@ -60,8 +66,7 @@ jobs:
       - name: build image 
         uses: docker/build-push-action@v6
         with:
-          file: docker.solana.ci.Dockerfile
-          target: builder
+          file: docker.solana_builder.ci.Dockerfile
           platforms: linux/amd64
           pull: true
           push: false
@@ -173,3 +178,69 @@ jobs:
           repository: pjlangley/ff_anchor
           short-description: Anchor CLI image for Solana programs
           readme-filepath: ./docker_hub/ff_anchor.md
+
+  ff_solana:
+    runs-on: ubuntu-latest
+    name: ff_solana (amd64)
+    env:
+      AGAVE_VERSION: 2.1.9
+    needs: [changes, ff_solana_builder]
+    if: needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana == 'true'
+    steps: 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: pjlangley
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: get short sha
+        id: short_sha
+        run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - name: build image 
+        uses: docker/build-push-action@v6
+        with:
+          file: docker.solana.ci.Dockerfile
+          platforms: linux/amd64
+          pull: true
+          push: false
+          load: true
+
+      - name: get image id
+        id: image_id
+        run: echo "id=$(docker images -q | head -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: tagging
+        run: |
+          docker tag ${{ steps.image_id.outputs.id }} pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+          docker push pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+
+      - name: manifests
+        run: |
+          docker manifest create pjlangley/ff_solana:${{ env.AGAVE_VERSION }} \
+          pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+
+          docker manifest create pjlangley/ff_solana:latest \
+          pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+
+          docker manifest push pjlangley/ff_solana:${{ env.AGAVE_VERSION }}
+          docker manifest push pjlangley/ff_solana:latest
+
+  ff_solana_docs:
+    runs-on: ubuntu-latest
+    name: ff_solana_docs
+    needs: [changes, ff_solana]
+    if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana_docs == 'true')
+    steps:
+      - uses: actions/checkout@v4
+      - name: set description
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: pjlangley
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: pjlangley/ff_solana
+          short-description: Solana CLI image for Solana programs
+          readme-filepath: ./docker_hub/ff_solana.md
