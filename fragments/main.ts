@@ -17,6 +17,7 @@ import {
   updateItem as pgUpdateItem,
 } from "./postgres_db/postgres_crud";
 import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_utils";
+import { getBalance } from "./solana_balance/solana_balance_utils";
 
 (async () => {
   // env vars
@@ -55,6 +56,11 @@ import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_uti
   );
 
   // solana key pairs
-  console.log('fragment "solana_key_pair/createKeyPair" output:', await createKeyPair());
-  console.log('fragment "solana_key_pair/getAddress" output:', await getAddress(await createKeyPair()));
+  const solanaKeypair = await createKeyPair();
+  const solanaKeypairAddress = await getAddress(solanaKeypair);
+  console.log('fragment "solana_key_pair/createKeyPair" output:', solanaKeypair);
+  console.log('fragment "solana_key_pair/getAddress" output:', solanaKeypairAddress);
+
+  // solana balance
+  console.log('fragment "solana_balance/getBalance" output:', await getBalance(solanaKeypairAddress));
 })();

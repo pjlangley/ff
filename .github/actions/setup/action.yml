@@ -6,9 +6,33 @@ runs:
     - name: docker network
       run: docker network create ci-network
       shell: bash
+    - name: solana test validator
+      run: |
+        docker run -d \
+        --name solana-validator \
+        --entrypoint solana-test-validator \
+        --network ci-network \
+        -p 8899:8899 -p 1024:1024 -p 1027:1027 -p 8900:8900 \
+        pjlangley/ff_solana:2.1.9
+      shell: bash
     - name: start redis
       run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest 
       shell: bash
     - name: start postgres
       run: docker run -d --name postgres -e POSTGRES_PASSWORD=pgpass --network ci-network -p 5432:5432 postgres:latest 
       shell: bash
+    - name: pause for solana test validator to start
+      run: sleep 25
+      shell: bash
+    - name: solana logs
+      run: docker logs solana-validator
+      shell: bash
+    - name: show validators
+      shell: bash
+      run: |
+        docker run --rm \
+        --network ci-network \
+        pjlangley/ff_solana:2.1.9 \
+        validators \
+        --verbose \
+        --url http://solana-validator:8899
