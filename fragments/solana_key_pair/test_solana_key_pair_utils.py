@@ -1,6 +1,6 @@
 import unittest
 import base58
-from fragments.solana_key_pair.solana_key_pair_utils import create_key_pair, get_address
+from fragments.solana_key_pair import create_key_pair, get_address
 
 
 class TestSolanaKeyPair(unittest.TestCase):

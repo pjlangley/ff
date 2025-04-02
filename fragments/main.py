@@ -23,6 +23,7 @@ from fragments.postgres_db import (
     update_item as pg_update_item,
 )
 from fragments.solana_key_pair import create_key_pair, get_address
+from fragments.solana_balance import get_balance
 
 # env vars
 print(f"fragment 'env_vars' output: {get_env_var("REPO_NAME")}")
@@ -51,5 +52,10 @@ print(f"fragment 'postgres_db/update_item' output: {pg_update_item(("PEPE", "Pep
 print(f"fragment 'postgres_db/remove_item' output: {pg_remove_item("PEPE")}")
 
 # solana key pair
-print(f"fragment 'solana_key_pair/create_key_pair' output: {create_key_pair()}")
-print(f"fragment 'solana_key_pair/get_address' output: {get_address(create_key_pair())}")
+solana_key_pair = create_key_pair()
+solana_address = get_address(solana_key_pair)
+print(f"fragment 'solana_key_pair/create_key_pair' output: {solana_key_pair}")
+print(f"fragment 'solana_key_pair/get_address' output: {solana_address}")
+
+# solana balance
+print(f"fragment 'solana_balance/get_balance' output: {get_balance(solana_address)}")
