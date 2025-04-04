@@ -1,6 +1,7 @@
 mod env_vars;
 mod postgres_db;
 mod redis_db;
+mod solana_balance;
 mod solana_key_pair;
 mod sqlite_db;
 
@@ -124,14 +125,21 @@ fn main() {
     );
 
     // solana key pair
+    let solana_keypair = solana_key_pair::solana_key_pair_utils::create_key_pair();
+    let solana_address = solana_key_pair::solana_key_pair_utils::get_address(&solana_keypair);
     println!(
         "fragment 'solana_key_pair/create_key_pair' output: {:?}",
-        solana_key_pair::solana_key_pair_utils::create_key_pair()
+        solana_keypair
     );
     println!(
         "fragment 'solana_key_pair/get_address' output: {:?}",
-        solana_key_pair::solana_key_pair_utils::get_address(
-            &solana_key_pair::solana_key_pair_utils::create_key_pair()
-        )
+        solana_address
+    );
+
+    // solana balance
+    println!(
+        "fragment 'solana_balance/get_balance' output: {:?}",
+        solana_balance::solana_balance_utils::get_balance(solana_address)
+            .unwrap_or_else(|e| panic!("Expected balance but got error: {:?}", e))
     );
 }
