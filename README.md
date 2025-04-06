@@ -307,6 +307,11 @@ execute the code.
 - `goenv install 1.23.1` if you don't already have this version installed
 - `goenv version` to confirm the above version is being used
 - Install [`golangci-lint`](https://golangci-lint.run/welcome/install/#local-installation) for linting
+- Set the `GOPROXY` environment variable by adding this export into your shell configuration (e.g. in `~/.zshrc`):
+  ```
+  export GOPROXY=https://proxy.golang.org
+  ```
+  Verify it has been correctly set with `goenv exec go env GOPROXY`
 - Install dependencies: `cd ./fragments && goenv exec go mod tidy`
 
 ##### Run
