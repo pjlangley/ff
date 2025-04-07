@@ -18,6 +18,7 @@ import {
 } from "./postgres_db/postgres_crud";
 import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_utils";
 import { getBalance } from "./solana_balance/solana_balance_utils";
+import { airdrop } from "./solana_airdrop/solana_airdrop_utils";
 
 (async () => {
   // env vars
@@ -63,4 +64,7 @@ import { getBalance } from "./solana_balance/solana_balance_utils";
 
   // solana balance
   console.log('fragment "solana_balance/getBalance" output:', await getBalance(solanaKeypairAddress));
+
+  // solana airdrop
+  console.log('fragment "solana_airdrop/airdrop" output:', await airdrop(solanaKeypairAddress, 1_000_000n));
 })();

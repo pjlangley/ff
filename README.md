@@ -32,6 +32,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with PostgreSQL: [`fragments/postgres_db`](./fragments/postgres_db/)
 1. Working with Solana key pairs: [`fragments/solana_key_pair`](./fragments/solana_key_pair/)
 1. Working with Solana balance: [`fragments/solana_balance`](./fragments/solana_balance/)
+1. Working with Solana airdrops: [`fragments/solana_airdrop`](./fragments/solana_airdrop/)
 
 ### Blockchain programs
 
