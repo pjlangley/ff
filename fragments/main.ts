@@ -19,6 +19,7 @@ import {
 import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_utils";
 import { getBalance } from "./solana_balance/solana_balance_utils";
 import { airdrop } from "./solana_airdrop/solana_airdrop_utils";
+import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_utils";
 
 (async () => {
   // env vars
@@ -67,4 +68,8 @@ import { airdrop } from "./solana_airdrop/solana_airdrop_utils";
 
   // solana airdrop
   console.log('fragment "solana_airdrop/airdrop" output:', await airdrop(solanaKeypairAddress, 1_000_000n));
+
+  // solana rpc utils
+  const solanaRpcClient = initSolanaRpcClient();
+  console.log('fragment "solana_rpc_client/initRpcClient getVersion" output:', await solanaRpcClient.getVersion().send());
 })();
