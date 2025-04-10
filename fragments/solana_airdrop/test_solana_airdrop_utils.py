@@ -6,7 +6,7 @@ from fragments.solana_rpc import init_rpc_client
 
 
 class TestSolanaAirdrop(unittest.TestCase):
-    def test_airdrop(self):
+    def test_solana_airdrop(self):
         client = init_rpc_client()
         keypair = create_key_pair()
         address = get_address(keypair)

@@ -4,7 +4,7 @@ from fragments.solana_key_pair import create_key_pair, get_address
 
 
 class TestSolanaBalance(unittest.TestCase):
-    def test_get_balance(self):
+    def test_solana_get_balance(self):
         keypair = create_key_pair()
         address = get_address(keypair)
         balance = get_balance(address)
