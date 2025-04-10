@@ -24,6 +24,8 @@ from fragments.postgres_db import (
 )
 from fragments.solana_key_pair import create_key_pair, get_address
 from fragments.solana_balance import get_balance
+from fragments.solana_airdrop import airdrop
+from fragments.solana_rpc import init_rpc_client
 
 # env vars
 print(f"fragment 'env_vars' output: {get_env_var("REPO_NAME")}")
@@ -59,3 +61,10 @@ print(f"fragment 'solana_key_pair/get_address' output: {solana_address}")
 
 # solana balance
 print(f"fragment 'solana_balance/get_balance' output: {get_balance(solana_address)}")
+
+# solana airdrop
+print(f"fragment 'solana_airdrop/airdrop' output: {airdrop(solana_address, 1_000_000)}")
+
+# solana rpc utils
+solanaRpcClient = init_rpc_client()
+print(f"fragment 'solana_rpc/init_rpc_client get_version' output: {solanaRpcClient.get_version()}")
