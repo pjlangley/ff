@@ -71,5 +71,8 @@ import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_ut
 
   // solana rpc utils
   const solanaRpcClient = initSolanaRpcClient();
-  console.log('fragment "solana_rpc_client/initRpcClient getVersion" output:', await solanaRpcClient.getVersion().send());
+  console.log(
+    'fragment "solana_rpc_client/initRpcClient getVersion" output:',
+    await solanaRpcClient.getVersion().send(),
+  );
 })();
