@@ -9,6 +9,7 @@ redis = "0.27.5"
 postgres = "0.19.9"
 solana-sdk = "2.2.2"
 solana-client = "2.2.6"
+semver = "1.0.26"
 
 [[bin]]
 name = "fragments"

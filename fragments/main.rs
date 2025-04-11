@@ -3,6 +3,7 @@ mod postgres_db;
 mod redis_db;
 mod solana_balance;
 mod solana_key_pair;
+mod solana_rpc;
 mod sqlite_db;
 
 fn main() {
@@ -141,5 +142,14 @@ fn main() {
         "fragment 'solana_balance/get_balance' output: {:?}",
         solana_balance::solana_balance_utils::get_balance(solana_address)
             .unwrap_or_else(|e| panic!("Expected balance but got error: {:?}", e))
+    );
+
+    // solana rpc utils
+    let solana_rpc_client = solana_rpc::solana_rpc_utils::init_rpc_client();
+    println!(
+        "fragment 'solana_rpc/init_rpc_client get_version' output: {:?}",
+        solana_rpc_client
+            .get_version()
+            .unwrap_or_else(|e| panic!("Expected version but got error: {:?}", e))
     );
 }
