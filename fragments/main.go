@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"ff/env_vars"
 	postgres_crud "ff/postgres_db"
 	redis_crud "ff/redis_db"
+	solana_airdrop "ff/solana_airdrop"
 	solana_balance "ff/solana_balance"
 	solana_key_pair "ff/solana_key_pair"
+	"ff/solana_rpc"
 	sqlite_crud "ff/sqlite_db"
 	"fmt"
 )
@@ -59,4 +62,13 @@ func main() {
 	// solana balance
 	solanaBalance, solanaBalanceErr := solana_balance.GetBalance(solanaKeypair.PublicKey())
 	fmt.Println("fragment 'solana_balance/GetBalance' output:", solanaBalance, "Error:", solanaBalanceErr)
+
+	// solana rpc
+	solanaClient := solana_rpc.InitRpcClient()
+	solanaClientVersionRes, solanaClientVersionErr := solanaClient.GetVersion(context.Background())
+	fmt.Println("fragment 'solana_rpc/InitRpcClient GetVersion' output:", solanaClientVersionRes, "Error:", solanaClientVersionErr)
+
+	// solana airdrop
+	solanaAirdropSig := solana_airdrop.Airdrop(solanaKeypair.PublicKey(), 1_000_000_000)
+	fmt.Println("fragment 'solana_airdrop/Airdrop' output:", solanaAirdropSig)
 }
