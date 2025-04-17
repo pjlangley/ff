@@ -1,6 +1,7 @@
 mod env_vars;
 mod postgres_db;
 mod redis_db;
+mod solana_airdrop;
 mod solana_balance;
 mod solana_key_pair;
 mod solana_rpc;
@@ -151,5 +152,12 @@ fn main() {
         solana_rpc_client
             .get_version()
             .unwrap_or_else(|e| panic!("Expected version but got error: {:?}", e))
+    );
+
+    // solana airdrop
+    println!(
+        "fragment 'solana_airdrop/airdrop' output: {:?}",
+        solana_airdrop::solana_airdrop_utils::airdrop(solana_address, 1_000_000_000)
+            .unwrap_or_else(|e| panic!("Expected airdrop signaure but got error: {:?}", e))
     );
 }
