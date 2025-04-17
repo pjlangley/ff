@@ -1,4 +1,4 @@
-package solana_balance_utils
+package solana_balance
 
 import (
 	solana_key_pair_utils "ff/solana_key_pair"

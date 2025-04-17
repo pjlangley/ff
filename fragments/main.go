@@ -4,8 +4,8 @@ import (
 	"ff/env_vars"
 	postgres_crud "ff/postgres_db"
 	redis_crud "ff/redis_db"
-	solana_balance_utils "ff/solana_balance"
-	solana_key_pair_utils "ff/solana_key_pair"
+	solana_balance "ff/solana_balance"
+	solana_key_pair "ff/solana_key_pair"
 	sqlite_crud "ff/sqlite_db"
 	"fmt"
 )
@@ -52,11 +52,11 @@ func main() {
 	fmt.Println("fragment 'postgres_db/DeleteItem' output:", pgDeleteCoin, "Error:", pgDeleteCoinErr)
 
 	// solana key pair
-	solanaKeypair, solanaKeypairErr := solana_key_pair_utils.CreateKeyPair()
+	solanaKeypair, solanaKeypairErr := solana_key_pair.CreateKeyPair()
 	fmt.Println("fragment 'solana_key_pair/CreateKeyPair' output:", solanaKeypair, "Error:", solanaKeypairErr)
-	fmt.Println("fragment 'solana_key_pair/GetAddress' output:", solana_key_pair_utils.GetAddress(solanaKeypair))
+	fmt.Println("fragment 'solana_key_pair/GetAddress' output:", solana_key_pair.GetAddress(solanaKeypair))
 
 	// solana balance
-	solanaBalance, solanaBalanceErr := solana_balance_utils.GetBalance(solanaKeypair.PublicKey())
+	solanaBalance, solanaBalanceErr := solana_balance.GetBalance(solanaKeypair.PublicKey())
 	fmt.Println("fragment 'solana_balance/GetBalance' output:", solanaBalance, "Error:", solanaBalanceErr)
 }

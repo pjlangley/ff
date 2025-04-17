@@ -1,10 +1,9 @@
-package solana_balance_utils
+package solana_balance
 
 import (
 	"context"
-	"ff/env_vars"
+	"ff/solana_rpc"
 	"fmt"
-	"strings"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
@@ -12,19 +11,8 @@ import (
 
 var ctx = context.Background()
 
-func getRpcUrl() string {
-	localhost := "http://127.0.0.1:8899"
-
-	if len(env_vars.GetEnvVar("CI")) == 0 {
-		return localhost
-	} else {
-		return strings.Replace(localhost, "127.0.0.1", "solana-validator", 1)
-	}
-}
-
 func GetBalance(address solana.PublicKey) (uint64, error) {
-	url := getRpcUrl()
-	client := rpc.New(url)
+	client := solana_rpc.InitRpcClient()
 
 	balance, err := client.GetBalance(ctx, address, rpc.CommitmentConfirmed)
 

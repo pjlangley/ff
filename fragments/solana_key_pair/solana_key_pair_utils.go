@@ -1,4 +1,4 @@
-package solana_key_pair_utils
+package solana_key_pair
 
 import (
 	"github.com/gagliardetto/solana-go"
