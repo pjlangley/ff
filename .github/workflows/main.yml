@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - name: store solana program keys into environment variables
+        run: cat program_keys.env >> $GITHUB_ENV
       - run: |
           docker build \
             --force-rm \
@@ -36,6 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - name: store solana program keys into environment variables
+        run: cat program_keys.env >> $GITHUB_ENV
       - run: |
           docker build \
             --force-rm \
@@ -59,6 +63,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - name: store solana program keys into environment variables
+        run: cat program_keys.env >> $GITHUB_ENV
       - run: |
           docker build \
             --force-rm \
@@ -80,6 +86,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - name: store solana program keys into environment variables
+        run: cat program_keys.env >> $GITHUB_ENV
       - run: |
           docker build \
             --force-rm \
