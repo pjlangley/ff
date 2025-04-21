@@ -8,6 +8,8 @@ on:
       - '*.Dockerfile'
       - '.github/workflows/docker.yml'
       - 'docker_hub/*.md'
+      - 'fragments/blockchain/solana/**'
+      - '!fragments/blockchain/solana/tests/**'
 
 jobs:
   changes:
@@ -35,6 +37,7 @@ jobs:
               - 'docker_hub/ff_solana_builder.md'
             ff_anchor:
               - 'docker.anchor.ci.Dockerfile'
+              - 'fragments/blockchain/solana/**'
             ff_anchor_docs:
               - 'docker_hub/ff_anchor.md'
             ff_solana:
