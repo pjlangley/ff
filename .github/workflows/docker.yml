@@ -119,7 +119,7 @@ jobs:
     env:
       ANCHOR_VERSION: 0.31.1
     needs: [changes, ff_solana_builder]
-    if: needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_anchor == 'true'
+    if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_anchor == 'true')
     steps:
       - name: login to Docker Hub
         uses: docker/login-action@v3
