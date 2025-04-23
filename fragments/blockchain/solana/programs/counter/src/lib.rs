@@ -1,3 +1,6 @@
+// https://stackoverflow.com/questions/79225593
+#![allow(unexpected_cfgs)]
+
 use anchor_lang::prelude::*;
 
 declare_id!("HdxpgGmRXeUpXE2vVZZCy2a69Ypozs8YLt3LXPHRUkG6");
