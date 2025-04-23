@@ -1,7 +1,7 @@
 # need GLIBC >= 2.38 for `anchor build`
 FROM ubuntu:24.04
 
-ARG AGAVE_VERSION=2.1.9
+ARG AGAVE_VERSION=2.2.6
 ENV AGAVE_VERSION=${AGAVE_VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive

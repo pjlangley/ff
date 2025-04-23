@@ -1,10 +1,10 @@
 ARG NODE_VERSION=22.14.0
 FROM node:${NODE_VERSION}-bullseye AS node
 
-FROM pjlangley/ff_solana_builder:2.1.9
+FROM pjlangley/ff_solana_builder:2.2.6
 COPY --from=node /usr/local /usr/local
 
-ARG ANCHOR_VERSION=0.30.1
+ARG ANCHOR_VERSION=0.31.1
 ENV ANCHOR_VERSION=${ANCHOR_VERSION}
 
 WORKDIR /anchor

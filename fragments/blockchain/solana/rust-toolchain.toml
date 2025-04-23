@@ -1,5 +1,7 @@
 [toolchain]
-# channel should match https://github.com/anza-xyz/agave/blob/v2.1.9/rust-toolchain.toml
-channel = "1.81.0" 
+# 1.88.0-nightly fixes the following issues during `anchor build`:
+# https://github.com/solana-foundation/anchor/issues/3662
+# https://github.com/solana-foundation/anchor/issues/3676
+channel = "nightly-2025-04-22"
 components = ["rustfmt", "clippy"]
 profile = "minimal"

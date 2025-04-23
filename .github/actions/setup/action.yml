@@ -15,7 +15,7 @@ runs:
         --entrypoint solana-test-validator \
         --network ci-network \
         -p 8899:8899 -p 1024:1024 -p 1027:1027 -p 8900:8900 \
-        pjlangley/ff_solana:2.1.9
+        pjlangley/ff_solana:2.2.6
       shell: bash
 
     - name: start redis
@@ -39,7 +39,7 @@ runs:
       run: |
         docker run --rm \
         --network ci-network \
-        pjlangley/ff_solana:2.1.9 \
+        pjlangley/ff_solana:2.2.6 \
         validators \
         --verbose \
         --url http://solana-validator:8899
@@ -50,7 +50,7 @@ runs:
         docker run --rm \
         --network ci-network \
         --entrypoint bash \
-        pjlangley/ff_anchor:0.30.1 \
+        pjlangley/ff_anchor:0.31.1 \
         -c '
           set -e
           solana airdrop --url http://solana-validator:8899 21
@@ -64,7 +64,7 @@ runs:
       shell: bash
       run: |
         docker run --rm \
-        pjlangley/ff_anchor:0.30.1 \
+        pjlangley/ff_anchor:0.31.1 \
         keys list > program_keys.txt
 
         chmod +x ./solana_extract_program_keys.sh

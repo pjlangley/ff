@@ -232,6 +232,9 @@ execute the code.
 > [!NOTE]
 > All `cargo` commands will use the Rust version and components as specified in
 > [`./rust-toolchain.toml`](./rust-toolchain.toml)
+>
+> Or, [`./fragments/blockchain/solana/rust-toolchain.toml`](./fragments/blockchain/solana/rust-toolchain.toml) for
+> Solana programs.
 
 ##### Run
 
@@ -394,15 +397,15 @@ Solana programs are written in Rust, so make sure to follow the [Local (Rust)](#
 
 - If not on macOS, check the [official docs](https://solana.com/docs/intro/installation) for any extra steps before
   continuing
-- Install [Solana CLI](https://docs.anza.xyz/cli/install/) version `2.1.9`. For macOS:
+- Install [Solana CLI](https://docs.anza.xyz/cli/install/) version `2.2.6`. For macOS:
   ```
-  sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.9/install)"
+  sh -c "$(curl -sSfL https://release.anza.xyz/v2.2.6/install)"
   ```
 - Ensure you follow the instructions to add the `solana` executable to your `PATH`
 - Run `solana --version` to confirm the installation
 - Install [`anchor`](https://www.anchor-lang.com/docs/installation):
   ```
-  cargo install --git https://github.com/coral-xyz/anchor --tag v0.30.1 anchor-cli --locked
+  cargo install --git https://github.com/coral-xyz/anchor --tag v0.31.1 anchor-cli --locked
   ```
 - Run `anchor --version` to confirm the installation
 - Generate your own key pair: `solana-keygen --config ./solana-cli.yml new -o ./solana.id.json`. This'll be used for
@@ -483,7 +486,7 @@ The following commands apply to the TypeScript file(s):
   ```
   docker build \
     --force-rm \
-    --build-arg AGAVE_VERSION=2.1.9 \
+    --build-arg AGAVE_VERSION=2.2.6 \
     -f docker.solana.Dockerfile \
     --target builder \
     -t ff_solana_builder .
@@ -533,7 +536,7 @@ The following commands apply to the TypeScript file(s):
   ```
   docker build \
     --force-rm \
-    --build-arg ANCHOR_VERSION=0.30.1 \
+    --build-arg ANCHOR_VERSION=0.31.1 \
     --build-arg NODE_VERSION=22.14.0 \
     -f docker.anchor.Dockerfile \
     -t ff_anchor .

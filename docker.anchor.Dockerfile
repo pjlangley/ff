@@ -5,7 +5,7 @@ FROM node:${NODE_VERSION}-bullseye AS node
 FROM ff_solana_builder
 COPY --from=node /usr/local /usr/local
 
-ARG ANCHOR_VERSION=0.30.1
+ARG ANCHOR_VERSION=0.31.1
 ENV ANCHOR_VERSION=${ANCHOR_VERSION}
 
 WORKDIR /anchor
