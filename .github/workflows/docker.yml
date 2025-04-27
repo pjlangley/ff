@@ -66,37 +66,20 @@ jobs:
         id: short_sha
         run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
-      - name: build image 
+      - name: build and push image
         uses: docker/build-push-action@v6
         with:
           file: docker.solana_builder.ci.Dockerfile
           platforms: linux/amd64
           pull: true
-          push: false
-          load: true
+          push: true
           build-args: |
             AGAVE_VERSION=${{ env.AGAVE_VERSION }}
+          tags: |
+            pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+            pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}
+            pjlangley/ff_solana_builder:latest
 
-      - name: get image id
-        id: image_id
-        run: echo "id=$(docker images -q | head -n 1)" >> "$GITHUB_OUTPUT"
-
-      - name: tagging
-        run: |
-          docker tag ${{ steps.image_id.outputs.id }} pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-          docker push pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-      - name: manifests
-        run: |
-          docker manifest create pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }} \
-          pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-          docker manifest create pjlangley/ff_solana_builder:latest \
-          pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-          docker manifest push pjlangley/ff_solana_builder:${{ env.AGAVE_VERSION }}
-          docker manifest push pjlangley/ff_solana_builder:latest
-      
   ff_solana_builder_docs:
     runs-on: ubuntu-latest
     name: ff_solana_builder_docs
@@ -134,37 +117,20 @@ jobs:
         id: short_sha
         run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
-      - name: build image 
+      - name: build and push image
         uses: docker/build-push-action@v6
         with:
           file: docker.anchor.ci.Dockerfile
           platforms: linux/amd64
           pull: true
-          push: false
-          load: true
+          push: true
           build-args: |
             ANCHOR_VERSION=${{ env.ANCHOR_VERSION }}
             NODE_VERSION=22.14.0
-
-      - name: get image id
-        id: image_id
-        run: echo "id=$(docker images -q | head -n 1)" >> "$GITHUB_OUTPUT"
-
-      - name: tagging
-        run: |
-          docker tag ${{ steps.image_id.outputs.id }} pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-          docker push pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-      - name: manifests
-        run: |
-          docker manifest create pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }} \
-          pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-          docker manifest create pjlangley/ff_anchor:latest \
-          pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-          docker manifest push pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}
-          docker manifest push pjlangley/ff_anchor:latest
+          tags: |
+            pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+            pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}
+            pjlangley/ff_anchor:latest
 
   ff_anchor_docs:
     runs-on: ubuntu-latest
@@ -203,34 +169,17 @@ jobs:
         id: short_sha
         run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
-      - name: build image 
+      - name: build and push image
         uses: docker/build-push-action@v6
         with:
           file: docker.solana.ci.Dockerfile
           platforms: linux/amd64
           pull: true
-          push: false
-          load: true
-
-      - name: get image id
-        id: image_id
-        run: echo "id=$(docker images -q | head -n 1)" >> "$GITHUB_OUTPUT"
-
-      - name: tagging
-        run: |
-          docker tag ${{ steps.image_id.outputs.id }} pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-          docker push pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-      - name: manifests
-        run: |
-          docker manifest create pjlangley/ff_solana:${{ env.AGAVE_VERSION }} \
-          pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-          docker manifest create pjlangley/ff_solana:latest \
-          pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
-
-          docker manifest push pjlangley/ff_solana:${{ env.AGAVE_VERSION }}
-          docker manifest push pjlangley/ff_solana:latest
+          push: true
+          tags: |
+            pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
+            pjlangley/ff_solana:${{ env.AGAVE_VERSION }}
+            pjlangley/ff_solana:latest
 
   ff_solana_docs:
     runs-on: ubuntu-latest
