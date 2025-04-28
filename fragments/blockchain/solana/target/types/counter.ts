@@ -8,7 +8,7 @@ export type Counter = {
   "address": "HdxpgGmRXeUpXE2vVZZCy2a69Ypozs8YLt3LXPHRUkG6";
   "metadata": {
     "name": "counter";
-    "version": "0.1.0";
+    "version": "0.2.0";
     "spec": "0.1.0";
   };
   "instructions": [
@@ -58,7 +58,26 @@ export type Counter = {
         {
           "name": "counter";
           "writable": true;
-          "signer": true;
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const";
+                "value": [
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114,
+                ];
+              },
+              {
+                "kind": "account";
+                "path": "user";
+              },
+            ];
+          };
         },
         {
           "name": "systemProgram";

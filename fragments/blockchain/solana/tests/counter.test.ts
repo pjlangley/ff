@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import test, { describe } from "node:test";
 import { BankrunProvider, startAnchor } from "anchor-bankrun";
 import IDL from "../target/idl/counter.json";
+import { Buffer } from "node:buffer";
 
 describe("program: counter", () => {
   test("initializes and increments the counter", async () => {
@@ -12,29 +13,30 @@ describe("program: counter", () => {
     const provider = new BankrunProvider(context);
     const payer = provider.wallet;
     const program = new anchor.Program<Counter>(IDL as Counter, provider);
-    const counterKeypair = anchor.web3.Keypair.generate();
+    const [counterPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("counter"), payer.publicKey.toBuffer()],
+      PROGRAM_ID,
+    );
 
     await program.methods
       .initialize()
       .accounts({
-        counter: counterKeypair.publicKey,
         user: payer.publicKey,
       })
-      .signers([counterKeypair])
       .rpc();
 
-    let currentCount = await program.account.counter.fetch(counterKeypair.publicKey);
+    let currentCount = await program.account.counter.fetch(counterPda);
     assert.strictEqual(currentCount.count.toNumber(), 0);
 
     await program.methods
       .increment()
       .accounts({
-        counter: counterKeypair.publicKey,
+        counter: counterPda,
         user: payer.publicKey,
       })
       .rpc();
 
-    currentCount = await program.account.counter.fetch(counterKeypair.publicKey);
+    currentCount = await program.account.counter.fetch(counterPda);
     assert.strictEqual(currentCount.count.toNumber(), 1);
   });
 
@@ -44,13 +46,16 @@ describe("program: counter", () => {
     const provider = new BankrunProvider(context);
     const payer = provider.wallet;
     const program = new anchor.Program<Counter>(IDL as Counter, provider);
-    const counterKeypair = anchor.web3.Keypair.generate();
+    const [counterPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("counter"), payer.publicKey.toBuffer()],
+      PROGRAM_ID,
+    );
 
     try {
       await program.methods
         .increment()
         .accounts({
-          counter: counterKeypair.publicKey,
+          counter: counterPda,
           user: payer.publicKey,
         })
         .rpc();

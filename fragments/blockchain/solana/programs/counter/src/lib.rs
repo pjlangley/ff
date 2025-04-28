@@ -39,7 +39,13 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    #[account(init, payer = user, space = 8 + Counter::INIT_SPACE)]
+    #[account(
+        init,
+        seeds = [b"counter", user.key().as_ref()],
+        bump,
+        payer = user,
+        space = 8 + Counter::INIT_SPACE
+    )]
     pub counter: Account<'info, Counter>,
 
     pub system_program: Program<'info, System>,
