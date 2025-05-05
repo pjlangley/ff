@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",
+    "@solana-program/memo": "^0.7.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.10",
@@ -26,7 +27,6 @@
   },
   "dependencies": {
     "@solana-program/compute-budget": "^0.7.0",
-    "@solana-program/memo": "^0.7.0",
     "@solana/kit": "^2.1.0",
     "pg": "^8.13.1",
     "redis": "^4.7.0",
