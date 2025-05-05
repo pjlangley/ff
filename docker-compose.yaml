@@ -63,3 +63,39 @@ services:
       - "/usr/ff/solana-cli.ci.yml"
       - "logs"
       - "--verbose"
+
+  deploy_solana_programs:
+    build:
+      context: .
+      dockerfile: docker.anchor.Dockerfile
+    image: ff_anchor
+    depends_on:
+      solana_validator:
+        condition: service_healthy
+    profiles:
+      - blockchain
+    network_mode: host
+    entrypoint: bash
+    command: -c "solana airdrop 5 && anchor deploy --provider.wallet /root/.config/solana/id.json"
+
+  extract_solana_program_keys:
+    build:
+      context: .
+      dockerfile: docker.anchor.Dockerfile
+    image: ff_anchor
+    depends_on:
+      solana_validator:
+        condition: service_healthy
+    profiles:
+      - blockchain
+    network_mode: host
+    volumes:
+      - ./solana_program_keys:/usr/ff/solana_program_keys
+      - ./solana_extract_program_keys.sh:/usr/ff/solana_extract_program_keys.sh
+    entrypoint: bash
+    command: >
+      -c '
+        anchor keys list > /usr/ff/program_keys.txt
+        chmod +x /usr/ff/solana_extract_program_keys.sh
+        /usr/ff/solana_extract_program_keys.sh /usr/ff/program_keys.txt /usr/ff/solana_program_keys/solana_program_keys.env
+      '

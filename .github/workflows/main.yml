@@ -24,7 +24,13 @@ jobs:
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_node
       - name: unit tests
-        run: docker run --rm --network ci-network --env CI=$CI ff_node --run test
+        run: |
+          docker run --rm \
+          --network ci-network \
+          --env CI=$CI \
+          --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+          ff_node \
+          --run test
       - name: lint
         run: docker run --rm ff_node --run lint
       - name: typescript check

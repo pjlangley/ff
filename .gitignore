@@ -20,6 +20,7 @@ __pycache__/
 /fragments/blockchain/solana/target/*
 !/fragments/blockchain/solana/target/idl
 !/fragments/blockchain/solana/target/types
+/solana_program_keys
 
 # misc
 .DS_Store
