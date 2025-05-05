@@ -34,6 +34,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Creating Solana RPC clients: [`fragments/solana_rpc`](./fragments/solana_rpc/)
 1. Working with Solana balance: [`fragments/solana_balance`](./fragments/solana_balance/)
 1. Working with Solana airdrops: [`fragments/solana_airdrop`](./fragments/solana_airdrop/)
+1. Working with Solana transactions: [`fragments/solana_transaction`](./fragments/solana_transaction/)
 
 ### Blockchain programs
 
