@@ -82,7 +82,7 @@ describe("solana program counter interface", () => {
         await incrementCounter(signer, programAddress);
       },
       {
-        message: /^Transaction failed/,
+        message: /^Transaction simulation failed/,
       },
     );
   });

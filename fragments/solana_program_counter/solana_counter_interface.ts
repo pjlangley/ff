@@ -25,7 +25,6 @@ import {
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
 import IDL from "../blockchain/solana/target/idl/counter.json";
 import { Buffer } from "node:buffer";
-import { setComputeUnitLimitForTransaction } from "../solana_transaction/solana_transaction_utils";
 
 export const initializeAccount = async (keypair: KeyPairSigner, programAddress: Address) => {
   const initializeDiscriminator = new Uint8Array(
@@ -45,8 +44,7 @@ export const initializeAccount = async (keypair: KeyPairSigner, programAddress: 
     ],
   }, baseTx);
 
-  const initializeTransactionWithCULimit = await setComputeUnitLimitForTransaction(initializeTransaction);
-  const signature = await signAndSendTransaction(initializeTransactionWithCULimit, keypair.keyPair);
+  const signature = await signAndSendTransaction(initializeTransaction, keypair.keyPair);
 
   return signature;
 };
@@ -96,8 +94,7 @@ export const incrementCounter = async (keypair: KeyPairSigner, programKey: Addre
     ],
   }, baseTx);
 
-  const incrementTransactionWithCULimit = await setComputeUnitLimitForTransaction(incrementTransaction);
-  const signature = await signAndSendTransaction(incrementTransactionWithCULimit, keypair.keyPair);
+  const signature = await signAndSendTransaction(incrementTransaction, keypair.keyPair);
 
   return signature;
 };
