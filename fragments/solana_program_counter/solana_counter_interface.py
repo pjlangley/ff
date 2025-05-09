@@ -48,6 +48,7 @@ def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
     if account_info is None:
         raise ValueError(f"Account {counter_pda} does not exist")
 
+    # removes the discriminator from the account data
     raw_bytes = bytes(account_info.data)[8:]
     schema = Struct("count" / Int64ul)
     parsed = schema.parse(raw_bytes)
