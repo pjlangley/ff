@@ -55,7 +55,13 @@ jobs:
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI ff_python
       - name: unit tests
-        run: docker run --rm --network ci-network --env CI=$CI ff_python -m unittest -v --failfast
+        run: |
+          docker run --rm \
+          --network ci-network \
+          --env CI=$CI \
+          --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+          ff_python \
+          -m unittest -v --failfast
       - name: type check
         run: docker run --rm --entrypoint mypy ff_python --config-file mypy.ini
       - name: lint
