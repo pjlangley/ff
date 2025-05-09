@@ -1,7 +1,7 @@
 # Fullstack fragments
 
-A collection of single responsibility code samples in a variety of programming languages for comparison, with an
-emphasis on functional programming. What I call _fullstack fragments_.
+A collection of focused code samples in a variety of programming languages for comparison, with an emphasis on
+functional programming. What I call _fullstack fragments_.
 
 For the _core_ fragments, the supported programming languages are:
 
