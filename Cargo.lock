@@ -964,6 +964,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dotenvy"
+version = "0.15.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
+
+[[package]]
 name = "ed25519"
 version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1081,10 +1087,14 @@ checksum = "835a3dc7d1ec9e75e2b5fb4ba75396837112d2060b03f7d43bc1897c7f7211da"
 name = "ff"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
+ "dotenvy",
  "num-format",
  "postgres",
  "redis",
  "semver",
+ "serde",
+ "serde_json",
  "solana-client",
  "solana-sdk",
  "sqlite",

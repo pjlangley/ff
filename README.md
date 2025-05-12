@@ -172,6 +172,10 @@ execute the code.
   ```
   python -m unittest -v
   ```
+- Run specific unit test suite:
+  ```
+  python -m unittest -v fragments.solana_program_counter.test_solana_counter_interface.TestSolanaCounterInterface
+  ```
 - Run the type check:
   ```
   mypy --config-file mypy.ini
@@ -248,6 +252,14 @@ execute the code.
 - Run unit tests:
   ```
   cargo test
+  ```
+- Run specific unit test suite for module:
+  ```
+  cargo test solana_counter_interface
+  ```
+- Run unit tests with debugging on (e.g. show `println!` output):
+  ```
+  cargo test -- --nocapture
   ```
 - Run the build:
   ```

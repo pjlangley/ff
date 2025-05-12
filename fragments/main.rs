@@ -4,6 +4,7 @@ mod redis_db;
 mod solana_airdrop;
 mod solana_balance;
 mod solana_key_pair;
+mod solana_program_counter;
 mod solana_rpc;
 mod sqlite_db;
 
