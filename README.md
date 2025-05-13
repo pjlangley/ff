@@ -342,7 +342,7 @@ execute the code.
   ```
 - Run unit tests:
   ```
-  goenv exec go test ./fragments/...
+  goenv exec go test -v ./fragments/...
   ```
 - Run the build:
   ```
@@ -383,7 +383,7 @@ execute the code.
   ```
 - Run unit tests:
   ```
-  docker run --rm --network host --entrypoint go ff_go test ./fragments/...
+  docker run --rm --network host --entrypoint go ff_go test -v ./fragments/...
   ```
 - Run the build:
   ```
