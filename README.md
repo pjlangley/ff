@@ -344,6 +344,14 @@ execute the code.
   ```
   goenv exec go test -v ./fragments/...
   ```
+- Run specific unit test suite for module:
+  ```
+  goenv exec go test -v ./fragments/solana_program_counter
+  ```
+- Run specific unit test in module test suite:
+  ```
+  goenv exec go test -v ./fragments/solana_program_counter -run 'GetCountBeforeInitialize$'
+  ```
 - Run the build:
   ```
   goenv exec go build -v -o .bin/go_ff ./fragments/main.go

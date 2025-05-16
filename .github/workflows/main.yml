@@ -118,7 +118,14 @@ jobs:
       - name: run all fragments
         run: docker run --rm --network ci-network --env CI=$CI --entrypoint .bin/go_ff ff_go
       - name: unit tests
-        run: docker run --rm --network ci-network --env CI=$CI --entrypoint go ff_go test ./fragments/...
+        run: |
+          docker run --rm \
+            --network ci-network \
+            --env CI=$CI \
+            --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+            --entrypoint go \
+            ff_go \
+            test -v ./fragments/...
       - name: lint
         run: docker run --rm --entrypoint golangci-lint ff_go run -v ./fragments/...
       - name: format check
