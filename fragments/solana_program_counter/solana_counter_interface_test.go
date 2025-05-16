@@ -112,7 +112,7 @@ func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
 	}
 }
 
-func TestSolanaCounterInterface_IncrementBeforeInitilize(t *testing.T) {
+func TestSolanaCounterInterface_IncrementBeforeInitialize(t *testing.T) {
 	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
 
