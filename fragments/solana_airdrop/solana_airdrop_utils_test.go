@@ -1,59 +1,36 @@
 package solana_airdrop
 
 import (
-	"context"
 	"ff/solana_balance"
 	"ff/solana_key_pair"
-	"ff/solana_rpc"
+	solana_transaction "ff/solana_transaction"
 	"testing"
-	"time"
-
-	"github.com/gagliardetto/solana-go/rpc"
 )
 
 func TestSolanaAirdrop(t *testing.T) {
-	keypair, keypairErr := solana_key_pair.CreateKeyPair()
-	client := solana_rpc.InitRpcSubscriptionsClient()
-
-	if keypairErr != nil {
-		t.Fatalf("Failed to create keypair: %v", keypairErr)
+	keypair, err := solana_key_pair.CreateKeyPair()
+	if err != nil {
+		t.Errorf("Failed to create keypair: %v", err)
 	}
 
-	balance, balanceErr := solana_balance.GetBalance(solana_key_pair.GetAddress(keypair))
-
-	if balanceErr != nil {
-		t.Fatalf("Failed to get initial balance: %v", balanceErr)
+	balance, err := solana_balance.GetBalance(solana_key_pair.GetAddress(keypair))
+	if err != nil {
+		t.Errorf("Failed to get initial balance: %v", err)
 	}
 
 	if balance != 0 {
-		t.Fatalf("expected initial balance of zero but got: %d", balance)
+		t.Errorf("expected initial balance of zero but got: %d", balance)
 	}
 
 	sig := Airdrop(solana_key_pair.GetAddress(keypair), 1_000_000_000)
-
-	sub, subErr := client.SignatureSubscribe(sig, rpc.CommitmentConfirmed)
-
-	if subErr != nil {
-		t.Fatalf("Expected no subscription error, but got %v", subErr)
-	}
-	defer sub.Unsubscribe()
-
-	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	select {
-	case res := <-sub.Response():
-		if res.Value.Err != nil {
-			t.Errorf("Expected no error in response, but got %s", res.Value.Err)
-		}
-	case <-ctxWithTimeout.Done():
-		t.Error("Expected to receive a response, but timed out")
+	err = solana_transaction.ConfirmRecentTransaction(sig)
+	if err != nil {
+		t.Errorf("expected airdrop signature confirmation, but got %v", err)
 	}
 
-	latestBalance, latestBalanceErr := solana_balance.GetBalance(solana_key_pair.GetAddress(keypair))
-
-	if latestBalanceErr != nil {
-		t.Errorf("Failed to get latest balance %v", latestBalanceErr)
+	latestBalance, err := solana_balance.GetBalance(solana_key_pair.GetAddress(keypair))
+	if err != nil {
+		t.Errorf("Failed to get latest balance %v", err)
 	}
 
 	if latestBalance != 1_000_000_000 {
