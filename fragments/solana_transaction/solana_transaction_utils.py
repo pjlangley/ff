@@ -1,10 +1,19 @@
+import time
 from solders.signature import Signature
 from fragments.solana_rpc import init_rpc_client
 
 
-def confirm_recent_signature(signature: Signature) -> bool:
+def confirm_recent_signature(signature: Signature, timeout: float = 5.0) -> bool:
     client = init_rpc_client()
-    response = client.confirm_transaction(signature)
-    status = response.value[0]
+    deadline = time.time() + timeout
 
-    return bool(status is not None and status.confirmations is not None)
+    while time.time() < deadline:
+        response = client.get_signature_statuses([signature])
+        status = response.value[0]
+
+        if status is not None and status.confirmations is not None:
+            return True
+
+        time.sleep(0.2)
+
+    return False

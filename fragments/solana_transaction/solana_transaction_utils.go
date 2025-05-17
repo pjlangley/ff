@@ -10,10 +10,14 @@ import (
 	"github.com/gagliardetto/solana-go/rpc"
 )
 
-func ConfirmRecentTransaction(signature solana.Signature) error {
+func ConfirmRecentTransaction(signature solana.Signature, timeoutSeconds ...float64) error {
 	client := solana_rpc.InitRpcClient()
+	timeout := 5 * time.Second
+	if len(timeoutSeconds) > 0 && timeoutSeconds[0] > 0 {
+		timeout = time.Duration(timeoutSeconds[0] * float64(time.Second))
+	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	ticker := time.NewTicker(250 * time.Millisecond)

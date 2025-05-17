@@ -7,16 +7,26 @@ const getRecentSignatureConfirmationPromise = createRecentSignatureConfirmationP
   rpcSubscriptions: initRpcSubscriptionsClient(),
 });
 
-export const confirmRecentSignature = async (signature: Signature) => {
+export const confirmRecentSignature = async (signature: Signature, timeout = 5000) => {
+  const abortSignal = AbortSignal.timeout(timeout);
+
   try {
-    await getRecentSignatureConfirmationPromise({
-      commitment: "confirmed",
-      signature,
-      abortSignal: AbortSignal.timeout(5000),
-    });
+    await Promise.race([
+      // Note: `getRecentSignatureConfirmationPromise` silently fails if the transaction is not found in time
+      getRecentSignatureConfirmationPromise({
+        commitment: "confirmed",
+        signature,
+        abortSignal,
+      }),
+      new Promise((_, reject) => {
+        abortSignal.addEventListener("abort", () => {
+          reject(new Error("Signature confirmation timed out"));
+        }, { once: true });
+      }),
+    ]);
     return true;
   } catch (err) {
-    console.error("Signature confirmation failed:", err);
+    console.error("Error confirming signature:", err);
     return false;
   }
 };
