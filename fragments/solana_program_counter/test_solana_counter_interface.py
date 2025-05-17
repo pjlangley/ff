@@ -88,11 +88,6 @@ class TestSolanaCounterInterface(unittest.TestCase):
 
     def test_solana_get_count_before_initialize(self):
         user_keypair = Keypair()
-        airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000)
-        airdrop_confirmed = confirm_recent_signature(airdrop_signature)
-
-        if not airdrop_confirmed:
-            self.fail("Airdrop failed")
 
         with self.assertRaises(ValueError) as cm:
             get_count(user_keypair, self.program_id)

@@ -208,14 +208,8 @@ mod tests {
 
     #[test]
     fn test_solana_get_count_before_initialize() {
-        let client = init_rpc_client();
         let user_keypair = Keypair::new();
         let program_id = get_program_id();
-
-        let airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000).unwrap();
-        client
-            .poll_for_signature(&airdrop_signature)
-            .unwrap_or_else(|err| panic!("Failed to poll for airdrop signature: {}", err));
 
         let result = get_count(&user_keypair, &program_id);
         assert!(
