@@ -30,7 +30,6 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with SQLite: [`fragments/sqlite_db`](./fragments/sqlite_db/)
 1. Working with Redis: [`fragments/redis_db`](./fragments/redis_db/)
 1. Working with PostgreSQL: [`fragments/postgres_db`](./fragments/postgres_db/)
-1. Working with Solana key pairs: [`fragments/solana_key_pair`](./fragments/solana_key_pair/)
 1. Creating Solana RPC clients: [`fragments/solana_rpc`](./fragments/solana_rpc/)
 1. Working with Solana balance: [`fragments/solana_balance`](./fragments/solana_balance/)
 1. Working with Solana airdrops: [`fragments/solana_airdrop`](./fragments/solana_airdrop/)

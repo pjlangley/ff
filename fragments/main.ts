@@ -16,10 +16,10 @@ import {
   removeItem as pgRemoveItem,
   updateItem as pgUpdateItem,
 } from "./postgres_db/postgres_crud";
-import { createKeyPair, getAddress } from "./solana_key_pair/solana_key_pair_utils";
 import { getBalance } from "./solana_balance/solana_balance_utils";
 import { airdrop } from "./solana_airdrop/solana_airdrop_utils";
 import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_utils";
+import { generateKeyPairSigner } from "@solana/kit";
 
 (async () => {
   // env vars
@@ -57,11 +57,8 @@ import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_ut
     await pgUpdateItem({ ticker: "ETH", name: "Ethereum", launched: 2015 }),
   );
 
-  // solana key pairs
-  const solanaKeypair = await createKeyPair();
-  const solanaKeypairAddress = await getAddress(solanaKeypair);
-  console.log('fragment "solana_key_pair/createKeyPair" output:', solanaKeypair);
-  console.log('fragment "solana_key_pair/getAddress" output:', solanaKeypairAddress);
+  const solanaKeypair = await generateKeyPairSigner();
+  const solanaKeypairAddress = solanaKeypair.address;
 
   // solana balance
   console.log('fragment "solana_balance/getBalance" output:', await getBalance(solanaKeypairAddress));

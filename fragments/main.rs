@@ -1,9 +1,10 @@
+use solana_sdk::{signature::Keypair, signer::Signer};
+
 mod env_vars;
 mod postgres_db;
 mod redis_db;
 mod solana_airdrop;
 mod solana_balance;
-mod solana_key_pair;
 mod solana_program_counter;
 mod solana_rpc;
 mod sqlite_db;
@@ -127,17 +128,8 @@ fn main() {
             .unwrap_or_else(|e| panic!("Expected to add item but got error: {:?}", e))
     );
 
-    // solana key pair
-    let solana_keypair = solana_key_pair::solana_key_pair_utils::create_key_pair();
-    let solana_address = solana_key_pair::solana_key_pair_utils::get_address(&solana_keypair);
-    println!(
-        "fragment 'solana_key_pair/create_key_pair' output: {:?}",
-        solana_keypair
-    );
-    println!(
-        "fragment 'solana_key_pair/get_address' output: {:?}",
-        solana_address
-    );
+    let solana_keypair = Keypair::new();
+    let solana_address = solana_keypair.pubkey();
 
     // solana balance
     println!(

@@ -11,12 +11,11 @@ pub fn get_balance(pubkey: Pubkey) -> Result<u64, ClientError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::solana_key_pair::solana_key_pair_utils::{create_key_pair, get_address};
+    use solana_sdk::{signature::Keypair, signer::Signer};
 
     #[test]
     fn test_get_balance() {
-        let keypair = create_key_pair();
-        let address = get_address(&keypair);
+        let address = Keypair::new().pubkey();
         let balance = get_balance(address).unwrap();
         assert_eq!(balance, 0);
     }

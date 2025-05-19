@@ -20,12 +20,11 @@ pub fn airdrop(pubkey: Pubkey, amount: u64) -> Result<Signature, ClientError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::solana_key_pair::solana_key_pair_utils::{create_key_pair, get_address};
-    use solana_sdk::commitment_config::CommitmentConfig;
+    use solana_sdk::{commitment_config::CommitmentConfig, signature::Keypair, signer::Signer};
 
     #[test]
     fn test_solana_airdrop() {
-        let address = get_address(&create_key_pair());
+        let address = Keypair::new().pubkey();
         let rpc_client = init_rpc_client();
         let commitment = CommitmentConfig::confirmed();
         let airdrop_amount = 1_000_000_000;

@@ -2,18 +2,19 @@ package solana_airdrop
 
 import (
 	"ff/solana_balance"
-	"ff/solana_key_pair"
 	solana_transaction "ff/solana_transaction"
 	"testing"
+
+	"github.com/gagliardetto/solana-go"
 )
 
 func TestSolanaAirdrop(t *testing.T) {
-	keypair, err := solana_key_pair.CreateKeyPair()
+	keypair, err := solana.NewRandomPrivateKey()
 	if err != nil {
 		t.Errorf("Failed to create keypair: %v", err)
 	}
 
-	balance, err := solana_balance.GetBalance(solana_key_pair.GetAddress(keypair))
+	balance, err := solana_balance.GetBalance(keypair.PublicKey())
 	if err != nil {
 		t.Errorf("Failed to get initial balance: %v", err)
 	}
@@ -22,13 +23,13 @@ func TestSolanaAirdrop(t *testing.T) {
 		t.Errorf("expected initial balance of zero but got: %d", balance)
 	}
 
-	sig := Airdrop(solana_key_pair.GetAddress(keypair), 1_000_000_000)
+	sig := Airdrop(keypair.PublicKey(), 1_000_000_000)
 	err = solana_transaction.ConfirmRecentTransaction(sig)
 	if err != nil {
 		t.Errorf("expected airdrop signature confirmation, but got %v", err)
 	}
 
-	latestBalance, err := solana_balance.GetBalance(solana_key_pair.GetAddress(keypair))
+	latestBalance, err := solana_balance.GetBalance(keypair.PublicKey())
 	if err != nil {
 		t.Errorf("Failed to get latest balance %v", err)
 	}

@@ -7,10 +7,11 @@ import (
 	redis_crud "ff/redis_db"
 	solana_airdrop "ff/solana_airdrop"
 	solana_balance "ff/solana_balance"
-	solana_key_pair "ff/solana_key_pair"
 	"ff/solana_rpc"
 	sqlite_crud "ff/sqlite_db"
 	"fmt"
+
+	"github.com/gagliardetto/solana-go"
 )
 
 func main() {
@@ -54,10 +55,7 @@ func main() {
 	pgDeleteCoin, err := postgres_crud.DeleteItem("PEPE")
 	fmt.Println("fragment 'postgres_db/DeleteItem' output:", pgDeleteCoin, "Error:", err)
 
-	// solana key pair
-	solanaKeypair, err := solana_key_pair.CreateKeyPair()
-	fmt.Println("fragment 'solana_key_pair/CreateKeyPair' output:", solanaKeypair, "Error:", err)
-	fmt.Println("fragment 'solana_key_pair/GetAddress' output:", solana_key_pair.GetAddress(solanaKeypair))
+	solanaKeypair, _ := solana.NewRandomPrivateKey()
 
 	// solana balance
 	solanaBalance, err := solana_balance.GetBalance(solanaKeypair.PublicKey())
