@@ -36,37 +36,37 @@ func main() {
 	fmt.Println("fragment 'redis_db/delete' output:", redis_crud.RedisDelete("go"))
 
 	// postgres
-	pgCoin, pgCoinErr := postgres_crud.GetItemByTicker("BTC")
-	fmt.Println("fragment 'postgres_db/GetItemByTicker' output:", pgCoin, "Error:", pgCoinErr)
+	pgCoin, err := postgres_crud.GetItemByTicker("BTC")
+	fmt.Println("fragment 'postgres_db/GetItemByTicker' output:", pgCoin, "Error:", err)
 
-	pgCoins, pgCoinsErr := postgres_crud.GetItemsAfterLaunchYear(2010)
-	fmt.Println("fragment 'postgres_db/GetItemsAfterLaunchYear' output:", pgCoins, "Error:", pgCoinsErr)
+	pgCoins, err := postgres_crud.GetItemsAfterLaunchYear(2010)
+	fmt.Println("fragment 'postgres_db/GetItemsAfterLaunchYear' output:", pgCoins, "Error:", err)
 
-	pgAllCoins, pgAllCoinsErr := postgres_crud.GetAllItems()
-	fmt.Println("fragment 'postgres_db/GetAllItems' output:", pgAllCoins, "Error:", pgAllCoinsErr)
+	pgAllCoins, err := postgres_crud.GetAllItems()
+	fmt.Println("fragment 'postgres_db/GetAllItems' output:", pgAllCoins, "Error:", err)
 
-	pgCreateItem, pgCreateItemErr := postgres_crud.CreateItem(postgres_crud.CryptoCoinWithoutId{Ticker: "PEPE", Name: "Pepe", Launched: 2023})
-	fmt.Println("fragment 'postgres_db/CreateItem' output:", pgCreateItem, "Error:", pgCreateItemErr)
+	pgCreateItem, err := postgres_crud.CreateItem(postgres_crud.CryptoCoinWithoutId{Ticker: "PEPE", Name: "Pepe", Launched: 2023})
+	fmt.Println("fragment 'postgres_db/CreateItem' output:", pgCreateItem, "Error:", err)
 
-	pgUpdateCoin, pgUpdateCoinErr := postgres_crud.UpdateItem(postgres_crud.CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2009})
-	fmt.Println("fragment 'postgres_db/UpdateItem' output:", pgUpdateCoin, "Error:", pgUpdateCoinErr)
+	pgUpdateCoin, err := postgres_crud.UpdateItem(postgres_crud.CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2009})
+	fmt.Println("fragment 'postgres_db/UpdateItem' output:", pgUpdateCoin, "Error:", err)
 
-	pgDeleteCoin, pgDeleteCoinErr := postgres_crud.DeleteItem("PEPE")
-	fmt.Println("fragment 'postgres_db/DeleteItem' output:", pgDeleteCoin, "Error:", pgDeleteCoinErr)
+	pgDeleteCoin, err := postgres_crud.DeleteItem("PEPE")
+	fmt.Println("fragment 'postgres_db/DeleteItem' output:", pgDeleteCoin, "Error:", err)
 
 	// solana key pair
-	solanaKeypair, solanaKeypairErr := solana_key_pair.CreateKeyPair()
-	fmt.Println("fragment 'solana_key_pair/CreateKeyPair' output:", solanaKeypair, "Error:", solanaKeypairErr)
+	solanaKeypair, err := solana_key_pair.CreateKeyPair()
+	fmt.Println("fragment 'solana_key_pair/CreateKeyPair' output:", solanaKeypair, "Error:", err)
 	fmt.Println("fragment 'solana_key_pair/GetAddress' output:", solana_key_pair.GetAddress(solanaKeypair))
 
 	// solana balance
-	solanaBalance, solanaBalanceErr := solana_balance.GetBalance(solanaKeypair.PublicKey())
-	fmt.Println("fragment 'solana_balance/GetBalance' output:", solanaBalance, "Error:", solanaBalanceErr)
+	solanaBalance, err := solana_balance.GetBalance(solanaKeypair.PublicKey())
+	fmt.Println("fragment 'solana_balance/GetBalance' output:", solanaBalance, "Error:", err)
 
 	// solana rpc
 	solanaClient := solana_rpc.InitRpcClient()
-	solanaClientVersionRes, solanaClientVersionErr := solanaClient.GetVersion(context.Background())
-	fmt.Println("fragment 'solana_rpc/InitRpcClient GetVersion' output:", solanaClientVersionRes, "Error:", solanaClientVersionErr)
+	solanaClientVersionRes, err := solanaClient.GetVersion(context.Background())
+	fmt.Println("fragment 'solana_rpc/InitRpcClient GetVersion' output:", solanaClientVersionRes, "Error:", err)
 
 	// solana airdrop
 	solanaAirdropSig := solana_airdrop.Airdrop(solanaKeypair.PublicKey(), 1_000_000_000)

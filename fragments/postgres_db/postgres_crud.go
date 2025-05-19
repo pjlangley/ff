@@ -40,7 +40,7 @@ func initDb() *pgx.Conn {
 	if err != nil {
 		log.Fatal("Unable to connect to Postgres", err)
 	}
-	_, execErr := conn.Exec(ctx, `
+	_, err = conn.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS crypto_coins (
       id SERIAL PRIMARY KEY,
       ticker VARCHAR(8) NOT NULL UNIQUE,
@@ -53,8 +53,8 @@ func initDb() *pgx.Conn {
     ('SOL', 'Solana', 2020)
     ON CONFLICT (ticker) DO NOTHING;
 	`)
-	if execErr != nil {
-		log.Fatal("Error executing setup queries", execErr)
+	if err != nil {
+		log.Fatal("Error executing setup queries", err)
 	}
 
 	return conn

@@ -6,17 +6,17 @@ import (
 )
 
 func TestSolanaGetBalance(t *testing.T) {
-	keypair, keypairErr := solana_key_pair_utils.CreateKeyPair()
+	keypair, err := solana_key_pair_utils.CreateKeyPair()
 
-	if keypairErr != nil {
+	if err != nil {
 		t.FailNow()
 	}
 
 	address := solana_key_pair_utils.GetAddress(keypair)
-	balance, balanceErr := GetBalance(address)
+	balance, err := GetBalance(address)
 
-	if balanceErr != nil {
-		t.Errorf("Expected no error, but got %s", balanceErr)
+	if err != nil {
+		t.Errorf("Expected no error, but got %s", err)
 	}
 
 	if balance != 0 {

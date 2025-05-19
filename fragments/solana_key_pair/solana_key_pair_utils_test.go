@@ -5,10 +5,10 @@ import (
 )
 
 func TestCreateKeyPairAndGetAddress(t *testing.T) {
-	keypair, keypairErr := CreateKeyPair()
+	keypair, err := CreateKeyPair()
 
-	if keypairErr != nil {
-		t.Errorf("Expected no error, but got %s", keypairErr)
+	if err != nil {
+		t.Errorf("Expected no error, but got %s", err)
 	}
 
 	address := GetAddress(keypair)

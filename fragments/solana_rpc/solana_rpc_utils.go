@@ -39,10 +39,10 @@ func InitRpcClient() *rpc.Client {
 
 func InitRpcSubscriptionsClient() *ws.Client {
 	url := getRpcSubscriptionsUrl()
-	client, clientErr := ws.Connect(context.Background(), url)
+	client, err := ws.Connect(context.Background(), url)
 
-	if clientErr != nil {
-		log.Fatalf("Failed to connect to WebSocket: %v", clientErr)
+	if err != nil {
+		log.Fatalf("Failed to connect to WebSocket: %v", err)
 	}
 
 	return client
