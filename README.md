@@ -57,6 +57,10 @@ Spin up all the services before running any commands:
 docker compose --profile blockchain up
 ```
 
+> [!NOTE]
+> After `docker compose --profile blockchain up` has run, the Solana program keys are automatically extracted to
+> `./solana_program_keys/solana_program_keys.env`. They are dynamically referenced in unit tests.
+
 If not working on blockchain fragments, you can omit the `blockchain` profile to save on CPU consumption:
 
 ```
@@ -126,7 +130,11 @@ execute the code.
   ```
 - Run unit tests:
   ```
-  docker run --rm --network host ff_node --run test
+  docker run --rm \
+    --network host \
+    --env counter_PROGRAM_ID=<program_id_here> \
+    ff_node \
+    --run test
   ```
 - Run the linter:
   ```
@@ -208,7 +216,11 @@ execute the code.
   ```
 - Run unit tests:
   ```
-  docker run --rm --network host ff_python -m unittest -v
+  docker run --rm \
+    --network host \
+    --env counter_PROGRAM_ID=<program_id_here> \
+    ff_python \
+    -m unittest -v
   ```
 - Run the type check:
   ```
@@ -297,7 +309,12 @@ execute the code.
   ```
 - Run unit tests:
   ```
-  docker run --rm --network host --entrypoint cargo ff_rust test
+  docker run --rm \
+    --network host \
+    --env counter_PROGRAM_ID=<program_id_here> \
+    --entrypoint cargo \
+    ff_rust \
+    test
   ```
 - Run the build:
   ```
@@ -390,7 +407,12 @@ execute the code.
   ```
 - Run unit tests:
   ```
-  docker run --rm --network host --entrypoint go ff_go test -v ./fragments/...
+  docker run --rm \
+    --network host \
+    --env counter_PROGRAM_ID=<program_id_here> \
+    --entrypoint go \
+    ff_go \
+    test -v ./fragments/...
   ```
 - Run the build:
   ```
