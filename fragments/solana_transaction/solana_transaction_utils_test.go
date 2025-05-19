@@ -30,7 +30,7 @@ func TestSolanaTransaction_ConfirmRecentTransaction_Failure(t *testing.T) {
 	}
 
 	instr := system.NewTransferInstruction(0, userKeypair.PublicKey(), userKeypair.PublicKey()).Build()
-	txn, err := solana.NewTransaction(
+	tx, err := solana.NewTransaction(
 		[]solana.Instruction{instr},
 		latestBlockhash.Value.Blockhash,
 		solana.TransactionPayer(userKeypair.PublicKey()),
@@ -39,7 +39,7 @@ func TestSolanaTransaction_ConfirmRecentTransaction_Failure(t *testing.T) {
 		t.Errorf("Failed to create transaction: %v", err)
 	}
 
-	_, err = txn.Sign(
+	_, err = tx.Sign(
 		func(key solana.PublicKey) *solana.PrivateKey {
 			if userKeypair.PublicKey().Equals(key) {
 				return &userKeypair
@@ -51,7 +51,7 @@ func TestSolanaTransaction_ConfirmRecentTransaction_Failure(t *testing.T) {
 		t.Errorf("unable to sign transaction: %v", err)
 	}
 
-	err = ConfirmRecentTransaction(txn.Signatures[0], 0.1)
+	err = ConfirmRecentTransaction(tx.Signatures[0], 0.1)
 	if err == nil {
 		t.Error("Expected confirm recent transaction to fail, but got nil")
 	}

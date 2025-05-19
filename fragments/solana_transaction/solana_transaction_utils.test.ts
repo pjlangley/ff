@@ -27,14 +27,14 @@ describe("solana transaction utils", () => {
     const keypair = await generateKeyPairSigner();
     const client = initRpcClient();
     const { value: latestBlockhash } = await client.getLatestBlockhash().send();
-    const txn = pipe(
+    const tx = pipe(
       createTransactionMessage({ version: 0 }),
-      (txn) => setTransactionMessageFeePayer(keypair.address, txn),
-      (txn) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, txn),
+      (tx) => setTransactionMessageFeePayer(keypair.address, tx),
+      (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     );
-    const compiledTxn = compileTransaction(txn);
-    const signedTxn = await signTransaction([keypair.keyPair], compiledTxn);
-    const sig = getSignatureFromTransaction(signedTxn);
+    const compiledTx = compileTransaction(tx);
+    const signedTx = await signTransaction([keypair.keyPair], compiledTx);
+    const sig = getSignatureFromTransaction(signedTx);
     const isConfirmed = await confirmRecentSignature(sig, 50);
 
     assert.strictEqual(isConfirmed, false);

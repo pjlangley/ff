@@ -46,12 +46,12 @@ func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey
 		},
 		discriminator,
 	)
-	txn, err := createTransactionMessage(userKeypair, instr)
+	tx, err := createTransactionMessage(userKeypair, instr)
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to create transaction: %v", err)
 	}
 
-	sig, err := client.SendTransactionWithOpts(context.Background(), txn, rpc.TransactionOpts{PreflightCommitment: rpc.CommitmentConfirmed})
+	sig, err := client.SendTransactionWithOpts(context.Background(), tx, rpc.TransactionOpts{PreflightCommitment: rpc.CommitmentConfirmed})
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to send transaction: %v", err)
 	}
@@ -108,12 +108,12 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 		},
 		discriminator,
 	)
-	txn, err := createTransactionMessage(userKeypair, instr)
+	tx, err := createTransactionMessage(userKeypair, instr)
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to create transaction: %v", err)
 	}
 
-	sig, err := client.SendTransactionWithOpts(context.Background(), txn, rpc.TransactionOpts{PreflightCommitment: rpc.CommitmentConfirmed})
+	sig, err := client.SendTransactionWithOpts(context.Background(), tx, rpc.TransactionOpts{PreflightCommitment: rpc.CommitmentConfirmed})
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to send transaction: %v", err)
 	}
@@ -169,7 +169,7 @@ func createTransactionMessage(userKeypair solana.PrivateKey, instruction *solana
 		return nil, fmt.Errorf("failed to get latest blockhash: %w", err)
 	}
 
-	txn, err := solana.NewTransaction(
+	tx, err := solana.NewTransaction(
 		[]solana.Instruction{instruction},
 		latestBlockhash.Value.Blockhash,
 		solana.TransactionPayer(userKeypair.PublicKey()),
@@ -178,7 +178,7 @@ func createTransactionMessage(userKeypair solana.PrivateKey, instruction *solana
 		return nil, fmt.Errorf("failed to create transaction: %w", err)
 	}
 
-	_, err = txn.Sign(
+	_, err = tx.Sign(
 		func(key solana.PublicKey) *solana.PrivateKey {
 			if userKeypair.PublicKey().Equals(key) {
 				return &userKeypair
@@ -190,5 +190,5 @@ func createTransactionMessage(userKeypair solana.PrivateKey, instruction *solana
 		return nil, fmt.Errorf("unable to sign transaction: %w", err)
 	}
 
-	return txn, nil
+	return tx, nil
 }
