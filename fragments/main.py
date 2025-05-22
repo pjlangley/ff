@@ -24,7 +24,7 @@ from fragments.postgres_db import (
     update_item as pg_update_item,
 )
 from fragments.solana_balance import get_balance
-from fragments.solana_airdrop import airdrop
+from fragments.solana_airdrop import send_and_confirm_airdrop
 from fragments.solana_rpc import init_rpc_client
 
 # env vars
@@ -60,7 +60,8 @@ solana_address = solana_key_pair.pubkey()
 print(f"fragment 'solana_balance/get_balance' output: {get_balance(solana_address)}")
 
 # solana airdrop
-print(f"fragment 'solana_airdrop/airdrop' output: {airdrop(solana_address, 1_000_000)}")
+print("fragment 'solana_airdrop/send_and_confirm_airdrop':")
+send_and_confirm_airdrop(solana_address, 1_000_000_000)
 
 # solana rpc utils
 solanaRpcClient = init_rpc_client()

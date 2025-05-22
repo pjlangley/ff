@@ -67,6 +67,6 @@ func main() {
 	fmt.Println("fragment 'solana_rpc/InitRpcClient GetVersion' output:", solanaClientVersionRes, "Error:", err)
 
 	// solana airdrop
-	solanaAirdropSig := solana_airdrop.Airdrop(solanaKeypair.PublicKey(), 1_000_000_000)
-	fmt.Println("fragment 'solana_airdrop/Airdrop' output:", solanaAirdropSig)
+	fmt.Println("fragment 'solana_airdrop/SendAndConfirmAirdrop' output:")
+	solana_airdrop.SendAndConfirmAirdrop(solanaKeypair.PublicKey(), 1_000_000_000)
 }

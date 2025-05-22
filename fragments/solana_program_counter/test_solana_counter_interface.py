@@ -5,7 +5,7 @@ from solders.pubkey import Pubkey
 from solana.rpc.core import RPCException
 from dotenv import load_dotenv
 from fragments.solana_program_counter import initialize_account, get_count, increment_counter
-from fragments.solana_airdrop import airdrop
+from fragments.solana_airdrop import send_and_confirm_airdrop
 from fragments.solana_transaction import confirm_recent_signature
 from fragments.env_vars import get_env_var
 
@@ -31,11 +31,7 @@ class TestSolanaCounterInterface(unittest.TestCase):
 
     def test_solana_initialize_account(self):
         user_keypair = Keypair()
-        airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000)
-        airdrop_confirmed = confirm_recent_signature(airdrop_signature)
-
-        if not airdrop_confirmed:
-            self.fail("Airdrop failed")
+        send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000)
 
         initialize_signature = initialize_account(user_keypair, self.program_id)
         instruction_confirmed = confirm_recent_signature(initialize_signature)
@@ -48,11 +44,7 @@ class TestSolanaCounterInterface(unittest.TestCase):
 
     def test_solana_initialize_account_and_increment(self):
         user_keypair = Keypair()
-        airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000)
-        airdrop_confirmed = confirm_recent_signature(airdrop_signature)
-
-        if not airdrop_confirmed:
-            self.fail("Airdrop failed")
+        send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000)
 
         initialize_signature = initialize_account(user_keypair, self.program_id)
         instruction_confirmed = confirm_recent_signature(initialize_signature)
@@ -74,11 +66,7 @@ class TestSolanaCounterInterface(unittest.TestCase):
 
     def test_solana_increment_before_initialize(self):
         user_keypair = Keypair()
-        airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000)
-        airdrop_confirmed = confirm_recent_signature(airdrop_signature)
-
-        if not airdrop_confirmed:
-            self.fail("Airdrop failed")
+        send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000)
 
         with self.assertRaises(RPCException) as cm:
             increment_counter(user_keypair, self.program_id)

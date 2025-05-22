@@ -1,11 +1,17 @@
 from solders.pubkey import Pubkey
-from solders.signature import Signature
 from fragments.solana_rpc import init_rpc_client
+from fragments.solana_transaction import confirm_recent_signature
 
 
-def airdrop(address: Pubkey, amount: int) -> Signature:
+def send_and_confirm_airdrop(address: Pubkey, amount: int) -> None:
     client = init_rpc_client()
     formatted_amount = f"{amount:,}"
     print(f"Airdropping {formatted_amount} lamports to {address}")
 
-    return client.request_airdrop(address, amount).value
+    sig = client.request_airdrop(address, amount).value
+    is_confirmed = confirm_recent_signature(sig)
+
+    if not is_confirmed:
+        raise RuntimeError(f"Airdrop was not confirmed for {address} with signature {sig}")
+
+    print(f"Airdrop confirmed for {address} with signature {sig}")

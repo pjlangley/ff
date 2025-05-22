@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test, { before, describe } from "node:test";
-import { airdrop } from "../solana_airdrop/solana_airdrop_utils";
+import { sendAndConfirmAirdrop } from "../solana_airdrop/solana_airdrop_utils";
 import { getCount, incrementCounter, initializeAccount } from "./solana_counter_interface";
 import { Address, address, generateKeyPairSigner } from "@solana/kit";
 import { getEnvVar } from "../env_vars/env_vars_utils";
@@ -44,8 +44,7 @@ describe("solana program counter interface", () => {
 
   test("initialize account", async () => {
     const signer = await generateKeyPairSigner();
-    const airdropSig = await airdrop(signer.address, 1_000_000_000n);
-    await confirmRecentSignature(airdropSig);
+    await sendAndConfirmAirdrop(signer.address, 1_000_000_000n);
 
     const txSig = await initializeAccount(signer, programAddress);
     await confirmRecentSignature(txSig);
@@ -56,8 +55,7 @@ describe("solana program counter interface", () => {
 
   test("initialize account and increment", async () => {
     const signer = await generateKeyPairSigner();
-    const airdropSig = await airdrop(signer.address, 1_000_000_000n);
-    await confirmRecentSignature(airdropSig);
+    await sendAndConfirmAirdrop(signer.address, 1_000_000_000n);
 
     const txSig = await initializeAccount(signer, programAddress);
     await confirmRecentSignature(txSig);
@@ -74,8 +72,7 @@ describe("solana program counter interface", () => {
 
   test("increment before initializing", async () => {
     const signer = await generateKeyPairSigner();
-    const airdropSig = await airdrop(signer.address, 1_000_000_000n);
-    await confirmRecentSignature(airdropSig);
+    await sendAndConfirmAirdrop(signer.address, 1_000_000_000n);
 
     assert.rejects(
       async () => {

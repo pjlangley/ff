@@ -2,7 +2,8 @@ import unittest
 from solders.keypair import Keypair
 from solders.message import MessageV0
 from solders.transaction import VersionedTransaction
-from fragments.solana_airdrop import airdrop
+from solders.system_program import transfer, TransferParams
+from fragments.solana_airdrop import send_and_confirm_airdrop
 from fragments.solana_transaction import confirm_recent_signature
 from fragments.solana_rpc import init_rpc_client
 
@@ -11,8 +12,26 @@ class TestSolanaTransactionUtils(unittest.TestCase):
 
     def test_solana_confirm_recent_signature_success(self):
         user_keypair = Keypair()
-        sig = airdrop(user_keypair.pubkey(), 1_000_000_000)
-        is_confirmed = confirm_recent_signature(sig)
+        send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000)
+
+        client = init_rpc_client()
+        latest_blockhash = client.get_latest_blockhash()
+        instr = transfer(
+            TransferParams(
+                from_pubkey=user_keypair.pubkey(),
+                to_pubkey=user_keypair.pubkey(),
+                lamports=0,
+            )
+        )
+        msg = MessageV0.try_compile(
+            payer=user_keypair.pubkey(),
+            recent_blockhash=latest_blockhash.value.blockhash,
+            instructions=[instr],
+            address_lookup_table_accounts=[],
+        )
+        tx = VersionedTransaction(msg, [user_keypair])
+        client.send_transaction(tx)
+        is_confirmed = confirm_recent_signature(tx.signatures[0])
 
         self.assertTrue(is_confirmed)
 

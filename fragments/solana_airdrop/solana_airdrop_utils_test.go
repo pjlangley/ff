@@ -2,7 +2,6 @@ package solana_airdrop
 
 import (
 	"ff/solana_balance"
-	solana_transaction "ff/solana_transaction"
 	"testing"
 
 	"github.com/gagliardetto/solana-go"
@@ -23,11 +22,7 @@ func TestSolanaAirdrop(t *testing.T) {
 		t.Errorf("expected initial balance of zero but got: %d", balance)
 	}
 
-	sig := Airdrop(keypair.PublicKey(), 1_000_000_000)
-	err = solana_transaction.ConfirmRecentTransaction(sig)
-	if err != nil {
-		t.Errorf("expected airdrop signature confirmation, but got %v", err)
-	}
+	SendAndConfirmAirdrop(keypair.PublicKey(), 1_000_000_000)
 
 	latestBalance, err := solana_balance.GetBalance(keypair.PublicKey())
 	if err != nil {

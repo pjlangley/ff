@@ -42,14 +42,9 @@ func getProgramId() solana.PublicKey {
 func TestSolanaCounterInterface_InitializeAccount(t *testing.T) {
 	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
+	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), 1_000_000_000)
 
-	sig := solana_airdrop.Airdrop(userKeypair.PublicKey(), 1_000_000_000)
-	err := solana_transaction.ConfirmRecentTransaction(sig)
-	if err != nil {
-		t.Errorf("Airdrop failed: %v", err)
-	}
-
-	sig, err = InitializeAccount(userKeypair, programId)
+	sig, err := InitializeAccount(userKeypair, programId)
 	if err != nil {
 		t.Errorf("InitializeAccount failed: %v", err)
 	}
@@ -70,14 +65,9 @@ func TestSolanaCounterInterface_InitializeAccount(t *testing.T) {
 func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
 	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
+	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), 1_000_000_000)
 
-	sig := solana_airdrop.Airdrop(userKeypair.PublicKey(), 1_000_000_000)
-	err := solana_transaction.ConfirmRecentTransaction(sig)
-	if err != nil {
-		t.Errorf("Airdrop failed: %v", err)
-	}
-
-	sig, err = InitializeAccount(userKeypair, programId)
+	sig, err := InitializeAccount(userKeypair, programId)
 	if err != nil {
 		t.Errorf("InitializeAccount failed: %v", err)
 	}
@@ -115,14 +105,9 @@ func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
 func TestSolanaCounterInterface_IncrementBeforeInitialize(t *testing.T) {
 	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
+	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), 1_000_000_000)
 
-	sig := solana_airdrop.Airdrop(userKeypair.PublicKey(), 1_000_000_000)
-	err := solana_transaction.ConfirmRecentTransaction(sig)
-	if err != nil {
-		t.Errorf("Airdrop failed: %v", err)
-	}
-
-	_, err = IncrementCounter(userKeypair, programId)
+	_, err := IncrementCounter(userKeypair, programId)
 	if err == nil {
 		t.Errorf("Expected error when incrementing before initialization, got nil")
 	}

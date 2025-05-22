@@ -1,24 +1,48 @@
 import assert from "node:assert/strict";
 import test, { describe } from "node:test";
-import { airdrop } from "../solana_airdrop/solana_airdrop_utils";
 import {
+  appendTransactionMessageInstruction,
   compileTransaction,
   createTransactionMessage,
   generateKeyPairSigner,
+  getBase64EncodedWireTransaction,
   getSignatureFromTransaction,
   pipe,
   setTransactionMessageFeePayer,
   setTransactionMessageLifetimeUsingBlockhash,
   signTransaction,
 } from "@solana/kit";
+import { getTransferSolInstruction } from "@solana-program/system";
 import { confirmRecentSignature } from "./solana_transaction_utils";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
+import { sendAndConfirmAirdrop } from "../solana_airdrop/solana_airdrop_utils";
 
 describe("solana transaction utils", () => {
   test("confirmRecentSignature success", async () => {
     const keypair = await generateKeyPairSigner();
-    const airdropSig = await airdrop(keypair.address, 1_000_000_000n);
-    const isConfirmed = await confirmRecentSignature(airdropSig);
+    const client = initRpcClient();
+    await sendAndConfirmAirdrop(keypair.address, 1_000_000_000n);
+
+    const { value: latestBlockhash } = await client.getLatestBlockhash().send();
+    const tx = pipe(
+      createTransactionMessage({ version: 0 }),
+      (tx) => setTransactionMessageFeePayer(keypair.address, tx),
+      (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+      (tx) =>
+        appendTransactionMessageInstruction(
+          getTransferSolInstruction({
+            source: keypair,
+            destination: keypair.address,
+            amount: 0,
+          }),
+          tx,
+        ),
+    );
+    const compiledTx = compileTransaction(tx);
+    const signedTx = await signTransaction([keypair.keyPair], compiledTx);
+    const serializedTransaction = getBase64EncodedWireTransaction(signedTx);
+    const sig = await client.sendTransaction(serializedTransaction, { encoding: "base64" }).send();
+    const isConfirmed = await confirmRecentSignature(sig);
 
     assert.strictEqual(isConfirmed, true);
   });

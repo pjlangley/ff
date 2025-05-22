@@ -122,7 +122,7 @@ fn create_transaction_message(user_pubkey: &Pubkey, instruction: Instruction) ->
 mod tests {
     use super::*;
     use crate::env_vars::env_vars_utils::get_env_var;
-    use crate::solana_airdrop::solana_airdrop_utils::airdrop;
+    use crate::solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop;
     use solana_sdk::signature::Keypair;
     use std::str::FromStr;
 
@@ -146,14 +146,9 @@ mod tests {
 
     #[test]
     fn test_solana_initialize_account() {
-        let client = init_rpc_client();
         let user_keypair = Keypair::new();
         let program_id = get_program_id();
-
-        let airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000).unwrap();
-        client
-            .poll_for_signature(&airdrop_signature)
-            .unwrap_or_else(|err| panic!("Failed to poll for airdrop signature: {}", err));
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
         let _ = initialize_account(&user_keypair, &program_id);
         let count = get_count(&user_keypair, &program_id).unwrap();
@@ -163,14 +158,9 @@ mod tests {
 
     #[test]
     fn test_solana_initialize_account_and_increment() {
-        let client = init_rpc_client();
         let user_keypair = Keypair::new();
         let program_id = get_program_id();
-
-        let airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000).unwrap();
-        client
-            .poll_for_signature(&airdrop_signature)
-            .unwrap_or_else(|err| panic!("Failed to poll for airdrop signature: {}", err));
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
         let _ = initialize_account(&user_keypair, &program_id);
         let count = get_count(&user_keypair, &program_id).unwrap();
@@ -183,14 +173,9 @@ mod tests {
 
     #[test]
     fn test_solana_increment_before_initialize() {
-        let client = init_rpc_client();
         let user_keypair = Keypair::new();
         let program_id = get_program_id();
-
-        let airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000).unwrap();
-        client
-            .poll_for_signature(&airdrop_signature)
-            .unwrap_or_else(|err| panic!("Failed to poll for airdrop signature: {}", err));
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
         let result = increment_counter(&user_keypair, &program_id);
 

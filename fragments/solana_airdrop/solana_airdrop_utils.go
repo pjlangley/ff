@@ -2,6 +2,7 @@ package solana_airdrop
 
 import (
 	"ff/solana_rpc"
+	solana_transaction "ff/solana_transaction"
 
 	"context"
 	"fmt"
@@ -12,16 +13,20 @@ import (
 	"github.com/gagliardetto/solana-go/rpc"
 )
 
-func Airdrop(address solana.PublicKey, amount uint64) solana.Signature {
+func SendAndConfirmAirdrop(address solana.PublicKey, amount uint64) {
 	client := solana_rpc.InitRpcClient()
 
 	fmt.Printf("Airdropping %s lamports to %s\n", humanize.Comma(int64(amount)), address)
 
 	sig, err := client.RequestAirdrop(context.Background(), address, amount, rpc.CommitmentConfirmed)
-
 	if err != nil {
 		log.Fatalf("Failed to request airdrop: %v", err)
 	}
 
-	return sig
+	err = solana_transaction.ConfirmRecentTransaction(sig)
+	if err != nil {
+		log.Fatalf("Failed to confirm airdrop: %v", err)
+	}
+
+	fmt.Printf("Airdrop confirmed for %s with signature: %s\n", address, sig)
 }

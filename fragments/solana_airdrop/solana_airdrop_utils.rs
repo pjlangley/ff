@@ -1,11 +1,11 @@
 use crate::solana_rpc::solana_rpc_utils::init_rpc_client;
+use crate::solana_transaction::solana_transaction_utils::confirm_recent_signature;
 use num_format::{Locale, ToFormattedString};
-use solana_client::client_error::ClientError;
+use solana_client::client_error::{ClientError, ClientErrorKind};
 use solana_sdk::pubkey::Pubkey;
-use solana_sdk::signature::Signature;
 
-pub fn airdrop(pubkey: Pubkey, amount: u64) -> Result<Signature, ClientError> {
-    let rpc_client = init_rpc_client();
+pub fn send_and_confirm_airdrop(pubkey: Pubkey, amount: u64) -> Result<(), ClientError> {
+    let client = init_rpc_client();
 
     println!(
         "Airdropping {} lamports to {}",
@@ -13,8 +13,26 @@ pub fn airdrop(pubkey: Pubkey, amount: u64) -> Result<Signature, ClientError> {
         pubkey
     );
 
-    let signature = rpc_client.request_airdrop(&pubkey, amount)?;
-    Ok(signature)
+    let signature = client.request_airdrop(&pubkey, amount)?;
+    let is_confirmed = confirm_recent_signature(&signature, None)?;
+
+    if !is_confirmed {
+        return Err(ClientError {
+            request: Some(solana_client::rpc_request::RpcRequest::Custom {
+                method: "ConfirmTransaction",
+            }),
+            kind: ClientErrorKind::Custom(
+                "Airdrop transaction not confirmed within the timeout period".to_string(),
+            ),
+        });
+    }
+
+    println!(
+        "Airdrop confirmed for {} with signature {}",
+        pubkey, signature
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -28,8 +46,7 @@ mod tests {
         let rpc_client = init_rpc_client();
         let commitment = CommitmentConfig::confirmed();
         let airdrop_amount = 1_000_000_000;
-
-        airdrop(address, airdrop_amount).unwrap();
+        let _ = send_and_confirm_airdrop(address, airdrop_amount);
 
         let balance = rpc_client
             .wait_for_balance_with_commitment(&address, Some(airdrop_amount), commitment)

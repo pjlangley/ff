@@ -150,8 +150,11 @@ fn main() {
 
     // solana airdrop
     println!(
-        "fragment 'solana_airdrop/airdrop' output: {:?}",
-        solana_airdrop::solana_airdrop_utils::airdrop(solana_address, 1_000_000_000)
-            .unwrap_or_else(|e| panic!("Expected airdrop signaure but got error: {:?}", e))
+        "fragment 'solana_airdrop/send_and_confirm_airdrop' output: {:?}",
+        solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop(
+            solana_address,
+            1_000_000_000
+        )
+        .unwrap_or_else(|e| panic!("Expected confirmed airdrop but got error: {:?}", e))
     );
 }

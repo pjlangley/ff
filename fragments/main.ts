@@ -17,7 +17,7 @@ import {
   updateItem as pgUpdateItem,
 } from "./postgres_db/postgres_crud";
 import { getBalance } from "./solana_balance/solana_balance_utils";
-import { airdrop } from "./solana_airdrop/solana_airdrop_utils";
+import { sendAndConfirmAirdrop } from "./solana_airdrop/solana_airdrop_utils";
 import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_utils";
 import { generateKeyPairSigner } from "@solana/kit";
 
@@ -64,7 +64,10 @@ import { generateKeyPairSigner } from "@solana/kit";
   console.log('fragment "solana_balance/getBalance" output:', await getBalance(solanaKeypairAddress));
 
   // solana airdrop
-  console.log('fragment "solana_airdrop/airdrop" output:', await airdrop(solanaKeypairAddress, 1_000_000n));
+  console.log(
+    'fragment "solana_airdrop/sendAndConfirmAirdrop" output:',
+    await sendAndConfirmAirdrop(solanaKeypairAddress, 1_000_000_000n),
+  );
 
   // solana rpc utils
   const solanaRpcClient = initSolanaRpcClient();

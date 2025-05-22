@@ -2,7 +2,7 @@ package solana_transaction
 
 import (
 	"context"
-	solana_airdrop "ff/solana_airdrop"
+
 	"ff/solana_rpc"
 	"testing"
 
@@ -12,12 +12,18 @@ import (
 )
 
 func TestSolanaTransaction_ConfirmRecentTransaction_Success(t *testing.T) {
+	client := solana_rpc.InitRpcClient()
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	sig := solana_airdrop.Airdrop(userKeypair.PublicKey(), 1_000_000_000)
-	err := ConfirmRecentTransaction(sig)
 
+	// Note: can't use `SendAndConfirmAirdrop` due to circular dependency
+	sig, err := client.RequestAirdrop(context.Background(), userKeypair.PublicKey(), 1_000_000_000, rpc.CommitmentConfirmed)
 	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
+		t.Errorf("failed to request airdrop: %v", err)
+	}
+
+	err = ConfirmRecentTransaction(sig)
+	if err != nil {
+		t.Errorf("Expected confirm recent transaction to succeed, but got %v", err)
 	}
 }
 

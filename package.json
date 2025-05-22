@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",
+    "@solana-program/system": "^0.7.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.10",

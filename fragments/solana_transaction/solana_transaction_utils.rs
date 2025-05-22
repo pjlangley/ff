@@ -1,6 +1,3 @@
-// Ignore dead code warning - this isolated fragment is covered by unit tests
-#![allow(dead_code)]
-
 use std::{
     thread::sleep,
     time::{Duration, Instant},
@@ -33,7 +30,7 @@ pub fn confirm_recent_signature(signature: &Signature, timeout: Option<u64>) -> 
 
 #[cfg(test)]
 mod tests {
-    use crate::solana_airdrop::solana_airdrop_utils::airdrop;
+    use crate::solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop;
 
     use super::*;
     use solana_sdk::{
@@ -59,8 +56,7 @@ mod tests {
     fn test_solana_confirm_recent_signature_success() {
         let client = init_rpc_client();
         let user_keypair = Keypair::new();
-        let airdrop_signature = airdrop(user_keypair.pubkey(), 1_000_000_000).unwrap();
-        client.poll_for_signature(&airdrop_signature).unwrap();
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
         let tx = create_test_transaction(user_keypair);
         let sig = client.send_transaction(&tx).unwrap();
