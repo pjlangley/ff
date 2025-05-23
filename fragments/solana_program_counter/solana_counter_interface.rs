@@ -131,16 +131,14 @@ mod tests {
         let env_path = manifest_dir.join("solana_program_keys/solana_program_keys.env");
 
         if env_path.exists() {
-            dotenvy::from_path(&env_path).unwrap_or_else(|err| {
-                panic!("Failed to load env vars from {:?}: {}", env_path, err)
-            });
+            dotenvy::from_path(&env_path).expect("Failed to load env vars");
             println!("Environment variables loaded from {:?}", env_path);
         } else {
             println!("{:?} not found, skipping env loading", env_path);
         }
 
         let program_id = Pubkey::from_str(&get_env_var("counter_PROGRAM_ID"))
-            .unwrap_or_else(|err| panic!("Failed to parse program id: {}", err));
+            .expect("Failed to parse program id");
         program_id
     }
 
