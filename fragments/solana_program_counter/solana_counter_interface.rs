@@ -1,9 +1,7 @@
 // Ignore these warnings - this isolated fragment is covered by unit tests
 #![allow(dead_code)]
-#![allow(unused_imports)]
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use serde::Deserialize;
 use solana_client::client_error::Result as ClientResult;
 use solana_sdk::{
     instruction::{AccountMeta, Instruction},
@@ -14,25 +12,15 @@ use solana_sdk::{
     system_program,
     transaction::VersionedTransaction,
 };
-use std::fs;
 use std::io::Cursor;
-use std::path::Path;
 
-use crate::solana_rpc::solana_rpc_utils::init_rpc_client;
-
-#[derive(Deserialize, Debug)]
-struct IdlInstruction {
-    name: String,
-    discriminator: Vec<u8>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Idl {
-    instructions: Vec<IdlInstruction>,
-}
+use crate::{
+    solana_program::solana_program_utils::get_instruction_discriminator,
+    solana_rpc::solana_rpc_utils::init_rpc_client,
+};
 
 pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
-    let discriminator = get_discriminator("initialize");
+    let discriminator = get_instruction_discriminator("initialize", "counter");
     let counter_pda = get_counter_pda(&user_keypair.pubkey(), &program_id);
     let client = init_rpc_client();
     let instruction = Instruction::new_with_bytes(
@@ -68,7 +56,7 @@ fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<u64> 
 }
 
 pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
-    let discriminator = get_discriminator("increment");
+    let discriminator = get_instruction_discriminator("increment", "counter");
     let counter_pda = get_counter_pda(&user_keypair.pubkey(), &program_id);
     let client = init_rpc_client();
     let instruction = Instruction::new_with_bytes(
@@ -85,21 +73,6 @@ pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> Client
     let signature = client.send_and_confirm_transaction(&tx)?;
 
     Ok(signature)
-}
-
-fn get_discriminator(instruction_name: &str) -> Vec<u8> {
-    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let idl_path = manifest_dir.join("fragments/blockchain/solana/target/idl/counter.json");
-    let idl_content = fs::read_to_string(idl_path)
-        .unwrap_or_else(|err| panic!("Unable to read IDL file: {}", err));
-    let idl: Idl = serde_json::from_str(&idl_content)
-        .unwrap_or_else(|err| panic!("Failed to parse IDL: {}", err));
-
-    idl.instructions
-        .into_iter()
-        .find(|instr| instr.name == instruction_name)
-        .map(|instr| instr.discriminator)
-        .unwrap_or_else(|| panic!("Instruction '{}' not found in IDL", instruction_name))
 }
 
 fn get_counter_pda(user_pubkey: &Pubkey, program_id: &Pubkey) -> Pubkey {
@@ -123,10 +96,12 @@ mod tests {
     use super::*;
     use crate::env_vars::env_vars_utils::get_env_var;
     use crate::solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop;
+    use once_cell::sync::Lazy;
     use solana_sdk::signature::Keypair;
+    use std::path::Path;
     use std::str::FromStr;
 
-    fn get_program_id() -> Pubkey {
+    static PROGRAM_ID: Lazy<Pubkey> = Lazy::new(|| {
         let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
         let env_path = manifest_dir.join("solana_program_keys/solana_program_keys.env");
 
@@ -140,16 +115,15 @@ mod tests {
         let program_id = Pubkey::from_str(&get_env_var("counter_PROGRAM_ID"))
             .expect("Failed to parse program id");
         program_id
-    }
+    });
 
     #[test]
     fn test_solana_initialize_account() {
         let user_keypair = Keypair::new();
-        let program_id = get_program_id();
         let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
-        let _ = initialize_account(&user_keypair, &program_id);
-        let count = get_count(&user_keypair, &program_id).unwrap();
+        let _ = initialize_account(&user_keypair, &PROGRAM_ID);
+        let count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
 
         assert_eq!(count, 0)
     }
@@ -157,25 +131,23 @@ mod tests {
     #[test]
     fn test_solana_initialize_account_and_increment() {
         let user_keypair = Keypair::new();
-        let program_id = get_program_id();
         let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
-        let _ = initialize_account(&user_keypair, &program_id);
-        let count = get_count(&user_keypair, &program_id).unwrap();
+        let _ = initialize_account(&user_keypair, &PROGRAM_ID);
+        let count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
         assert_eq!(count, 0);
 
-        let _signature = increment_counter(&user_keypair, &program_id);
-        let latest_count = get_count(&user_keypair, &program_id).unwrap();
+        let _signature = increment_counter(&user_keypair, &PROGRAM_ID);
+        let latest_count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
         assert_eq!(latest_count, 1);
     }
 
     #[test]
     fn test_solana_increment_before_initialize() {
         let user_keypair = Keypair::new();
-        let program_id = get_program_id();
         let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
 
-        let result = increment_counter(&user_keypair, &program_id);
+        let result = increment_counter(&user_keypair, &PROGRAM_ID);
 
         assert!(
             result.is_err(),
@@ -192,9 +164,8 @@ mod tests {
     #[test]
     fn test_solana_get_count_before_initialize() {
         let user_keypair = Keypair::new();
-        let program_id = get_program_id();
 
-        let result = get_count(&user_keypair, &program_id);
+        let result = get_count(&user_keypair, &PROGRAM_ID);
         assert!(
             result.is_err(),
             "Getting count before initialization should fail"

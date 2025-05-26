@@ -5,6 +5,7 @@ mod postgres_db;
 mod redis_db;
 mod solana_airdrop;
 mod solana_balance;
+mod solana_program;
 mod solana_program_counter;
 mod solana_rpc;
 mod solana_transaction;
