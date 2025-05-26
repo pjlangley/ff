@@ -1,5 +1,3 @@
-import json
-import os
 from solders.pubkey import Pubkey
 from solders.message import MessageV0
 from solders.instruction import Instruction, AccountMeta
@@ -8,23 +6,16 @@ from solders.signature import Signature
 from solders.keypair import Keypair
 from construct import Struct, Int64ul
 from fragments.solana_rpc import init_rpc_client
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-idl_path = os.path.join(script_dir, "../blockchain/solana/target/idl/counter.json")
-
-with open(idl_path, encoding="utf-8") as f:
-    idl = json.load(f)
+from fragments.solana_program import get_instruction_discriminator
 
 
 def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
-    initialize_discriminator = bytes(
-        next(instr["discriminator"] for instr in idl["instructions"] if instr["name"] == "initialize")
-    )
+    discriminator = get_instruction_discriminator("initialize", "counter")
     counter_pda = get_counter_pda(user_keypair.pubkey(), program_id)
     client = init_rpc_client()
     instruction = Instruction(
         program_id,
-        initialize_discriminator,
+        discriminator,
         [
             AccountMeta(pubkey=user_keypair.pubkey(), is_signer=True, is_writable=True),
             AccountMeta(pubkey=counter_pda, is_signer=False, is_writable=True),
@@ -57,14 +48,12 @@ def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
 
 
 def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
-    increment_discriminator = bytes(
-        next(instr["discriminator"] for instr in idl["instructions"] if instr["name"] == "increment")
-    )
+    discriminator = get_instruction_discriminator("increment", "counter")
     counter_pda = get_counter_pda(user_keypair.pubkey(), program_id)
     client = init_rpc_client()
     instruction = Instruction(
         program_id,
-        increment_discriminator,
+        discriminator,
         [
             AccountMeta(pubkey=counter_pda, is_signer=False, is_writable=True),
             AccountMeta(pubkey=user_keypair.pubkey(), is_signer=True, is_writable=True),
