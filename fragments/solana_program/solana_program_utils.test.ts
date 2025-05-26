@@ -5,7 +5,6 @@ import { getInstructionDiscriminator } from "./solana_program_utils";
 describe("solana program utils", () => {
   test("getInstructionDiscriminator succeeds", () => {
     const discriminator = getInstructionDiscriminator("initialize", "counter");
-    assert.strictEqual(discriminator.length, 8);
     assert.deepStrictEqual(
       discriminator,
       new Uint8Array([
