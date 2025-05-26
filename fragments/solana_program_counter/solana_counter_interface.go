@@ -3,27 +3,21 @@ package solana_program_counter
 import (
 	"context"
 	"encoding/binary"
-	"encoding/json"
+	solana_program "ff/solana_program"
 	"ff/solana_rpc"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
 )
 
-type Idl struct {
-	Instructions []struct {
-		Name          string  `json:"name"`
-		Discriminator []uint8 `json:"discriminator"`
-	} `json:"instructions"`
-}
-
 func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey) (solana.Signature, error) {
 	client := solana_rpc.InitRpcClient()
-	discriminator := getDiscriminator("initialize")
+	discriminator, err := solana_program.GetInstructionDiscriminator("initialize", "counter")
+	if err != nil {
+		return solana.Signature{}, fmt.Errorf("failed to get instruction discriminator: %v", err)
+	}
 	counterPda := getCounterPda(userKeypair.PublicKey(), programId)
 	instr := solana.NewInstruction(
 		programId,
@@ -90,7 +84,10 @@ func GetCount(userKeypair solana.PrivateKey, programId solana.PublicKey) (uint64
 
 func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey) (solana.Signature, error) {
 	client := solana_rpc.InitRpcClient()
-	discriminator := getDiscriminator("increment")
+	discriminator, err := solana_program.GetInstructionDiscriminator("increment", "counter")
+	if err != nil {
+		return solana.Signature{}, fmt.Errorf("failed to get instruction discriminator: %v", err)
+	}
 	counterPda := getCounterPda(userKeypair.PublicKey(), programId)
 	instr := solana.NewInstruction(
 		programId,
@@ -119,34 +116,6 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 	}
 
 	return sig, nil
-}
-
-func getDiscriminator(instructionName string) []uint8 {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Error getting executable path: %v", err)
-	}
-
-	idlPath := filepath.Join(wd, "../blockchain/solana/target/idl/counter.json")
-
-	data, err := os.ReadFile(idlPath)
-	if err != nil {
-		log.Fatalf("Error reading IDL file: %v", err)
-	}
-
-	var idl Idl
-	if err := json.Unmarshal(data, &idl); err != nil {
-		log.Fatalf("Error unmarshalling IDL data: %v", err)
-	}
-
-	for _, instruction := range idl.Instructions {
-		if instruction.Name == instructionName {
-			return instruction.Discriminator
-		}
-	}
-
-	log.Fatalf("Instruction name '%s' not found in IDL", instructionName)
-	return nil
 }
 
 func getCounterPda(userPubkey solana.PublicKey, programId solana.PublicKey) solana.PublicKey {

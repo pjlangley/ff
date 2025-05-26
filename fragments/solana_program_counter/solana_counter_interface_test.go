@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getProgramId() solana.PublicKey {
+var programId = func() solana.PublicKey {
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("failed to get current working directory: %v", err)
@@ -37,10 +37,9 @@ func getProgramId() solana.PublicKey {
 	}
 
 	return solana.MustPublicKeyFromBase58(programId)
-}
+}()
 
 func TestSolanaCounterInterface_InitializeAccount(t *testing.T) {
-	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
 	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), 1_000_000_000)
 
@@ -63,7 +62,6 @@ func TestSolanaCounterInterface_InitializeAccount(t *testing.T) {
 }
 
 func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
-	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
 	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), 1_000_000_000)
 
@@ -103,7 +101,6 @@ func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
 }
 
 func TestSolanaCounterInterface_IncrementBeforeInitialize(t *testing.T) {
-	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
 	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), 1_000_000_000)
 
@@ -117,7 +114,6 @@ func TestSolanaCounterInterface_IncrementBeforeInitialize(t *testing.T) {
 }
 
 func TestSolanaCounterInterface_GetCountBeforeInitialize(t *testing.T) {
-	programId := getProgramId()
 	userKeypair, _ := solana.NewRandomPrivateKey()
 
 	_, err := GetCount(userKeypair, programId)
