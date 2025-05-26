@@ -34,6 +34,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with Solana balance: [`fragments/solana_balance`](./fragments/solana_balance/)
 1. Working with Solana airdrops: [`fragments/solana_airdrop`](./fragments/solana_airdrop/)
 1. Working with Solana transactions: [`fragments/solana_transaction`](./fragments/solana_transaction/)
+1. Working with Solana programs: [`fragments/solana_program`](./fragments/solana_program/)
 1. Solana program interfaces:
    1. Counter: [`fragments/solana_program_counter`](./fragments/solana_program_counter/)
 

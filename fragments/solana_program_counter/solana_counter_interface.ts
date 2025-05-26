@@ -23,20 +23,18 @@ import {
   signTransaction,
 } from "@solana/kit";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
-import IDL from "../blockchain/solana/target/idl/counter.json";
+import { getInstructionDiscriminator } from "../solana_program/solana_program_utils";
 import { Buffer } from "node:buffer";
 
 export const initializeAccount = async (keypair: KeyPairSigner, programAddress: Address) => {
-  const initializeDiscriminator = new Uint8Array(
-    IDL.instructions.find((instruction) => instruction.name === "initialize")!.discriminator,
-  );
+  const discriminator = getInstructionDiscriminator("initialize", "counter");
   const feePayer = keypair.address;
   const counterPda = await getCounterPda(feePayer, programAddress);
 
   const baseTx = await createBaseTransaction(feePayer);
   const initializeTransaction = appendTransactionMessageInstruction({
     programAddress,
-    data: initializeDiscriminator,
+    data: discriminator,
     accounts: [
       { address: feePayer, role: AccountRole.WRITABLE_SIGNER },
       { address: counterPda, role: AccountRole.WRITABLE },
@@ -78,16 +76,14 @@ export const getCount = async (keypair: KeyPairSigner, programAddress: Address) 
 };
 
 export const incrementCounter = async (keypair: KeyPairSigner, programKey: Address) => {
-  const incrementDiscriminator = new Uint8Array(
-    IDL.instructions.find((instruction) => instruction.name === "increment")!.discriminator,
-  );
+  const discriminator = getInstructionDiscriminator("increment", "counter");
   const feePayer = keypair.address;
   const counterPda = await getCounterPda(feePayer, programKey);
 
   const baseTx = await createBaseTransaction(feePayer);
   const incrementTransaction = appendTransactionMessageInstruction({
     programAddress: programKey,
-    data: incrementDiscriminator,
+    data: discriminator,
     accounts: [
       { address: counterPda, role: AccountRole.WRITABLE },
       { address: feePayer, role: AccountRole.WRITABLE_SIGNER },
