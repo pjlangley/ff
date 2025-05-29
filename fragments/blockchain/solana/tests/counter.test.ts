@@ -1,39 +1,54 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Counter } from "../target/types/counter";
 import assert from "node:assert/strict";
-import test, { describe } from "node:test";
-import { BankrunProvider, startAnchor } from "anchor-bankrun";
-import IDL from "../target/idl/counter.json";
+import test, { before, describe } from "node:test";
 import { Buffer } from "node:buffer";
+import { LiteSVM } from "litesvm";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import { fromWorkspace, LiteSVMProvider } from "anchor-litesvm";
+import { Counter } from "../target/types/counter";
+import { AnchorError, Program } from "@coral-xyz/anchor";
+import idl from "../target/idl/counter.json";
+
+const getCounterPda = (payer: Keypair, programId: PublicKey) => {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("counter"), payer.publicKey.toBuffer()],
+    programId,
+  )[0];
+};
 
 describe("program: counter", () => {
-  test("initializes and increments the counter", async () => {
-    const PROGRAM_ID = new anchor.web3.PublicKey(IDL.address);
-    const context = await startAnchor("", [{ name: "counter", programId: PROGRAM_ID }], []);
-    const provider = new BankrunProvider(context);
-    const payer = provider.wallet;
-    const program = new anchor.Program<Counter>(IDL as Counter, provider);
-    const [counterPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("counter"), payer.publicKey.toBuffer()],
-      PROGRAM_ID,
-    );
+  let svm: LiteSVM;
+  let provider: LiteSVMProvider;
+  let program: Program<Counter>;
+  let programId: PublicKey;
 
-    await program.methods
-      .initialize()
+  before(() => {
+    svm = fromWorkspace("./");
+    provider = new LiteSVMProvider(svm);
+    program = new Program<Counter>(idl, provider);
+    programId = new PublicKey(idl.address);
+  });
+
+  test("initializes and increments the counter", async () => {
+    const keypair = new Keypair();
+    const counterPda = getCounterPda(keypair, programId);
+    svm.airdrop(keypair.publicKey, 1_000_000_000n);
+
+    await program.methods.initialize()
       .accounts({
-        user: payer.publicKey,
+        user: keypair.publicKey,
       })
+      .signers([keypair])
       .rpc();
 
     let currentCount = await program.account.counter.fetch(counterPda);
     assert.strictEqual(currentCount.count.toNumber(), 0);
 
-    await program.methods
-      .increment()
+    await program.methods.increment()
       .accounts({
         counter: counterPda,
-        user: payer.publicKey,
+        user: keypair.publicKey,
       })
+      .signers([keypair])
       .rpc();
 
     currentCount = await program.account.counter.fetch(counterPda);
@@ -41,28 +56,42 @@ describe("program: counter", () => {
   });
 
   test("fails to increment if initialize wasn't called", async () => {
-    const PROGRAM_ID = new anchor.web3.PublicKey(IDL.address);
-    const context = await startAnchor("", [{ name: "counter", programId: PROGRAM_ID }], []);
-    const provider = new BankrunProvider(context);
-    const payer = provider.wallet;
-    const program = new anchor.Program<Counter>(IDL as Counter, provider);
-    const [counterPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("counter"), payer.publicKey.toBuffer()],
-      PROGRAM_ID,
-    );
+    const keypair = new Keypair();
+    svm.airdrop(keypair.publicKey, 1_000_000_000n);
+    const counterPda = getCounterPda(keypair, programId);
 
     try {
-      await program.methods
-        .increment()
+      await program.methods.increment()
         .accounts({
           counter: counterPda,
-          user: payer.publicKey,
+          user: keypair.publicKey,
         })
+        .signers([keypair])
         .rpc();
 
-      assert.fail("Expected transaction to fail, but it succeeded");
+      assert.fail("Expected transaction to fail, got success");
     } catch (err) {
-      assert.ok(err, "Transaction failed as expected");
+      const anchorError = err as AnchorError;
+      assert.ok(
+        anchorError.message.includes("AccountNotInitialized"),
+        "Error message should include 'AccountNotInitialized'",
+      );
+    }
+  });
+
+  test("fails to get account if it doesn't exist", async () => {
+    const keypair = new Keypair();
+    const counterPda = getCounterPda(keypair, programId);
+
+    try {
+      await program.account.counter.fetch(counterPda);
+      assert.fail("Expected transaction to fail, got success");
+    } catch (err) {
+      const error = err as Error;
+      assert.ok(
+        error.message.includes(`Could not find ${counterPda}`),
+        `Error message should include 'Could not find ${counterPda}'`,
+      );
     }
   });
 });

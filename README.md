@@ -499,7 +499,7 @@ The following commands apply to the TypeScript file(s):
   anchor build
   anchor build --program-name counter
   ```
-- Run unit tests (uses [Bankrun](https://github.com/kevinheavey/solana-bankrun), not the local test validator):
+- Run unit tests (uses [LiteSVM](https://github.com/LiteSVM/litesvm), not the local test validator):
   ```
   anchor test --skip-deploy --skip-local-validator
   ```
@@ -569,14 +569,15 @@ The following commands apply to the TypeScript file(s):
 #### Docker (Anchor)
 
 > [!WARNING]
-> Command `anchor test` in Docker doesn't currently work with linux (arm64):
+> Command `anchor test` in Docker doesn't currently work with Linux arm64:
 >
 > ```
-> Error: Cannot find module 'solana-bankrun-linux-arm64-gnu'
+> Error: Cannot find module 'litesvm-linux-arm64-gnu'
 > ```
 >
-> There's not a Bankrun binary for linux+arm64 at the time of writing. See
-> https://github.com/kevinheavey/solana-bankrun/tree/main/npm
+> There's not an LiteSVM binary published to npm for linux+arm64 at the time of writing. See
+> https://github.com/LiteSVM/litesvm/tree/master/crates/node-litesvm/npm and
+> https://github.com/LiteSVM/litesvm/issues/177
 
 - Build the Anchor image at root of repo with optional build args (depends on the `ff_solana_builder` image):
   ```
