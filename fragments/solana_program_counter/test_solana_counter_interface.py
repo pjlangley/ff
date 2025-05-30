@@ -1,5 +1,5 @@
 import unittest
-import os
+from pathlib import Path
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from solana.rpc.core import RPCException
@@ -13,10 +13,10 @@ from fragments.env_vars import get_env_var
 class TestSolanaCounterInterface(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        program_keys_file = os.path.join(script_dir, "../../solana_program_keys/solana_program_keys.env")
+        script_dir = Path(__file__).resolve().parent
+        program_keys_file = script_dir / "../../solana_program_keys/solana_program_keys.env"
 
-        if os.path.exists(program_keys_file):
+        if program_keys_file.exists():
             loaded = load_dotenv(dotenv_path=program_keys_file)
             if not loaded:
                 cls.fail(f"Failed to load environment variables from {program_keys_file}")
