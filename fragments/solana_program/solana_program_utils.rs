@@ -5,6 +5,7 @@ use std::{
 
 use once_cell::sync::Lazy;
 use serde::Deserialize;
+use solana_sdk::pubkey::Pubkey;
 
 #[derive(Deserialize, Debug)]
 struct IdlInstruction {
@@ -15,6 +16,19 @@ struct IdlInstruction {
 #[derive(Deserialize, Debug)]
 struct Idl {
     instructions: Vec<IdlInstruction>,
+}
+
+#[derive(Debug)]
+pub enum Program {
+    Counter,
+}
+
+impl Program {
+    pub fn as_bytes(&self) -> &'static [u8] {
+        match self {
+            Program::Counter => b"counter",
+        }
+    }
 }
 
 static PROGRAM_ID_MAP: Lazy<HashMap<String, Idl>> = Lazy::new(|| {
@@ -54,6 +68,17 @@ pub fn get_instruction_discriminator(instruction_name: &str, program_name: &str)
     })
 }
 
+pub fn get_program_derived_address(
+    user_address: &Pubkey,
+    program_address: &Pubkey,
+    program_name: &Program,
+) -> Pubkey {
+    let seed1 = program_name.as_bytes();
+    let seed2 = user_address.as_ref();
+    let (pda, _) = Pubkey::find_program_address(&[seed1, seed2], program_address);
+    pda
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -68,5 +93,16 @@ mod tests {
     #[should_panic(expected = "Instruction invalid not found in program counter IDL")]
     fn test_solana_program_get_instruction_discriminator_invalid() {
         get_instruction_discriminator("invalid", "counter");
+    }
+
+    #[test]
+    fn test_solana_program_get_program_derived_address() {
+        let user_pubkey = Pubkey::from_str_const("71jvqeEzwVnz6dpo2gZAKbCZkq6q6bpt9nkHZvBiia4Z");
+        let program_pubkey = Pubkey::from_str_const("23Ww1C2uzCiH9zjmfhG6QmkopkeanZM87mjDHu8MMwXY");
+        let pda = get_program_derived_address(&user_pubkey, &program_pubkey, &Program::Counter);
+        assert_eq!(
+            pda.to_string(),
+            "9yFnCu3Nyr4aa7kdd4ckAyPKABQyTPLX2Xm4Aj2MXsLc"
+        );
     }
 }

@@ -15,13 +15,16 @@ use solana_sdk::{
 use std::io::Cursor;
 
 use crate::{
-    solana_program::solana_program_utils::get_instruction_discriminator,
+    solana_program::solana_program_utils::{
+        get_instruction_discriminator, get_program_derived_address, Program,
+    },
     solana_rpc::solana_rpc_utils::init_rpc_client,
 };
 
 pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
     let discriminator = get_instruction_discriminator("initialize", "counter");
-    let counter_pda = get_counter_pda(&user_keypair.pubkey(), &program_id);
+    let counter_pda =
+        get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
     let client = init_rpc_client();
     let instruction = Instruction::new_with_bytes(
         program_id,
@@ -42,7 +45,8 @@ pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> Clien
 
 fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<u64> {
     let client = init_rpc_client();
-    let counter_pda = get_counter_pda(&user_keypair.pubkey(), &program_id);
+    let counter_pda =
+        get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
     let account = client.get_account(&counter_pda)?;
 
     // removes the discriminator from the account data
@@ -57,7 +61,8 @@ fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<u64> 
 
 pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
     let discriminator = get_instruction_discriminator("increment", "counter");
-    let counter_pda = get_counter_pda(&user_keypair.pubkey(), &program_id);
+    let counter_pda =
+        get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
     let client = init_rpc_client();
     let instruction = Instruction::new_with_bytes(
         program_id,
@@ -73,13 +78,6 @@ pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> Client
     let signature = client.send_and_confirm_transaction(&tx)?;
 
     Ok(signature)
-}
-
-fn get_counter_pda(user_pubkey: &Pubkey, program_id: &Pubkey) -> Pubkey {
-    let seed1 = b"counter";
-    let seed2 = user_pubkey.as_ref();
-    let (pda, _) = Pubkey::find_program_address(&[seed1, seed2], program_id);
-    pda
 }
 
 fn create_transaction_message(user_pubkey: &Pubkey, instruction: Instruction) -> Message {
