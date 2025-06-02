@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/gagliardetto/solana-go"
 )
 
 type Idl struct {
@@ -14,6 +16,12 @@ type Idl struct {
 		Discriminator []uint8 `json:"discriminator"`
 	} `json:"instructions"`
 }
+
+type ProgramName string
+
+const (
+	ProgramCounter ProgramName = "counter"
+)
 
 var programIdMap = func() map[string]Idl {
 	wd, err := os.Getwd()
@@ -53,4 +61,17 @@ func GetInstructionDiscriminator(instructionName string, programName string) ([]
 	}
 
 	return nil, fmt.Errorf("Instruction %s not found in program %s IDL", instructionName, programName)
+}
+
+func GetProgramDerivedAddress(userPubkey solana.PublicKey, programPubkey solana.PublicKey, programName ProgramName) solana.PublicKey {
+	seed1 := []byte(programName)
+	seed2 := userPubkey.Bytes()
+	pda, _, err := solana.FindProgramAddress(
+		[][]byte{seed1, seed2},
+		programPubkey,
+	)
+	if err != nil {
+		log.Fatalf("Error finding program address for %s: %v", programName, err)
+	}
+	return pda
 }

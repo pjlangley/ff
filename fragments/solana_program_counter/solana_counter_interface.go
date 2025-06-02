@@ -6,7 +6,6 @@ import (
 	solana_program "ff/solana_program"
 	"ff/solana_rpc"
 	"fmt"
-	"log"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
@@ -18,7 +17,7 @@ func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to get instruction discriminator: %v", err)
 	}
-	counterPda := getCounterPda(userKeypair.PublicKey(), programId)
+	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, solana_program.ProgramCounter)
 	instr := solana.NewInstruction(
 		programId,
 		solana.AccountMetaSlice{
@@ -55,7 +54,7 @@ func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey
 
 func GetCount(userKeypair solana.PrivateKey, programId solana.PublicKey) (uint64, error) {
 	client := solana_rpc.InitRpcClient()
-	counterPda := getCounterPda(userKeypair.PublicKey(), programId)
+	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, solana_program.ProgramCounter)
 
 	offset := uint64(8)
 	length := uint64(8)
@@ -88,7 +87,7 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to get instruction discriminator: %v", err)
 	}
-	counterPda := getCounterPda(userKeypair.PublicKey(), programId)
+	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, solana_program.ProgramCounter)
 	instr := solana.NewInstruction(
 		programId,
 		solana.AccountMetaSlice{
@@ -116,19 +115,6 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 	}
 
 	return sig, nil
-}
-
-func getCounterPda(userPubkey solana.PublicKey, programId solana.PublicKey) solana.PublicKey {
-	seed1 := []byte("counter")
-	seed2 := userPubkey.Bytes()
-	pda, _, err := solana.FindProgramAddress(
-		[][]byte{seed1, seed2},
-		programId,
-	)
-	if err != nil {
-		log.Fatalf("Error finding program address: %v", err)
-	}
-	return pda
 }
 
 func createTransactionMessage(userKeypair solana.PrivateKey, instruction *solana.GenericInstruction) (*solana.Transaction, error) {
