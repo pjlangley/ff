@@ -10,9 +10,7 @@ import {
   decodeAccount,
   Decoder,
   fetchEncodedAccount,
-  getAddressEncoder,
   getBase64EncodedWireTransaction,
-  getProgramDerivedAddress,
   getStructDecoder,
   getU64Decoder,
   KeyPairSigner,
@@ -23,13 +21,12 @@ import {
   signTransaction,
 } from "@solana/kit";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
-import { getInstructionDiscriminator } from "../solana_program/solana_program_utils";
-import { Buffer } from "node:buffer";
+import { getInstructionDiscriminator, getPda } from "../solana_program/solana_program_utils";
 
 export const initializeAccount = async (keypair: KeyPairSigner, programAddress: Address) => {
   const discriminator = getInstructionDiscriminator("initialize", "counter");
   const feePayer = keypair.address;
-  const counterPda = await getCounterPda(feePayer, programAddress);
+  const counterPda = await getPda(feePayer, programAddress, "counter");
 
   const baseTx = await createBaseTransaction(feePayer);
   const initializeTransaction = appendTransactionMessageInstruction({
@@ -49,7 +46,7 @@ export const initializeAccount = async (keypair: KeyPairSigner, programAddress: 
 
 export const getCount = async (keypair: KeyPairSigner, programAddress: Address) => {
   const client = initRpcClient();
-  const counterPda = await getCounterPda(keypair.address, programAddress);
+  const counterPda = await getPda(keypair.address, programAddress, "counter");
   const account = await fetchEncodedAccount(client, counterPda, {
     commitment: "confirmed",
     abortSignal: AbortSignal.timeout(5000),
@@ -78,7 +75,7 @@ export const getCount = async (keypair: KeyPairSigner, programAddress: Address) 
 export const incrementCounter = async (keypair: KeyPairSigner, programKey: Address) => {
   const discriminator = getInstructionDiscriminator("increment", "counter");
   const feePayer = keypair.address;
-  const counterPda = await getCounterPda(feePayer, programKey);
+  const counterPda = await getPda(feePayer, programKey, "counter");
 
   const baseTx = await createBaseTransaction(feePayer);
   const incrementTransaction = appendTransactionMessageInstruction({
@@ -95,16 +92,7 @@ export const incrementCounter = async (keypair: KeyPairSigner, programKey: Addre
   return signature;
 };
 
-const getCounterPda = async (userAddress: KeyPairSigner["address"], programAddress: Address) => {
-  const addressEncoder = getAddressEncoder();
-  const [counterPda] = await getProgramDerivedAddress({
-    programAddress,
-    seeds: [Buffer.from("counter"), addressEncoder.encode(userAddress)],
-  });
-  return counterPda;
-};
-
-const createBaseTransaction = async (feePayer: KeyPairSigner["address"]) => {
+const createBaseTransaction = async (feePayer: Address) => {
   const client = initRpcClient();
   const { value: latestBlockhash } = await client.getLatestBlockhash().send();
 
