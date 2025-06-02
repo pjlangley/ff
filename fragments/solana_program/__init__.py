@@ -1,1 +1,1 @@
-from .solana_program_utils import get_instruction_discriminator
+from .solana_program_utils import get_instruction_discriminator, get_program_derived_address

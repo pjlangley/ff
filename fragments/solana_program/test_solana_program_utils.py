@@ -1,5 +1,6 @@
 import unittest
-from fragments.solana_program import get_instruction_discriminator
+from solders.pubkey import Pubkey
+from fragments.solana_program import get_instruction_discriminator, get_program_derived_address
 
 
 class TestSolanaProgramUtils(unittest.TestCase):
@@ -14,6 +15,13 @@ class TestSolanaProgramUtils(unittest.TestCase):
 
         error_str = str(cm.exception)
         self.assertIn("Instruction invalid_instr not found in program counter IDL", error_str)
+
+    def test_solana_get_program_derived_address(self):
+        user_address = Pubkey.from_string("71jvqeEzwVnz6dpo2gZAKbCZkq6q6bpt9nkHZvBiia4Z")
+        program_address = Pubkey.from_string("23Ww1C2uzCiH9zjmfhG6QmkopkeanZM87mjDHu8MMwXY")
+        pda = get_program_derived_address(user_address, program_address, "counter")
+
+        self.assertEqual(pda, Pubkey.from_string("9yFnCu3Nyr4aa7kdd4ckAyPKABQyTPLX2Xm4Aj2MXsLc"))
 
 
 if __name__ == "__main__":

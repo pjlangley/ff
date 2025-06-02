@@ -6,12 +6,12 @@ from solders.signature import Signature
 from solders.keypair import Keypair
 from construct import Struct, Int64ul
 from fragments.solana_rpc import init_rpc_client
-from fragments.solana_program import get_instruction_discriminator
+from fragments.solana_program import get_instruction_discriminator, get_program_derived_address
 
 
 def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
     discriminator = get_instruction_discriminator("initialize", "counter")
-    counter_pda = get_counter_pda(user_keypair.pubkey(), program_id)
+    counter_pda = get_program_derived_address(user_keypair.pubkey(), program_id, "counter")
     client = init_rpc_client()
     instruction = Instruction(
         program_id,
@@ -32,7 +32,7 @@ def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
 
 def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
     client = init_rpc_client()
-    counter_pda = get_counter_pda(user_keypair.pubkey(), program_id)
+    counter_pda = get_program_derived_address(user_keypair.pubkey(), program_id, "counter")
     response = client.get_account_info(counter_pda)
     account_info = response.value
 
@@ -49,7 +49,7 @@ def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
 
 def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
     discriminator = get_instruction_discriminator("increment", "counter")
-    counter_pda = get_counter_pda(user_keypair.pubkey(), program_id)
+    counter_pda = get_program_derived_address(user_keypair.pubkey(), program_id, "counter")
     client = init_rpc_client()
     instruction = Instruction(
         program_id,
@@ -63,13 +63,6 @@ def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
     tx = VersionedTransaction(msg, [user_keypair])
     response = client.send_transaction(tx)
     return response.value
-
-
-def get_counter_pda(user_pubkey: Pubkey, program_id: Pubkey) -> Pubkey:
-    seed1 = b"counter"
-    seed2 = bytes(user_pubkey)
-    pda, _ = Pubkey.find_program_address([seed1, seed2], program_id)
-    return pda
 
 
 def create_transaction_message(user_keypair: Keypair, instruction: Instruction) -> MessageV0:
