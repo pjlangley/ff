@@ -16,7 +16,7 @@ func TestSolanaTransaction_ConfirmRecentTransaction_Success(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
 
 	// Note: can't use `SendAndConfirmAirdrop` due to circular dependency
-	sig, err := client.RequestAirdrop(context.Background(), userKeypair.PublicKey(), 1_000_000_000, rpc.CommitmentConfirmed)
+	sig, err := client.RequestAirdrop(context.Background(), userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL, rpc.CommitmentConfirmed)
 	if err != nil {
 		t.Errorf("failed to request airdrop: %v", err)
 	}

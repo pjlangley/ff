@@ -3,6 +3,7 @@ from solders.keypair import Keypair
 from solders.message import MessageV0
 from solders.transaction import VersionedTransaction
 from solders.system_program import transfer, TransferParams
+from solana.constants import LAMPORTS_PER_SOL
 from fragments.solana_airdrop import send_and_confirm_airdrop
 from fragments.solana_transaction import confirm_recent_signature
 from fragments.solana_rpc import init_rpc_client
@@ -12,7 +13,7 @@ class TestSolanaTransactionUtils(unittest.TestCase):
 
     def test_solana_confirm_recent_signature_success(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000)
+        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         client = init_rpc_client()
         latest_blockhash = client.get_latest_blockhash()

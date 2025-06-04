@@ -35,6 +35,7 @@ mod tests {
     use super::*;
     use solana_sdk::{
         message::{v0::Message, VersionedMessage},
+        native_token::LAMPORTS_PER_SOL,
         signature::Keypair,
         signer::Signer,
         system_instruction,
@@ -56,7 +57,7 @@ mod tests {
     fn test_solana_confirm_recent_signature_success() {
         let client = init_rpc_client();
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
 
         let tx = create_test_transaction(user_keypair);
         let sig = client.send_transaction(&tx).unwrap();

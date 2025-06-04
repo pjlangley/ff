@@ -95,6 +95,7 @@ mod tests {
     use crate::env_vars::env_vars_utils::get_env_var;
     use crate::solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop;
     use once_cell::sync::Lazy;
+    use solana_sdk::native_token::LAMPORTS_PER_SOL;
     use solana_sdk::signature::Keypair;
     use std::path::Path;
     use std::str::FromStr;
@@ -118,7 +119,7 @@ mod tests {
     #[test]
     fn test_solana_initialize_account() {
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
 
         let _ = initialize_account(&user_keypair, &PROGRAM_ID);
         let count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
@@ -129,7 +130,7 @@ mod tests {
     #[test]
     fn test_solana_initialize_account_and_increment() {
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
 
         let _ = initialize_account(&user_keypair, &PROGRAM_ID);
         let count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
@@ -143,7 +144,7 @@ mod tests {
     #[test]
     fn test_solana_increment_before_initialize() {
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), 1_000_000_000);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
 
         let result = increment_counter(&user_keypair, &PROGRAM_ID);
 

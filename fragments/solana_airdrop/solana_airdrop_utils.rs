@@ -38,14 +38,17 @@ pub fn send_and_confirm_airdrop(pubkey: Pubkey, amount: u64) -> Result<(), Clien
 #[cfg(test)]
 mod tests {
     use super::*;
-    use solana_sdk::{commitment_config::CommitmentConfig, signature::Keypair, signer::Signer};
+    use solana_sdk::{
+        commitment_config::CommitmentConfig, native_token::LAMPORTS_PER_SOL, signature::Keypair,
+        signer::Signer,
+    };
 
     #[test]
     fn test_solana_airdrop() {
         let address = Keypair::new().pubkey();
         let rpc_client = init_rpc_client();
         let commitment = CommitmentConfig::confirmed();
-        let airdrop_amount = 1_000_000_000;
+        let airdrop_amount = LAMPORTS_PER_SOL;
         let _ = send_and_confirm_airdrop(address, airdrop_amount);
 
         let balance = rpc_client

@@ -1,4 +1,4 @@
-use solana_sdk::{signature::Keypair, signer::Signer};
+use solana_sdk::{native_token::LAMPORTS_PER_SOL, signature::Keypair, signer::Signer};
 
 mod env_vars;
 mod postgres_db;
@@ -154,7 +154,7 @@ fn main() {
         "fragment 'solana_airdrop/send_and_confirm_airdrop' output: {:?}",
         solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop(
             solana_address,
-            1_000_000_000
+            LAMPORTS_PER_SOL
         )
         .unwrap_or_else(|e| panic!("Expected confirmed airdrop but got error: {:?}", e))
     );

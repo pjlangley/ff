@@ -68,5 +68,5 @@ func main() {
 
 	// solana airdrop
 	fmt.Println("fragment 'solana_airdrop/SendAndConfirmAirdrop' output:")
-	solana_airdrop.SendAndConfirmAirdrop(solanaKeypair.PublicKey(), 1_000_000_000)
+	solana_airdrop.SendAndConfirmAirdrop(solanaKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
 }

@@ -1,4 +1,5 @@
 from solders.keypair import Keypair
+from solana.constants import LAMPORTS_PER_SOL
 from fragments.env_vars import get_env_var
 from fragments.sqlite_db import (
     get_item_by_ticker,
@@ -61,7 +62,7 @@ print(f"fragment 'solana_balance/get_balance' output: {get_balance(solana_addres
 
 # solana airdrop
 print("fragment 'solana_airdrop/send_and_confirm_airdrop':")
-send_and_confirm_airdrop(solana_address, 1_000_000_000)
+send_and_confirm_airdrop(solana_address, LAMPORTS_PER_SOL)
 
 # solana rpc utils
 solanaRpcClient = init_rpc_client()
