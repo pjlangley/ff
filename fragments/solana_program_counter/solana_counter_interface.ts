@@ -1,7 +1,6 @@
 import {
   AccountRole,
   Address,
-  address,
   appendTransactionMessageInstruction,
   assertAccountExists,
   CompilableTransactionMessage,
@@ -22,6 +21,7 @@ import {
 } from "@solana/kit";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
 import { getInstructionDiscriminator, getPda } from "../solana_program/solana_program_utils";
+import { SYSTEM_PROGRAM_ADDRESS } from "@solana-program/system";
 
 export const initializeAccount = async (keypair: KeyPairSigner, programAddress: Address) => {
   const discriminator = getInstructionDiscriminator("initialize", "counter");
@@ -35,7 +35,7 @@ export const initializeAccount = async (keypair: KeyPairSigner, programAddress: 
     accounts: [
       { address: feePayer, role: AccountRole.WRITABLE_SIGNER },
       { address: counterPda, role: AccountRole.WRITABLE },
-      { address: address("11111111111111111111111111111111"), role: AccountRole.READONLY },
+      { address: SYSTEM_PROGRAM_ADDRESS, role: AccountRole.READONLY },
     ],
   }, baseTx);
 

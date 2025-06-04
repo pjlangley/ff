@@ -4,6 +4,7 @@ from solders.instruction import Instruction, AccountMeta
 from solders.transaction import VersionedTransaction
 from solders.signature import Signature
 from solders.keypair import Keypair
+from solana.constants import SYSTEM_PROGRAM_ID
 from construct import Struct, Int64ul
 from fragments.solana_rpc import init_rpc_client
 from fragments.solana_program import get_instruction_discriminator, get_program_derived_address
@@ -19,9 +20,7 @@ def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
         [
             AccountMeta(pubkey=user_keypair.pubkey(), is_signer=True, is_writable=True),
             AccountMeta(pubkey=counter_pda, is_signer=False, is_writable=True),
-            AccountMeta(
-                pubkey=Pubkey.from_string("11111111111111111111111111111111"), is_signer=False, is_writable=False
-            ),
+            AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
         ],
     )
     msg = create_transaction_message(user_keypair, instruction)
