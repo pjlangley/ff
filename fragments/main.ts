@@ -20,6 +20,7 @@ import { getBalance } from "./solana_balance/solana_balance_utils";
 import { sendAndConfirmAirdrop } from "./solana_airdrop/solana_airdrop_utils";
 import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_utils";
 import { generateKeyPairSigner } from "@solana/kit";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 (async () => {
   // env vars
@@ -66,7 +67,7 @@ import { generateKeyPairSigner } from "@solana/kit";
   // solana airdrop
   console.log(
     'fragment "solana_airdrop/sendAndConfirmAirdrop" output:',
-    await sendAndConfirmAirdrop(solanaKeypairAddress, 1_000_000_000n),
+    await sendAndConfirmAirdrop(solanaKeypairAddress, BigInt(LAMPORTS_PER_SOL)),
   );
 
   // solana rpc utils

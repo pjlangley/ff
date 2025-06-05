@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test, { before, describe } from "node:test";
 import { Buffer } from "node:buffer";
 import { LiteSVM } from "litesvm";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { fromWorkspace, LiteSVMProvider } from "anchor-litesvm";
 import { Counter } from "../target/types/counter";
 import { AnchorError, Program } from "@coral-xyz/anchor";
@@ -31,7 +31,7 @@ describe("program: counter", () => {
   test("initializes and increments the counter", async () => {
     const keypair = new Keypair();
     const counterPda = getCounterPda(keypair, programId);
-    svm.airdrop(keypair.publicKey, 1_000_000_000n);
+    svm.airdrop(keypair.publicKey, BigInt(LAMPORTS_PER_SOL));
 
     await program.methods.initialize()
       .accounts({
@@ -57,7 +57,7 @@ describe("program: counter", () => {
 
   test("fails to increment if initialize wasn't called", async () => {
     const keypair = new Keypair();
-    svm.airdrop(keypair.publicKey, 1_000_000_000n);
+    svm.airdrop(keypair.publicKey, BigInt(LAMPORTS_PER_SOL));
     const counterPda = getCounterPda(keypair, programId);
 
     try {

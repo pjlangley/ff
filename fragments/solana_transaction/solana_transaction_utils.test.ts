@@ -16,12 +16,13 @@ import { getTransferSolInstruction } from "@solana-program/system";
 import { confirmRecentSignature } from "./solana_transaction_utils";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
 import { sendAndConfirmAirdrop } from "../solana_airdrop/solana_airdrop_utils";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 describe("solana transaction utils", () => {
   test("confirmRecentSignature success", async () => {
     const keypair = await generateKeyPairSigner();
     const client = initRpcClient();
-    await sendAndConfirmAirdrop(keypair.address, 1_000_000_000n);
+    await sendAndConfirmAirdrop(keypair.address, BigInt(LAMPORTS_PER_SOL));
 
     const { value: latestBlockhash } = await client.getLatestBlockhash().send();
     const tx = pipe(

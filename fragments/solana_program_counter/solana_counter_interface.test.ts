@@ -6,6 +6,7 @@ import { Address, address, generateKeyPairSigner } from "@solana/kit";
 import { getEnvVar } from "../env_vars/env_vars_utils";
 import { confirmRecentSignature } from "../solana_transaction/solana_transaction_utils";
 import { access, constants } from "node:fs/promises";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 describe("solana program counter interface", () => {
   let programAddress: Address;
@@ -44,7 +45,7 @@ describe("solana program counter interface", () => {
 
   test("initialize account", async () => {
     const signer = await generateKeyPairSigner();
-    await sendAndConfirmAirdrop(signer.address, 1_000_000_000n);
+    await sendAndConfirmAirdrop(signer.address, BigInt(LAMPORTS_PER_SOL));
 
     const txSig = await initializeAccount(signer, programAddress);
     await confirmRecentSignature(txSig);
@@ -55,7 +56,7 @@ describe("solana program counter interface", () => {
 
   test("initialize account and increment", async () => {
     const signer = await generateKeyPairSigner();
-    await sendAndConfirmAirdrop(signer.address, 1_000_000_000n);
+    await sendAndConfirmAirdrop(signer.address, BigInt(LAMPORTS_PER_SOL));
 
     const txSig = await initializeAccount(signer, programAddress);
     await confirmRecentSignature(txSig);
@@ -72,7 +73,7 @@ describe("solana program counter interface", () => {
 
   test("increment before initializing", async () => {
     const signer = await generateKeyPairSigner();
-    await sendAndConfirmAirdrop(signer.address, 1_000_000_000n);
+    await sendAndConfirmAirdrop(signer.address, BigInt(LAMPORTS_PER_SOL));
 
     assert.rejects(
       async () => {
