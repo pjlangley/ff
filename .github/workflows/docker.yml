@@ -101,6 +101,7 @@ jobs:
     name: ff_anchor (amd64)
     env:
       ANCHOR_VERSION: 0.31.1
+      SOLANA_BUILDER_VERSION: latest
     needs: [changes, ff_solana_builder]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_anchor == 'true')
     steps:
@@ -127,6 +128,7 @@ jobs:
           build-args: |
             ANCHOR_VERSION=${{ env.ANCHOR_VERSION }}
             NODE_VERSION=22.14.0
+            SOLANA_BUILDER_VERSION=${{ env.SOLANA_BUILDER_VERSION }}
           tags: |
             pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
             pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}
@@ -153,8 +155,9 @@ jobs:
     name: ff_solana (amd64)
     env:
       AGAVE_VERSION: 2.2.6
+      SOLANA_BUILDER_VERSION: latest
     needs: [changes, ff_solana_builder]
-    if: needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana == 'true'
+    if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana == 'true')
     steps: 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -176,6 +179,8 @@ jobs:
           platforms: linux/amd64
           pull: true
           push: true
+          build-args: |
+            SOLANA_BUILDER_VERSION=${{ env.SOLANA_BUILDER_VERSION }}
           tags: |
             pjlangley/ff_solana:${{ env.AGAVE_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
             pjlangley/ff_solana:${{ env.AGAVE_VERSION }}
