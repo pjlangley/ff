@@ -1,7 +1,7 @@
 ARG NODE_VERSION=22.14.0
 FROM node:${NODE_VERSION}-bullseye AS node
 
-FROM pjlangley/ff_solana_builder:2.2.6
+FROM pjlangley/ff_solana_builder:latest
 COPY --from=node /usr/local /usr/local
 
 ARG ANCHOR_VERSION=0.31.1
