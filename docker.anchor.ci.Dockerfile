@@ -1,7 +1,8 @@
 ARG NODE_VERSION=22.14.0
+ARG SOLANA_BUILDER_VERSION=latest
+
 FROM node:${NODE_VERSION}-bullseye AS node
 
-ARG SOLANA_BUILDER_VERSION=latest
 FROM pjlangley/ff_solana_builder:${SOLANA_BUILDER_VERSION}
 COPY --from=node /usr/local /usr/local
 
