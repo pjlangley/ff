@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test, { before, describe } from "node:test";
 import { Buffer } from "node:buffer";
 import { LiteSVM } from "litesvm";
-import { Keypair, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { fromWorkspace, LiteSVMProvider } from "anchor-litesvm";
 import { Counter } from "../target/types/counter";
 import { AnchorError, Program } from "@coral-xyz/anchor";
