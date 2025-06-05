@@ -454,12 +454,13 @@ Solana programs are written in Rust, so make sure to follow the [Local (Rust)](#
   cargo install --git https://github.com/coral-xyz/anchor --tag v0.31.1 anchor-cli --locked
   ```
 - Run `anchor --version` to confirm the installation
-- Generate your own key pair: `solana-keygen --config ./solana-cli.yml new -o ./solana.id.json`. This'll be used for
-  local blockchain transactions
-- Run `solana --config ./solana-cli.yml address` to confirm the key pair generation; it should output your public key
+- Generate your own key pair: `solana-keygen --config ./solana-cli.local.yml new -o ./solana.id.json`. This'll be used
+  for local blockchain transactions
+- Run `solana --config ./solana-cli.local.yml address` to confirm the key pair generation; it should output your public
+  key
 - Ensure the local Solana test validator is running (`docker compose --profile blockchain up`), then you can:
-  - Airdrop some SOL to your address: `solana --config ./solana-cli.yml airdrop 5`
-  - Run `solana --config ./solana-cli.yml balance` to confirm airdrop
+  - Airdrop some SOL to your address: `solana --config ./solana-cli.local.yml airdrop 5`
+  - Run `solana --config ./solana-cli.local.yml balance` to confirm airdrop
 
 ##### Run
 
@@ -545,12 +546,12 @@ The following commands apply to the TypeScript file(s):
   ```
   docker run --rm -v "$(pwd):/usr/ff" \
   --entrypoint solana-keygen ff_solana \
-  --config ./solana-cli.yml \
+  --config ./solana-cli.local.yml \
   new -o ./solana.id.json --no-bip39-passphrase
   ```
   Confirm the key pair generation; it should output your public key:
   ```
-  docker run --rm -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.yml address
+  docker run --rm -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.local.yml address
   ```
 - Run the solana test validator (if not running already with `docker compose --profile blockchain up`):
   ```
@@ -559,11 +560,11 @@ The following commands apply to the TypeScript file(s):
   ```
 - Airdrop some SOL to your address (required for `anchor deploy`):
   ```
-  docker run --rm --network host -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.yml airdrop 5
+  docker run --rm --network host -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.local.yml airdrop 5
   ```
   Confirm the airdrop:
   ```
-  docker run --rm --network host -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.yml balance
+  docker run --rm --network host -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.local.yml balance
   ```
 
 #### Docker (Anchor)

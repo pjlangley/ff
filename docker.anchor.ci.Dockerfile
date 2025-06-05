@@ -17,7 +17,7 @@ RUN solana-keygen new --no-bip39-passphrase
 WORKDIR /usr/ff
 COPY fragments/blockchain/solana .
 COPY .npmrc .
-COPY solana-cli.ci.yml /root/.config/solana/cli/config.yml
+COPY solana-cli.docker.yml /root/.config/solana/cli/config.yml
 RUN npm install
 RUN anchor clean
 RUN rm -rf target/ .anchor/

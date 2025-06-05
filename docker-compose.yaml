@@ -25,12 +25,12 @@ services:
       - 1027:1027
       - 8900:8900
     volumes:
-      - ./solana-cli.ci.yml:/usr/ff/solana-cli.ci.yml
+      - ./solana-cli.docker.yml:/usr/ff/solana-cli.docker.yml
       - ./solana_docker_entrypoint.sh:/usr/ff/entrypoint.sh
     healthcheck:
       test: [
         "CMD",
-        "solana", "--config", "/usr/ff/solana-cli.ci.yml",
+        "solana", "--config", "/usr/ff/solana-cli.docker.yml",
         "cluster-version", "--url", "http://localhost:8899"
       ]
       interval: 10s
@@ -57,10 +57,10 @@ services:
       - blockchain
     network_mode: host
     volumes:
-      - ./solana-cli.ci.yml:/usr/ff/solana-cli.ci.yml
+      - ./solana-cli.docker.yml:/usr/ff/solana-cli.docker.yml
     command:
       - "--config"
-      - "/usr/ff/solana-cli.ci.yml"
+      - "/usr/ff/solana-cli.docker.yml"
       - "logs"
       - "--verbose"
 
