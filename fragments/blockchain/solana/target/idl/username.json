@@ -1,0 +1,273 @@
+{
+  "address": "uMeQ3a2zVJf1pVa4uFu2Y6i88S3soEq3Q2aJjod3VD8",
+  "metadata": {
+    "name": "username",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "initialize_username",
+      "discriminator": [
+        87,
+        43,
+        231,
+        154,
+        78,
+        232,
+        34,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "username",
+          "type": {
+            "defined": {
+              "name": "Username"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_username",
+      "discriminator": [
+        233,
+        103,
+        45,
+        8,
+        250,
+        100,
+        216,
+        251
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "user_account"
+          ]
+        },
+        {
+          "name": "user_account",
+          "writable": true
+        },
+        {
+          "name": "username_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  110,
+                  97,
+                  109,
+                  101,
+                  95,
+                  114,
+                  101,
+                  99,
+                  111,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "account",
+                "path": "user_account.change_count",
+                "account": "UserAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "username",
+          "type": {
+            "defined": {
+              "name": "Username"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "UserAccount",
+      "discriminator": [
+        211,
+        33,
+        136,
+        16,
+        186,
+        110,
+        242,
+        127
+      ]
+    },
+    {
+      "name": "UsernameRecord",
+      "discriminator": [
+        42,
+        172,
+        136,
+        41,
+        240,
+        123,
+        100,
+        204
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "UsernameTooLong",
+      "msg": "Username is too long (maximum length is 32 characters)"
+    },
+    {
+      "code": 6001,
+      "name": "UsernameTooShort",
+      "msg": "Username is too short (minimum length is 2 characters)"
+    },
+    {
+      "code": 6002,
+      "name": "UsernameInvalidCharacters",
+      "msg": "Username contains invalid characters (only ascii alphanumeric, underscores, and hyphens are allowed)"
+    },
+    {
+      "code": 6003,
+      "name": "UsernameAlreadyAssigned",
+      "msg": "Username is already assigned"
+    }
+  ],
+  "types": [
+    {
+      "name": "UserAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "username",
+            "type": {
+              "defined": {
+                "name": "Username"
+              }
+            }
+          },
+          {
+            "name": "change_count",
+            "type": "u64"
+          },
+          {
+            "name": "username_recent_history",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Username"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Username",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UsernameRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_username",
+            "type": {
+              "defined": {
+                "name": "Username"
+              }
+            }
+          },
+          {
+            "name": "change_index",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

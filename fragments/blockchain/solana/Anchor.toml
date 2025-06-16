@@ -6,9 +6,10 @@ skip-lint = false
 
 [programs.localnet]
 counter = "HdxpgGmRXeUpXE2vVZZCy2a69Ypozs8YLt3LXPHRUkG6"
+username = "uMeQ3a2zVJf1pVa4uFu2Y6i88S3soEq3Q2aJjod3VD8"
 
 [provider]
-cluster = "Localnet"
+cluster = "localnet"
 wallet = "../../../solana.id.json"
 
 [scripts]

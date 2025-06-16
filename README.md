@@ -42,6 +42,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 
 1. Solana: [`fragments/blockchain/solana`](./fragments/blockchain/solana/)
    1. [`programs/counter`](./fragments/blockchain/solana/programs/counter)
+   1. [`programs/username`](./fragments/blockchain/solana/programs/username)
 
 ## Running the code
 
