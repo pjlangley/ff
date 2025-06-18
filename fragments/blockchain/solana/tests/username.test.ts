@@ -145,6 +145,7 @@ describe("program: username", () => {
     test("username too long", async () => {
       try {
         await initializeUsername(Array(33).fill("a").join(""));
+        assert.fail("Expected transaction to fail, got success");
       } catch (err) {
         const anchorError = err as AnchorError;
         assert.ok(
@@ -159,6 +160,7 @@ describe("program: username", () => {
     test("username too short", async () => {
       try {
         await initializeUsername("a");
+        assert.fail("Expected transaction to fail, got success");
       } catch (err) {
         const anchorError = err as AnchorError;
         assert.ok(
@@ -173,6 +175,7 @@ describe("program: username", () => {
     test("username contains invalid characters", async () => {
       try {
         await initializeUsername("abc123@@@");
+        assert.fail("Expected transaction to fail, got success");
       } catch (err) {
         const anchorError = err as AnchorError;
         assert.ok(
@@ -196,6 +199,7 @@ describe("program: username", () => {
           Array(33).fill("a").join(""),
           getUserRecordAccountPda(keypair, programId, BigInt(0)),
         );
+        assert.fail("Expected transaction to fail, got success");
       } catch (err) {
         const anchorError = err as AnchorError;
         assert.ok(
@@ -213,6 +217,7 @@ describe("program: username", () => {
           "a",
           getUserRecordAccountPda(keypair, programId, BigInt(0)),
         );
+        assert.fail("Expected transaction to fail, got success");
       } catch (err) {
         const anchorError = err as AnchorError;
         assert.ok(
@@ -230,6 +235,7 @@ describe("program: username", () => {
           "abc123@@@",
           getUserRecordAccountPda(keypair, programId, BigInt(0)),
         );
+        assert.fail("Expected transaction to fail, got success");
       } catch (err) {
         const anchorError = err as AnchorError;
         assert.ok(
