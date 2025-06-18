@@ -273,7 +273,7 @@ describe("program: username", () => {
 
     try {
       await updateUsername(
-        "my_username",
+        "my_new_username",
         getUserRecordAccountPda(keypair, programId, BigInt(1)),
       );
       assert.fail("Expected transaction to fail, got success");
