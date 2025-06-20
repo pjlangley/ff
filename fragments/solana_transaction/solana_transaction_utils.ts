@@ -1,4 +1,16 @@
-import { Signature } from "@solana/kit";
+import {
+  Address,
+  CompilableTransactionMessage,
+  compileTransaction,
+  createTransactionMessage,
+  getBase64EncodedWireTransaction,
+  KeyPairSigner,
+  pipe,
+  setTransactionMessageFeePayer,
+  setTransactionMessageLifetimeUsingBlockhash,
+  Signature,
+  signTransaction,
+} from "@solana/kit";
 import { initRpcClient, initRpcSubscriptionsClient } from "../solana_rpc/solana_rpc_utils";
 import { createRecentSignatureConfirmationPromiseFactory } from "@solana/transaction-confirmation";
 
@@ -29,4 +41,27 @@ export const confirmRecentSignature = async (signature: Signature, timeout = 500
     console.error("Error confirming signature:", err);
     return false;
   }
+};
+
+export const createBaseTxWithFeePayerAndLifetime = async (feePayer: Address) => {
+  const client = initRpcClient();
+  const { value: latestBlockhash } = await client.getLatestBlockhash().send();
+
+  const tx = pipe(
+    createTransactionMessage({ version: 0 }),
+    (tx) => setTransactionMessageFeePayer(feePayer, tx),
+    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+  );
+
+  return tx;
+};
+
+export const signAndSendTransaction = async (tx: CompilableTransactionMessage, keypair: KeyPairSigner["keyPair"]) => {
+  const client = initRpcClient();
+  const compiledTx = compileTransaction(tx);
+  const signedTx = await signTransaction([keypair], compiledTx);
+  const serializedTransaction = getBase64EncodedWireTransaction(signedTx);
+  const signature = await client.sendTransaction(serializedTransaction, { encoding: "base64" }).send();
+
+  return signature;
 };
