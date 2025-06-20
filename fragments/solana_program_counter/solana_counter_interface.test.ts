@@ -5,35 +5,12 @@ import { getCount, incrementCounter, initializeAccount } from "./solana_counter_
 import { Address, address, generateKeyPairSigner } from "@solana/kit";
 import { getEnvVar } from "../env_vars/env_vars_utils";
 import { confirmRecentSignature } from "../solana_transaction/solana_transaction_utils";
-import { access, constants } from "node:fs/promises";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 describe("solana program counter interface", () => {
   let programAddress: Address;
 
-  before(async () => {
-    const programKeysFile = "solana_program_keys/solana_program_keys.env";
-    let programKeysFileExists = false;
-
-    try {
-      await access(programKeysFile, constants.R_OK);
-      programKeysFileExists = true;
-    } catch (_) {
-      console.info(`${programKeysFile} not found, skipping loading environment variables`);
-    }
-
-    if (programKeysFileExists) {
-      const dotenv = await import("dotenv");
-      const result = dotenv.config({ path: programKeysFile });
-
-      if (result.error) {
-        console.error(result.error);
-        assert.fail(`Failed to load environment variables from ${programKeysFile}`);
-      }
-
-      console.info(`Environment variables loaded from ${programKeysFile}`, result.parsed);
-    }
-
+  before(() => {
     const programId = getEnvVar("counter_PROGRAM_ID");
 
     if (!programId) {
