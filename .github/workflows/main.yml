@@ -29,6 +29,7 @@ jobs:
           --network ci-network \
           --env CI=$CI \
           --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+          --env username_PROGRAM_ID=$username_PROGRAM_ID \
           ff_node \
           --run test
       - name: lint
@@ -60,6 +61,7 @@ jobs:
           --network ci-network \
           --env CI=$CI \
           --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+          --env username_PROGRAM_ID=$username_PROGRAM_ID \
           ff_python \
           -m unittest -v --failfast
       - name: type check
@@ -91,6 +93,7 @@ jobs:
           --network ci-network \
           --env CI=$CI \
           --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+          --env username_PROGRAM_ID=$username_PROGRAM_ID \
           --entrypoint cargo \
           ff_rust \
           test
@@ -123,6 +126,7 @@ jobs:
             --network ci-network \
             --env CI=$CI \
             --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
+            --env username_PROGRAM_ID=$username_PROGRAM_ID \
             --entrypoint go \
             ff_go \
             test -v ./fragments/...

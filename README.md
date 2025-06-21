@@ -37,6 +37,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with Solana programs: [`fragments/solana_program`](./fragments/solana_program/)
 1. Solana program interfaces:
    1. Counter: [`fragments/solana_program_counter`](./fragments/solana_program_counter/)
+   1. Username: [`fragments/solana_program_username`](./fragments/solana_program_username/)
 
 ### Blockchain programs
 
@@ -136,6 +137,7 @@ execute the code.
   docker run --rm \
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
+    --env username_PROGRAM_ID=<program_id_here> \
     ff_node \
     --run test
   ```
@@ -222,6 +224,7 @@ execute the code.
   docker run --rm \
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
+    --env username_PROGRAM_ID=<program_id_here> \
     ff_python \
     -m unittest -v
   ```
@@ -315,6 +318,7 @@ execute the code.
   docker run --rm \
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
+    --env username_PROGRAM_ID=<program_id_here> \
     --entrypoint cargo \
     ff_rust \
     test
@@ -413,6 +417,7 @@ execute the code.
   docker run --rm \
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
+    --env username_PROGRAM_ID=<program_id_here> \
     --entrypoint go \
     ff_go \
     test -v ./fragments/...

@@ -1,9 +1,11 @@
 import { Address, getAddressEncoder, getProgramDerivedAddress } from "@solana/kit";
 import counterIdl from "../blockchain/solana/target/idl/counter.json";
+import usernameIdl from "../blockchain/solana/target/idl/username.json";
 import { Buffer } from "node:buffer";
 
 const programIdlMap = {
   counter: counterIdl,
+  username: usernameIdl,
 };
 
 type ProgramName = keyof typeof programIdlMap;
@@ -25,12 +27,12 @@ export const getInstructionDiscriminator = (instructionName: string, programName
 export const getPda = async (
   userAddress: Address,
   programAddress: Address,
-  programName: ProgramName,
+  accountName: string,
 ): Promise<Address> => {
   const encoder = getAddressEncoder();
   const [pda] = await getProgramDerivedAddress({
     programAddress,
-    seeds: [Buffer.from(programName), encoder.encode(userAddress)],
+    seeds: [Buffer.from(accountName), encoder.encode(userAddress)],
   });
   return pda;
 };
