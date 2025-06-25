@@ -109,6 +109,19 @@ describe("solana program username interface", () => {
     );
   });
 
+  test("get username record account before initializing", async () => {
+    const signer = await generateKeyPairSigner();
+
+    assert.rejects(
+      async () => {
+        await getUsernameRecordAccount(signer, programAddress, 0n);
+      },
+      {
+        message: /^Account .* does not exist/,
+      },
+    );
+  });
+
   test("provide invalid username at initialisation", async () => {
     const signer = await generateKeyPairSigner();
     await sendAndConfirmAirdrop(signer.address, BigInt(LAMPORTS_PER_SOL));
