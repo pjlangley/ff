@@ -103,13 +103,7 @@ mod tests {
     static PROGRAM_ID: Lazy<Pubkey> = Lazy::new(|| {
         let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
         let env_path = manifest_dir.join("solana_program_keys/solana_program_keys.env");
-
-        if env_path.exists() {
-            dotenvy::from_path(&env_path).expect("Failed to load env vars");
-            println!("Environment variables loaded from {:?}", env_path);
-        } else {
-            println!("{:?} not found, skipping env loading", env_path);
-        }
+        dotenvy::from_path(&env_path).ok();
 
         let program_id = Pubkey::from_str(&get_env_var("counter_PROGRAM_ID"))
             .expect("Failed to parse program id");

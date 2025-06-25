@@ -4,7 +4,6 @@ import (
 	"ff/env_vars"
 	"ff/solana_airdrop"
 	"ff/solana_transaction"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -22,14 +21,7 @@ var programId = func() solana.PublicKey {
 	}
 
 	envPath := filepath.Join(cwd, "../../solana_program_keys/solana_program_keys.env")
-	if _, err := os.Stat(envPath); err == nil {
-		if err := godotenv.Load(envPath); err != nil {
-			log.Fatalf("Failed to load environment variables from %s: %v", envPath, err)
-		}
-		fmt.Printf("Environment variables loaded from %s\n", envPath)
-	} else {
-		fmt.Printf("%s not found, skipping env loading\n", envPath)
-	}
+	_ = godotenv.Load(envPath)
 
 	programId := env_vars.GetEnvVar("counter_PROGRAM_ID")
 	if programId == "" {
