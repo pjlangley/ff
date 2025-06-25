@@ -1,13 +1,12 @@
 from solders.pubkey import Pubkey
-from solders.message import MessageV0
 from solders.instruction import Instruction, AccountMeta
-from solders.transaction import VersionedTransaction
 from solders.signature import Signature
 from solders.keypair import Keypair
 from solana.constants import SYSTEM_PROGRAM_ID
 from construct import Struct, Int64ul
 from fragments.solana_rpc import init_rpc_client
 from fragments.solana_program import get_instruction_discriminator, get_program_derived_address
+from fragments.solana_transaction import create_tx_with_fee_payer_and_lifetime
 
 
 def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
@@ -23,8 +22,7 @@ def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
             AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
         ],
     )
-    msg = create_transaction_message(user_keypair, instruction)
-    tx = VersionedTransaction(msg, [user_keypair])
+    tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
     response = client.send_transaction(tx)
     return response.value
 
@@ -58,19 +56,6 @@ def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
             AccountMeta(pubkey=user_keypair.pubkey(), is_signer=True, is_writable=True),
         ],
     )
-    msg = create_transaction_message(user_keypair, instruction)
-    tx = VersionedTransaction(msg, [user_keypair])
+    tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
     response = client.send_transaction(tx)
     return response.value
-
-
-def create_transaction_message(user_keypair: Keypair, instruction: Instruction) -> MessageV0:
-    client = init_rpc_client()
-    latest_blockhash = client.get_latest_blockhash().value.blockhash
-
-    return MessageV0.try_compile(
-        payer=user_keypair.pubkey(),
-        recent_blockhash=latest_blockhash,
-        instructions=[instruction],
-        address_lookup_table_accounts=[],
-    )
