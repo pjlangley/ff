@@ -3,11 +3,14 @@ from pathlib import Path
 from typing import Literal
 from solders.pubkey import Pubkey
 
-Program = Literal["counter"]
+Program = Literal["counter", "username"]
 
 script_dir = Path(__file__).resolve().parent
 
-idls = [{"name": "counter", "path": "../blockchain/solana/target/idl/counter.json"}]
+idls = [
+    {"name": "counter", "path": "../blockchain/solana/target/idl/counter.json"},
+    {"name": "username", "path": "../blockchain/solana/target/idl/username.json"},
+]
 program_id_map = {}
 
 for idl in idls:
@@ -30,8 +33,8 @@ def get_instruction_discriminator(instruction_name: str, program_name: Program) 
     return bytes(instr["discriminator"])
 
 
-def get_program_derived_address(user_address: Pubkey, program_address: Pubkey, program_name: Program) -> Pubkey:
-    seed1 = bytes(program_name, "utf-8")
+def get_program_derived_address(user_address: Pubkey, program_address: Pubkey, account_name: str) -> Pubkey:
+    seed1 = bytes(account_name, "utf-8")
     seed2 = bytes(user_address)
     pda, _ = Pubkey.find_program_address([seed1, seed2], program_address)
     return pda
