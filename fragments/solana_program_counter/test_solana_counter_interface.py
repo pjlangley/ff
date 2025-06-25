@@ -16,12 +16,7 @@ class TestSolanaCounterInterface(unittest.TestCase):
     def setUpClass(cls):
         script_dir = Path(__file__).resolve().parent
         program_keys_file = script_dir / "../../solana_program_keys/solana_program_keys.env"
-
-        if program_keys_file.exists():
-            loaded = load_dotenv(dotenv_path=program_keys_file)
-            if not loaded:
-                cls.fail(f"Failed to load environment variables from {program_keys_file}")
-            print(f"Environment variables loaded from {program_keys_file}")
+        load_dotenv(dotenv_path=program_keys_file)
 
         program_id = get_env_var("counter_PROGRAM_ID")
 
