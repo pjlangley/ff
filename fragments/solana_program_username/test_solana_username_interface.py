@@ -69,6 +69,8 @@ class TestSolanaUsernameInterface(unittest.TestCase):
 
         updated_user_account = get_username_account(user_keypair=user_keypair, program_address=self.program_id)
         self.assertEqual(updated_user_account["username"]["value"], "new_username")
+        self.assertEqual(len(updated_user_account["username_recent_history"]), 1)
+        self.assertEqual(updated_user_account["username_recent_history"][0]["value"], "my_username")
 
     def test_solana_update_username_multiple_times(self):
         user_keypair = Keypair()
