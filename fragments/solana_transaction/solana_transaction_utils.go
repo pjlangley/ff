@@ -46,3 +46,34 @@ func ConfirmRecentTransaction(signature solana.Signature, timeoutSeconds ...floa
 		}
 	}
 }
+
+func CreateTxWithFeePayerAndLifetime(userKeypair solana.PrivateKey, instruction solana.Instruction) (*solana.Transaction, error) {
+	client := solana_rpc.InitRpcClient()
+	latestBlockhash, err := client.GetLatestBlockhash(context.Background(), rpc.CommitmentFinalized)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest blockhash: %w", err)
+	}
+
+	tx, err := solana.NewTransaction(
+		[]solana.Instruction{instruction},
+		latestBlockhash.Value.Blockhash,
+		solana.TransactionPayer(userKeypair.PublicKey()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create transaction: %w", err)
+	}
+
+	_, err = tx.Sign(
+		func(key solana.PublicKey) *solana.PrivateKey {
+			if userKeypair.PublicKey().Equals(key) {
+				return &userKeypair
+			}
+			return nil
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("unable to sign transaction: %w", err)
+	}
+
+	return tx, nil
+}

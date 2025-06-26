@@ -29,32 +29,11 @@ func TestSolanaTransaction_ConfirmRecentTransaction_Success(t *testing.T) {
 
 func TestSolanaTransaction_ConfirmRecentTransaction_Failure(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	client := solana_rpc.InitRpcClient()
-	latestBlockhash, err := client.GetLatestBlockhash(context.Background(), rpc.CommitmentFinalized)
-	if err != nil {
-		t.Errorf("Failed to get latest blockhash: %v", err)
-	}
-
 	instr := system.NewTransferInstruction(0, userKeypair.PublicKey(), userKeypair.PublicKey()).Build()
-	tx, err := solana.NewTransaction(
-		[]solana.Instruction{instr},
-		latestBlockhash.Value.Blockhash,
-		solana.TransactionPayer(userKeypair.PublicKey()),
-	)
-	if err != nil {
-		t.Errorf("Failed to create transaction: %v", err)
-	}
 
-	_, err = tx.Sign(
-		func(key solana.PublicKey) *solana.PrivateKey {
-			if userKeypair.PublicKey().Equals(key) {
-				return &userKeypair
-			}
-			return nil
-		},
-	)
+	tx, err := CreateTxWithFeePayerAndLifetime(userKeypair, instr)
 	if err != nil {
-		t.Errorf("unable to sign transaction: %v", err)
+		t.Errorf("unable to create transaction: %v", err)
 	}
 
 	err = ConfirmRecentTransaction(tx.Signatures[0], 0.1)

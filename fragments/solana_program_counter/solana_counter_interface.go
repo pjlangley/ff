@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	solana_program "ff/solana_program"
 	"ff/solana_rpc"
+	solana_transaction "ff/solana_transaction"
 	"fmt"
 
 	"github.com/gagliardetto/solana-go"
@@ -39,7 +40,7 @@ func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey
 		},
 		discriminator,
 	)
-	tx, err := createTransactionMessage(userKeypair, instr)
+	tx, err := solana_transaction.CreateTxWithFeePayerAndLifetime(userKeypair, instr)
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to create transaction: %v", err)
 	}
@@ -104,7 +105,7 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 		},
 		discriminator,
 	)
-	tx, err := createTransactionMessage(userKeypair, instr)
+	tx, err := solana_transaction.CreateTxWithFeePayerAndLifetime(userKeypair, instr)
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to create transaction: %v", err)
 	}
@@ -115,35 +116,4 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 	}
 
 	return sig, nil
-}
-
-func createTransactionMessage(userKeypair solana.PrivateKey, instruction *solana.GenericInstruction) (*solana.Transaction, error) {
-	client := solana_rpc.InitRpcClient()
-	latestBlockhash, err := client.GetLatestBlockhash(context.Background(), rpc.CommitmentFinalized)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get latest blockhash: %w", err)
-	}
-
-	tx, err := solana.NewTransaction(
-		[]solana.Instruction{instruction},
-		latestBlockhash.Value.Blockhash,
-		solana.TransactionPayer(userKeypair.PublicKey()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create transaction: %w", err)
-	}
-
-	_, err = tx.Sign(
-		func(key solana.PublicKey) *solana.PrivateKey {
-			if userKeypair.PublicKey().Equals(key) {
-				return &userKeypair
-			}
-			return nil
-		},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("unable to sign transaction: %w", err)
-	}
-
-	return tx, nil
 }
