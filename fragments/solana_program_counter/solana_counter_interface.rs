@@ -5,12 +5,10 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use solana_client::client_error::Result as ClientResult;
 use solana_sdk::{
     instruction::{AccountMeta, Instruction},
-    message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
     signature::{Keypair, Signature},
     signer::Signer,
     system_program,
-    transaction::VersionedTransaction,
 };
 use std::io::Cursor;
 
@@ -19,6 +17,7 @@ use crate::{
         get_instruction_discriminator, get_program_derived_address, Program,
     },
     solana_rpc::solana_rpc_utils::init_rpc_client,
+    solana_transaction::solana_transaction_utils::create_tx_with_fee_payer_and_lifetime,
 };
 
 pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
@@ -26,7 +25,7 @@ pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> Clien
     let counter_pda =
         get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
     let client = init_rpc_client();
-    let instruction = Instruction::new_with_bytes(
+    let instr = Instruction::new_with_bytes(
         program_id,
         &discriminator,
         vec![
@@ -35,9 +34,7 @@ pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> Clien
             AccountMeta::new_readonly(system_program::id(), false),
         ],
     );
-    let message = create_transaction_message(&user_keypair.pubkey(), instruction);
-    let tx = VersionedTransaction::try_new(VersionedMessage::V0(message), &[user_keypair])
-        .unwrap_or_else(|err| panic!("Failed to sign transaction: {}", err));
+    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr);
     let signature = client.send_and_confirm_transaction(&tx)?;
 
     Ok(signature)
@@ -64,7 +61,7 @@ pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> Client
     let counter_pda =
         get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
     let client = init_rpc_client();
-    let instruction = Instruction::new_with_bytes(
+    let instr = Instruction::new_with_bytes(
         program_id,
         &discriminator,
         vec![
@@ -72,21 +69,10 @@ pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> Client
             AccountMeta::new(user_keypair.pubkey(), true),
         ],
     );
-    let message = create_transaction_message(&user_keypair.pubkey(), instruction);
-    let tx = VersionedTransaction::try_new(VersionedMessage::V0(message), &[user_keypair])
-        .unwrap_or_else(|err| panic!("Failed to sign transaction: {}", err));
+    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr);
     let signature = client.send_and_confirm_transaction(&tx)?;
 
     Ok(signature)
-}
-
-fn create_transaction_message(user_pubkey: &Pubkey, instruction: Instruction) -> Message {
-    let client = init_rpc_client();
-    let latest_blockhash = client
-        .get_latest_blockhash()
-        .unwrap_or_else(|err| panic!("Failed to get latest blockhash: {}", err));
-    Message::try_compile(user_pubkey, &[instruction], &[], latest_blockhash)
-        .unwrap_or_else(|err| panic!("Failed to compile message: {}", err))
 }
 
 #[cfg(test)]

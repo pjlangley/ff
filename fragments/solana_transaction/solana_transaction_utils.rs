@@ -4,7 +4,13 @@ use std::{
 };
 
 use solana_client::client_error::Result as ClientResult;
-use solana_sdk::signature::Signature;
+use solana_sdk::{
+    instruction::Instruction,
+    message::{v0::Message, VersionedMessage},
+    signature::{Keypair, Signature},
+    signer::Signer,
+    transaction::VersionedTransaction,
+};
 
 use crate::solana_rpc::solana_rpc_utils::init_rpc_client;
 
@@ -28,29 +34,39 @@ pub fn confirm_recent_signature(signature: &Signature, timeout: Option<u64>) -> 
     }
 }
 
+pub fn create_tx_with_fee_payer_and_lifetime(
+    user_keypair: &Keypair,
+    instruction: Instruction,
+) -> VersionedTransaction {
+    let client = init_rpc_client();
+    let latest_blockhash = client
+        .get_latest_blockhash()
+        .unwrap_or_else(|err| panic!("Failed to get latest blockhash: {}", err));
+    let msg = Message::try_compile(
+        &user_keypair.pubkey(),
+        &[instruction],
+        &[],
+        latest_blockhash,
+    )
+    .unwrap_or_else(|err| panic!("Failed to compile message: {}", err));
+
+    VersionedTransaction::try_new(VersionedMessage::V0(msg), &[&user_keypair])
+        .unwrap_or_else(|err| panic!("Failed to sign transaction: {}", err))
+}
+
 #[cfg(test)]
 mod tests {
     use crate::solana_airdrop::solana_airdrop_utils::send_and_confirm_airdrop;
 
     use super::*;
     use solana_sdk::{
-        message::{v0::Message, VersionedMessage},
-        native_token::LAMPORTS_PER_SOL,
-        signature::Keypair,
-        signer::Signer,
-        system_instruction,
+        native_token::LAMPORTS_PER_SOL, signature::Keypair, signer::Signer, system_instruction,
         transaction::VersionedTransaction,
     };
 
     fn create_test_transaction(user_keypair: Keypair) -> VersionedTransaction {
-        let client = init_rpc_client();
-        let latest_blockhash = client.get_latest_blockhash().unwrap();
         let instr = system_instruction::transfer(&user_keypair.pubkey(), &user_keypair.pubkey(), 0);
-        let message =
-            Message::try_compile(&user_keypair.pubkey(), &[instr], &[], latest_blockhash).unwrap();
-        let tx =
-            VersionedTransaction::try_new(VersionedMessage::V0(message), &[&user_keypair]).unwrap();
-        return tx;
+        create_tx_with_fee_payer_and_lifetime(&user_keypair, instr)
     }
 
     #[test]
