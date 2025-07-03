@@ -1,7 +1,7 @@
 // Ignore these warnings - this isolated fragment is covered by unit tests
 #![allow(dead_code)]
 
-use byteorder::{LittleEndian, ReadBytesExt};
+use binrw::{binread, BinRead};
 use solana_client::client_error::Result as ClientResult;
 use solana_sdk::{
     instruction::{AccountMeta, Instruction},
@@ -14,16 +14,21 @@ use std::io::Cursor;
 
 use crate::{
     solana_program::solana_program_utils::{
-        get_instruction_discriminator, get_program_derived_address, Program,
+        get_instruction_discriminator, get_program_derived_address,
     },
     solana_rpc::solana_rpc_utils::init_rpc_client,
     solana_transaction::solana_transaction_utils::create_tx_with_fee_payer_and_lifetime,
 };
 
+#[binread]
+#[derive(Debug)]
+pub struct Counter {
+    pub count: u64,
+}
+
 pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
     let discriminator = get_instruction_discriminator("initialize", "counter");
-    let counter_pda =
-        get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
+    let counter_pda = get_program_derived_address(&user_keypair.pubkey(), &program_id, "counter");
     let client = init_rpc_client();
     let instr = Instruction::new_with_bytes(
         program_id,
@@ -40,26 +45,22 @@ pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> Clien
     Ok(signature)
 }
 
-fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<u64> {
+fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Counter> {
     let client = init_rpc_client();
-    let counter_pda =
-        get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
+    let counter_pda = get_program_derived_address(&user_keypair.pubkey(), &program_id, "counter");
     let account = client.get_account(&counter_pda)?;
 
-    // removes the discriminator from the account data
-    let data = &account.data[8..];
+    let data = &account.data[8..]; // rm discriminator from account data
     let mut cursor = Cursor::new(data);
-    let count = cursor
-        .read_u64::<LittleEndian>()
-        .unwrap_or_else(|err| panic!("Failed to read u64 from account data: {}", err));
+    let counter = Counter::read_le(&mut cursor)
+        .unwrap_or_else(|err| panic!("Failed to read count from account data: {}", err));
 
-    Ok(count)
+    Ok(counter)
 }
 
 pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
     let discriminator = get_instruction_discriminator("increment", "counter");
-    let counter_pda =
-        get_program_derived_address(&user_keypair.pubkey(), &program_id, &Program::Counter);
+    let counter_pda = get_program_derived_address(&user_keypair.pubkey(), &program_id, "counter");
     let client = init_rpc_client();
     let instr = Instruction::new_with_bytes(
         program_id,
@@ -102,9 +103,9 @@ mod tests {
         let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
 
         let _ = initialize_account(&user_keypair, &PROGRAM_ID);
-        let count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
+        let counter = get_count(&user_keypair, &PROGRAM_ID).unwrap();
 
-        assert_eq!(count, 0)
+        assert_eq!(counter.count, 0)
     }
 
     #[test]
@@ -113,12 +114,12 @@ mod tests {
         let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
 
         let _ = initialize_account(&user_keypair, &PROGRAM_ID);
-        let count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
-        assert_eq!(count, 0);
+        let counter = get_count(&user_keypair, &PROGRAM_ID).unwrap();
+        assert_eq!(counter.count, 0);
 
         let _signature = increment_counter(&user_keypair, &PROGRAM_ID);
-        let latest_count = get_count(&user_keypair, &PROGRAM_ID).unwrap();
-        assert_eq!(latest_count, 1);
+        let latest_counter = get_count(&user_keypair, &PROGRAM_ID).unwrap();
+        assert_eq!(latest_counter.count, 1);
     }
 
     #[test]

@@ -18,25 +18,18 @@ struct Idl {
     instructions: Vec<IdlInstruction>,
 }
 
-#[derive(Debug)]
-pub enum Program {
-    Counter,
-}
-
-impl Program {
-    pub fn as_bytes(&self) -> &'static [u8] {
-        match self {
-            Program::Counter => b"counter",
-        }
-    }
-}
-
 static PROGRAM_ID_MAP: Lazy<HashMap<String, Idl>> = Lazy::new(|| {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let idls: HashMap<String, PathBuf> = HashMap::from([(
-        "counter".to_string(),
-        manifest_dir.join("fragments/blockchain/solana/target/idl/counter.json"),
-    )]);
+    let idls: HashMap<String, PathBuf> = HashMap::from([
+        (
+            "counter".to_string(),
+            manifest_dir.join("fragments/blockchain/solana/target/idl/counter.json"),
+        ),
+        (
+            "username".to_string(),
+            manifest_dir.join("fragments/blockchain/solana/target/idl/username.json"),
+        ),
+    ]);
     let mut program_id_map: HashMap<String, Idl> = HashMap::new();
 
     for (name, idl_path) in idls {
@@ -71,9 +64,9 @@ pub fn get_instruction_discriminator(instruction_name: &str, program_name: &str)
 pub fn get_program_derived_address(
     user_address: &Pubkey,
     program_address: &Pubkey,
-    program_name: &Program,
+    account_name: &str,
 ) -> Pubkey {
-    let seed1 = program_name.as_bytes();
+    let seed1 = account_name.as_bytes();
     let seed2 = user_address.as_ref();
     let (pda, _) = Pubkey::find_program_address(&[seed1, seed2], program_address);
     pda
@@ -99,7 +92,7 @@ mod tests {
     fn test_solana_program_get_program_derived_address() {
         let user_pubkey = Pubkey::from_str_const("71jvqeEzwVnz6dpo2gZAKbCZkq6q6bpt9nkHZvBiia4Z");
         let program_pubkey = Pubkey::from_str_const("23Ww1C2uzCiH9zjmfhG6QmkopkeanZM87mjDHu8MMwXY");
-        let pda = get_program_derived_address(&user_pubkey, &program_pubkey, &Program::Counter);
+        let pda = get_program_derived_address(&user_pubkey, &program_pubkey, "counter");
         assert_eq!(
             pda.to_string(),
             "9yFnCu3Nyr4aa7kdd4ckAyPKABQyTPLX2Xm4Aj2MXsLc"
