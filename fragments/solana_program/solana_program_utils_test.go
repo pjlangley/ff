@@ -26,7 +26,7 @@ func TestSolanaProgram_GetInstructionDiscriminator_InvalidInstr(t *testing.T) {
 func TestSolanaProgram_GetProgramDerivedAddress(t *testing.T) {
 	userPubkey, _ := solana.PublicKeyFromBase58("71jvqeEzwVnz6dpo2gZAKbCZkq6q6bpt9nkHZvBiia4Z")
 	programPubkey, _ := solana.PublicKeyFromBase58("23Ww1C2uzCiH9zjmfhG6QmkopkeanZM87mjDHu8MMwXY")
-	pda := GetProgramDerivedAddress(userPubkey, programPubkey, ProgramCounter)
+	pda := GetProgramDerivedAddress(userPubkey, programPubkey, "counter")
 	expected := "9yFnCu3Nyr4aa7kdd4ckAyPKABQyTPLX2Xm4Aj2MXsLc"
 
 	if pda.String() != expected {

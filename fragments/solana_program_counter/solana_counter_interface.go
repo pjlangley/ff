@@ -18,7 +18,7 @@ func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to get instruction discriminator: %v", err)
 	}
-	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, solana_program.ProgramCounter)
+	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, "counter")
 	instr := solana.NewInstruction(
 		programId,
 		solana.AccountMetaSlice{
@@ -55,7 +55,7 @@ func InitializeAccount(userKeypair solana.PrivateKey, programId solana.PublicKey
 
 func GetCount(userKeypair solana.PrivateKey, programId solana.PublicKey) (uint64, error) {
 	client := solana_rpc.InitRpcClient()
-	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, solana_program.ProgramCounter)
+	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, "counter")
 
 	offset := uint64(8)
 	length := uint64(8)
@@ -88,7 +88,7 @@ func IncrementCounter(userKeypair solana.PrivateKey, programId solana.PublicKey)
 	if err != nil {
 		return solana.Signature{}, fmt.Errorf("failed to get instruction discriminator: %v", err)
 	}
-	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, solana_program.ProgramCounter)
+	counterPda := solana_program.GetProgramDerivedAddress(userKeypair.PublicKey(), programId, "counter")
 	instr := solana.NewInstruction(
 		programId,
 		solana.AccountMetaSlice{

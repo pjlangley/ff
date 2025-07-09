@@ -31,6 +31,7 @@ var programIdMap = func() map[string]Idl {
 
 	idls := make(map[string]string)
 	idls["counter"] = filepath.Join(wd, "../blockchain/solana/target/idl/counter.json")
+	idls["username"] = filepath.Join(wd, "../blockchain/solana/target/idl/username.json")
 
 	programIdMap := make(map[string]Idl)
 
@@ -63,15 +64,15 @@ func GetInstructionDiscriminator(instructionName string, programName string) ([]
 	return nil, fmt.Errorf("Instruction %s not found in program %s IDL", instructionName, programName)
 }
 
-func GetProgramDerivedAddress(userPubkey solana.PublicKey, programPubkey solana.PublicKey, programName ProgramName) solana.PublicKey {
-	seed1 := []byte(programName)
+func GetProgramDerivedAddress(userPubkey solana.PublicKey, programPubkey solana.PublicKey, accountName string) solana.PublicKey {
+	seed1 := []byte(accountName)
 	seed2 := userPubkey.Bytes()
 	pda, _, err := solana.FindProgramAddress(
 		[][]byte{seed1, seed2},
 		programPubkey,
 	)
 	if err != nil {
-		log.Fatalf("Error finding program address for %s: %v", programName, err)
+		log.Fatalf("Error finding program address for %s: %v", accountName, err)
 	}
 	return pda
 }
