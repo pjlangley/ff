@@ -13,7 +13,7 @@ COPY .npmrc .
 COPY deno.json .
 COPY *.md .
 COPY docker_hub/ docker_hub/
-RUN npm install
+RUN npm ci
 COPY fragments/ ./fragments/
 
 ENTRYPOINT ["node"]
