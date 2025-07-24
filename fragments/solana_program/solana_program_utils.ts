@@ -1,10 +1,12 @@
 import { Address, getAddressEncoder, getProgramDerivedAddress } from "@solana/kit";
 import counterIdl from "../blockchain/solana/target/idl/counter.json";
 import usernameIdl from "../blockchain/solana/target/idl/username.json";
+import roundIdl from "../blockchain/solana/target/idl/round.json";
 import { Buffer } from "node:buffer";
 
 const programIdlMap = {
   counter: counterIdl,
+  round: roundIdl,
   username: usernameIdl,
 };
 

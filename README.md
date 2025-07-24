@@ -36,15 +36,16 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with Solana transactions: [`fragments/solana_transaction`](./fragments/solana_transaction/)
 1. Working with Solana programs: [`fragments/solana_program`](./fragments/solana_program/)
 1. Solana program interfaces:
-   1. Counter: [`fragments/solana_program_counter`](./fragments/solana_program_counter/)
-   1. Username: [`fragments/solana_program_username`](./fragments/solana_program_username/)
+   - Counter: [`fragments/solana_program_counter`](./fragments/solana_program_counter/)
+   - Username: [`fragments/solana_program_username`](./fragments/solana_program_username/)
+   - Round: [`fragments/solana_program_round`](./fragments/solana_program_round/)
 
 ### Blockchain programs
 
-1. Solana: [`fragments/blockchain/solana`](./fragments/blockchain/solana/)
-   1. [`programs/counter`](./fragments/blockchain/solana/programs/counter)
-   1. [`programs/username`](./fragments/blockchain/solana/programs/username)
-   1. [`programs/round`](./fragments/blockchain/solana/programs/round)
+- Solana: [`fragments/blockchain/solana`](./fragments/blockchain/solana/)
+  - [`programs/counter`](./fragments/blockchain/solana/programs/counter)
+  - [`programs/username`](./fragments/blockchain/solana/programs/username)
+  - [`programs/round`](./fragments/blockchain/solana/programs/round)
 
 ## Running the code
 
@@ -139,6 +140,7 @@ execute the code.
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
     --env username_PROGRAM_ID=<program_id_here> \
+    --env round_PROGRAM_ID=<program_id_here> \
     ff_node \
     --run test
   ```
@@ -226,6 +228,7 @@ execute the code.
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
     --env username_PROGRAM_ID=<program_id_here> \
+    --env round_PROGRAM_ID=<program_id_here> \
     ff_python \
     -m unittest -v
   ```
@@ -320,6 +323,7 @@ execute the code.
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
     --env username_PROGRAM_ID=<program_id_here> \
+    --env round_PROGRAM_ID=<program_id_here> \
     --entrypoint cargo \
     ff_rust \
     test
@@ -419,6 +423,7 @@ execute the code.
     --network host \
     --env counter_PROGRAM_ID=<program_id_here> \
     --env username_PROGRAM_ID=<program_id_here> \
+    --env round_PROGRAM_ID=<program_id_here> \
     --entrypoint go \
     ff_go \
     test -v ./fragments/...
