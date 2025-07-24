@@ -75,7 +75,7 @@ describe("program: round", () => {
 
   describe("round initialisation", () => {
     test("initialises a round", async () => {
-      await initialiseRound(svm.getClock().slot + BigInt(10));
+      await initialiseRound(svm.getClock().slot + 10n);
 
       const roundAccount = await program.account.round.fetch(roundAccountPda);
       assert.strictEqual(roundAccount.authority.toBase58(), keypair.publicKey.toBase58());
@@ -83,10 +83,10 @@ describe("program: round", () => {
     });
 
     test("fails to initialise a round if already initialised", async () => {
-      await initialiseRound(svm.getClock().slot + BigInt(10));
+      await initialiseRound(svm.getClock().slot + 10n);
 
       try {
-        await initialiseRound(svm.getClock().slot + BigInt(20));
+        await initialiseRound(svm.getClock().slot + 20n);
         assert.fail("Expected round initialisation to fail");
       } catch (error) {
         const anchorError = error as AnchorError;
@@ -95,10 +95,10 @@ describe("program: round", () => {
     });
 
     test("fails to initialise a round if not after current slot", async () => {
-      svm.warpToSlot(BigInt(20));
+      svm.warpToSlot(20n);
 
       try {
-        await initialiseRound(BigInt(10));
+        await initialiseRound(10n);
         assert.fail("Expected round initialisation to fail");
       } catch (error) {
         const anchorError = error as AnchorError;
@@ -109,7 +109,7 @@ describe("program: round", () => {
 
   describe("round activation", () => {
     test("authority user activates a round at start slot", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(startSlot);
       await activateRound(keypair, roundAccountPda);
@@ -120,7 +120,7 @@ describe("program: round", () => {
     });
 
     test("non-authority user activates a round at start slot", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(startSlot);
 
@@ -135,8 +135,8 @@ describe("program: round", () => {
     });
 
     test("round activated AFTER start slot", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
-      const activateAt = startSlot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
+      const activateAt = startSlot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(activateAt);
       await activateRound(keypair, roundAccountPda);
@@ -156,7 +156,7 @@ describe("program: round", () => {
     });
 
     test("fails to activiate a round if already active", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(startSlot);
       await activateRound(keypair, roundAccountPda);
@@ -171,9 +171,9 @@ describe("program: round", () => {
     });
 
     test("fails to activate a round if not after current slot", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
       await initialiseRound(startSlot);
-      svm.warpToSlot(svm.getClock().slot + BigInt(5));
+      svm.warpToSlot(svm.getClock().slot + 5n);
 
       try {
         await activateRound(keypair, roundAccountPda);
@@ -187,8 +187,8 @@ describe("program: round", () => {
 
   describe("round completion", () => {
     test("completes a round", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
-      const completeSlot = startSlot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
+      const completeSlot = startSlot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(startSlot);
       await activateRound(keypair, roundAccountPda);
@@ -200,8 +200,8 @@ describe("program: round", () => {
     });
 
     test("fails to complete a round if signer is not authority", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
-      const completeSlot = startSlot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
+      const completeSlot = startSlot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(startSlot);
       await activateRound(keypair, roundAccountPda);
@@ -219,7 +219,7 @@ describe("program: round", () => {
     });
 
     test("fails to complete a round if not active", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
       await initialiseRound(startSlot);
 
       try {
@@ -232,8 +232,8 @@ describe("program: round", () => {
     });
 
     test("fails to complete a round if already completed", async () => {
-      const startSlot = svm.getClock().slot + BigInt(10);
-      const completeSlot = startSlot + BigInt(10);
+      const startSlot = svm.getClock().slot + 10n;
+      const completeSlot = startSlot + 10n;
       await initialiseRound(startSlot);
       svm.warpToSlot(startSlot);
       await activateRound(keypair, roundAccountPda);
