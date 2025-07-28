@@ -6,7 +6,7 @@ import { getEnvVar } from "../env_vars/env_vars_utils";
 import { sendAndConfirmAirdrop } from "../solana_airdrop/solana_airdrop_utils";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { confirmRecentSignature } from "../solana_transaction/solana_transaction_utils";
-import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
+import { initRpcClient, waitForSlot } from "../solana_rpc/solana_rpc_utils";
 
 interface ProgramError {
   context: { logs: string[] };
@@ -42,12 +42,10 @@ describe("solana program round interface", () => {
     assert.ok(isNone(roundAccount.activated_by));
     assert.ok(isNone(roundAccount.completed_at));
 
-    await retry(async () => {
-      const slot = await client.getSlot({ commitment: "confirmed" }).send();
-      if (slot < startSlot) {
-        throw new Error("Round start slot not reached yet");
-      }
-    });
+    const atSlot = await waitForSlot(startSlot);
+    if (!atSlot) {
+      assert.fail(`Round start slot ${startSlot} not reached within timeout`);
+    }
 
     const txSigActivate = await activateRound(signer, programAddress, signer.address);
     await confirmRecentSignature(txSigActivate);
@@ -122,20 +120,3 @@ describe("solana program round interface", () => {
     });
   });
 });
-
-const retry = <T>(fn: () => Promise<T>): Promise<T> => {
-  const retryLoop = async (): Promise<T> => {
-    while (true) {
-      try {
-        return await fn();
-      } catch (_) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    }
-  };
-  const timeout = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error("Retry timeout")), 5000);
-  });
-
-  return Promise.race([retryLoop(), timeout]);
-};
