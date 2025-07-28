@@ -3,12 +3,13 @@ from pathlib import Path
 from typing import Literal
 from solders.pubkey import Pubkey
 
-Program = Literal["counter", "username"]
+Program = Literal["counter", "round", "username"]
 
 script_dir = Path(__file__).resolve().parent
 
 idls = [
     {"name": "counter", "path": "../blockchain/solana/target/idl/counter.json"},
+    {"name": "round", "path": "../blockchain/solana/target/idl/round.json"},
     {"name": "username", "path": "../blockchain/solana/target/idl/username.json"},
 ]
 program_id_map = {}
