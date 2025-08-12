@@ -26,6 +26,10 @@ static PROGRAM_ID_MAP: Lazy<HashMap<String, Idl>> = Lazy::new(|| {
             manifest_dir.join("fragments/blockchain/solana/target/idl/counter.json"),
         ),
         (
+            "round".to_string(),
+            manifest_dir.join("fragments/blockchain/solana/target/idl/round.json"),
+        ),
+        (
             "username".to_string(),
             manifest_dir.join("fragments/blockchain/solana/target/idl/username.json"),
         ),
