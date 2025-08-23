@@ -44,3 +44,36 @@ func TestSolanaInitRpcSubscriptionsClient(t *testing.T) {
 		t.Errorf("Expected slot to be greater than 0, but got %d", slot.Slot)
 	}
 }
+
+func TestSolanaWaitForSlot_SlotReached(t *testing.T) {
+	client := InitRpcClient()
+	recentSlot, err := client.GetSlot(context.Background(), rpc.CommitmentConfirmed)
+	if err != nil {
+		t.Fatalf("GetSlot failed: %v", err)
+	}
+
+	success, err := WaitForSlot(recentSlot+1, nil)
+	if err != nil {
+		t.Errorf("Expected no error, but got %s", err)
+	}
+	if !success {
+		t.Errorf("Expected success to be true, but got false")
+	}
+}
+
+func TestSolanaWaitForSlot_Timeout(t *testing.T) {
+	client := InitRpcClient()
+	recentSlot, err := client.GetSlot(context.Background(), rpc.CommitmentConfirmed)
+	if err != nil {
+		t.Fatalf("GetSlot failed: %v", err)
+	}
+
+	timeout := uint64(10)
+	success, err := WaitForSlot(recentSlot+50, &timeout)
+	if err != nil {
+		t.Errorf("Expected no error, but got %s", err)
+	}
+	if success {
+		t.Errorf("Expected failure, but it passed")
+	}
+}

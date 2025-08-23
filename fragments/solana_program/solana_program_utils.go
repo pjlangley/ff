@@ -31,6 +31,7 @@ var programIdMap = func() map[string]Idl {
 
 	idls := make(map[string]string)
 	idls["counter"] = filepath.Join(wd, "../blockchain/solana/target/idl/counter.json")
+	idls["round"] = filepath.Join(wd, "../blockchain/solana/target/idl/round.json")
 	idls["username"] = filepath.Join(wd, "../blockchain/solana/target/idl/username.json")
 
 	programIdMap := make(map[string]Idl)
