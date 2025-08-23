@@ -84,8 +84,12 @@ pub fn get_round_account(authority: &Pubkey, program_id: Pubkey) -> ClientResult
     Ok(round_account)
 }
 
-pub fn activate_round(payer: &Keypair, program_id: Pubkey) -> ClientResult<Signature> {
-    let pda = get_program_derived_address(&payer.pubkey(), &program_id, "round");
+pub fn activate_round(
+    payer: &Keypair,
+    program_id: Pubkey,
+    authority: &Pubkey,
+) -> ClientResult<Signature> {
+    let pda = get_program_derived_address(authority, &program_id, "round");
     let instr_discriminator = get_instruction_discriminator("activate_round", "round");
     let instr = Instruction::new_with_bytes(
         program_id,
@@ -164,7 +168,7 @@ mod tests {
             panic!("Failed to reach slot {} in time", start_slot);
         }
 
-        let _ = activate_round(&keypair, *PROGRAM_ID).unwrap();
+        let _ = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).unwrap();
         let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
         assert!(account.activated_at.is_some());
         assert!(account.activated_by.is_some());
@@ -199,7 +203,7 @@ mod tests {
         let keypair = Keypair::new();
         let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
 
-        let result = activate_round(&keypair, *PROGRAM_ID);
+        let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey());
         assert!(
             result.is_err(),
             "Activating round without initialising should fail"
@@ -222,7 +226,7 @@ mod tests {
         let start_slot = recent_slot + 50;
 
         let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).unwrap();
-        let result = activate_round(&keypair, *PROGRAM_ID);
+        let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey());
         assert!(
             result.is_err(),
             "Activating round with invalid start slot should fail"
