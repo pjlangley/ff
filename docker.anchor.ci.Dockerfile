@@ -8,8 +8,11 @@ COPY --from=node /usr/local /usr/local
 
 ARG ANCHOR_VERSION=0.31.1
 ENV ANCHOR_VERSION=${ANCHOR_VERSION}
+ARG RUST_VERSION=1.89.0
+ENV RUST_VERSION=${RUST_VERSION}
 
 WORKDIR /anchor
+RUN rustup install ${RUST_VERSION} && rustup default ${RUST_VERSION}
 RUN cargo install --git https://github.com/coral-xyz/anchor --tag v${ANCHOR_VERSION} anchor-cli
 
 RUN solana-keygen new --no-bip39-passphrase

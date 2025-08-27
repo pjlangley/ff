@@ -102,6 +102,7 @@ jobs:
     env:
       ANCHOR_VERSION: 0.31.1
       SOLANA_BUILDER_VERSION: latest
+      RUST_VERSION: 1.89.0
     needs: [changes, ff_solana_builder]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_anchor == 'true')
     steps:

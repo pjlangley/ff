@@ -598,6 +598,7 @@ The following commands apply to the TypeScript file(s):
     --force-rm \
     --build-arg ANCHOR_VERSION=0.31.1 \
     --build-arg NODE_VERSION=22.14.0 \
+    --build-arg RUST_VERSION=1.89.0 \
     -f docker.anchor.Dockerfile \
     -t ff_anchor .
   ```
