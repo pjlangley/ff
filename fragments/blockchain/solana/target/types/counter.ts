@@ -8,7 +8,7 @@ export type Counter = {
   "address": "HdxpgGmRXeUpXE2vVZZCy2a69Ypozs8YLt3LXPHRUkG6";
   "metadata": {
     "name": "counter";
-    "version": "0.2.0";
+    "version": "0.2.1";
     "spec": "0.1.0";
   };
   "instructions": [

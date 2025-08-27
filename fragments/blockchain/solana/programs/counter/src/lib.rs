@@ -5,6 +5,8 @@ use anchor_lang::prelude::*;
 
 declare_id!("HdxpgGmRXeUpXE2vVZZCy2a69Ypozs8YLt3LXPHRUkG6");
 
+const ACCOUNT_DISCRIMINATOR_SPACE: usize = 8;
+
 #[program]
 pub mod counter {
     use super::*;
@@ -44,7 +46,7 @@ pub struct Initialize<'info> {
         seeds = [b"counter", user.key().as_ref()],
         bump,
         payer = user,
-        space = 8 + Counter::INIT_SPACE
+        space = ACCOUNT_DISCRIMINATOR_SPACE + Counter::INIT_SPACE
     )]
     pub counter: Account<'info, Counter>,
 

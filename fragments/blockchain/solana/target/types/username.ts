@@ -8,7 +8,7 @@ export type Username = {
   "address": "uMeQ3a2zVJf1pVa4uFu2Y6i88S3soEq3Q2aJjod3VD8";
   "metadata": {
     "name": "username";
-    "version": "0.1.0";
+    "version": "0.1.1";
     "spec": "0.1.0";
   };
   "instructions": [

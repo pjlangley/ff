@@ -8,7 +8,7 @@ export type Round = {
   "address": "5kS2nb5CSCVcdb4N7iA1kQuAZYKFttXagoHv2TxWmzg9";
   "metadata": {
     "name": "round";
-    "version": "0.1.0";
+    "version": "0.1.1";
     "spec": "0.1.0";
   };
   "instructions": [

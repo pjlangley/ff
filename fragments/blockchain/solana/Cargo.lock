@@ -460,7 +460,7 @@ checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 
 [[package]]
 name = "counter"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anchor-lang",
 ]
@@ -983,7 +983,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "round"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anchor-lang",
 ]
@@ -2057,7 +2057,7 @@ checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 
 [[package]]
 name = "username"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anchor-lang",
 ]

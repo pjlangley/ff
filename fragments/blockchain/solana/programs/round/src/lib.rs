@@ -7,6 +7,8 @@ use anchor_lang::prelude::*;
 
 declare_id!("5kS2nb5CSCVcdb4N7iA1kQuAZYKFttXagoHv2TxWmzg9");
 
+const ACCOUNT_DISCRIMINATOR_SPACE: usize = 8;
+
 #[program]
 pub mod round {
     use super::*;
@@ -90,7 +92,7 @@ pub struct InitialiseRound<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + Round::INIT_SPACE,
+        space = ACCOUNT_DISCRIMINATOR_SPACE + Round::INIT_SPACE,
         seeds = [b"round", authority.key().as_ref()],
         bump
     )]

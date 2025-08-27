@@ -10,6 +10,7 @@ declare_id!("uMeQ3a2zVJf1pVa4uFu2Y6i88S3soEq3Q2aJjod3VD8");
 const MAX_USERNAME_HISTORY: usize = 3;
 const MAX_USERNAME_LENGTH: usize = 32;
 const MIN_USERNAME_LENGTH: usize = 2;
+const ACCOUNT_DISCRIMINATOR_SPACE: usize = 8;
 
 #[program]
 pub mod username {
@@ -136,7 +137,7 @@ pub struct InitializeUsername<'info> {
         seeds = [b"user_account", authority.key().as_ref()],
         bump,
         payer = authority,
-        space = 8 + UserAccount::INIT_SPACE
+        space = ACCOUNT_DISCRIMINATOR_SPACE + UserAccount::INIT_SPACE
     )]
     pub user_account: Account<'info, UserAccount>,
 
@@ -156,7 +157,7 @@ pub struct UpdateUsername<'info> {
         seeds = [b"username_record", authority.key().as_ref(), &user_account.change_count.to_le_bytes()],
         bump,
         payer = authority,
-        space = 8 + UsernameRecord::INIT_SPACE
+        space = ACCOUNT_DISCRIMINATOR_SPACE + UsernameRecord::INIT_SPACE
     )]
     pub username_record: Account<'info, UsernameRecord>,
 
