@@ -11,7 +11,7 @@ import {
   offsetDecoder,
 } from "@solana/kit";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
-import { getInstructionDiscriminator, getPda } from "../solana_program/solana_program_utils";
+import { getInstructionDiscriminator, getPda, skipAnchorDiscriminator } from "../solana_program/solana_program_utils";
 import { SYSTEM_PROGRAM_ADDRESS } from "@solana-program/system";
 import {
   createBaseTxWithFeePayerAndLifetime,
@@ -57,10 +57,7 @@ export const getCount = async (keypair: KeyPairSigner, programAddress: Address) 
     getStructDecoder([
       ["count", getU64Decoder()],
     ]),
-    {
-      // removes the discriminator from the account data
-      preOffset: ({ wrapBytes }) => wrapBytes(8),
-    },
+    skipAnchorDiscriminator,
   );
 
   const decoded = decoder.decode(account.data);

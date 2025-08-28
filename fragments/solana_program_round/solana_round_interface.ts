@@ -14,7 +14,7 @@ import {
   offsetDecoder,
   Option,
 } from "@solana/kit";
-import { getInstructionDiscriminator, getPda } from "../solana_program/solana_program_utils";
+import { getInstructionDiscriminator, getPda, skipAnchorDiscriminator } from "../solana_program/solana_program_utils";
 import { SYSTEM_PROGRAM_ADDRESS } from "@solana-program/system";
 import { Buffer } from "node:buffer";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
@@ -119,7 +119,5 @@ const roundAccountDecoder: Decoder<{
     ["activated_by", getOptionDecoder(getAddressDecoder())],
     ["completed_at", getOptionDecoder(getU64Decoder())],
   ]),
-  {
-    preOffset: ({ wrapBytes }) => wrapBytes(8), // removes the discriminator from the account data
-  },
+  skipAnchorDiscriminator,
 );

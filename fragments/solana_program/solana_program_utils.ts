@@ -1,4 +1,5 @@
 import { Address, getAddressEncoder, getProgramDerivedAddress } from "@solana/kit";
+import { offsetDecoder } from "@solana/codecs-core";
 import counterIdl from "../blockchain/solana/target/idl/counter.json";
 import usernameIdl from "../blockchain/solana/target/idl/username.json";
 import roundIdl from "../blockchain/solana/target/idl/round.json";
@@ -37,4 +38,8 @@ export const getPda = async (
     seeds: [Buffer.from(accountName), encoder.encode(userAddress)],
   });
   return pda;
+};
+
+export const skipAnchorDiscriminator: Parameters<typeof offsetDecoder>[1] = {
+  preOffset: ({ wrapBytes }) => wrapBytes(8),
 };

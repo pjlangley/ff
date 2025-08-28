@@ -22,7 +22,7 @@ import {
   KeyPairSigner,
   offsetDecoder,
 } from "@solana/kit";
-import { getInstructionDiscriminator, getPda } from "../solana_program/solana_program_utils";
+import { getInstructionDiscriminator, getPda, skipAnchorDiscriminator } from "../solana_program/solana_program_utils";
 import { SYSTEM_PROGRAM_ADDRESS } from "@solana-program/system";
 import { Buffer } from "node:buffer";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
@@ -163,9 +163,7 @@ const usernameAccountDecoder: Decoder<{
     ["change_count", getU64Decoder()],
     ["username_recent_history", getArrayDecoder(usernameDecoder, { size: getU32Decoder() })],
   ]),
-  {
-    preOffset: ({ wrapBytes }) => wrapBytes(8), // removes the discriminator from the account data
-  },
+  skipAnchorDiscriminator,
 );
 
 const usernameRecordAccountDecoder: Decoder<{
@@ -178,7 +176,5 @@ const usernameRecordAccountDecoder: Decoder<{
     ["old_username", usernameDecoder],
     ["change_index", getU64Decoder()],
   ]),
-  {
-    preOffset: ({ wrapBytes }) => wrapBytes(8), // removes the discriminator from the account data
-  },
+  skipAnchorDiscriminator,
 );
