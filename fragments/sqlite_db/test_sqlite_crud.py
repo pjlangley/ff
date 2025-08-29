@@ -46,7 +46,3 @@ class TestSqliteCrud(unittest.TestCase):
 
     def test_delete_item_not_found(self):
         self.assertEqual(delete_item("XRP"), None)
-
-
-if __name__ == "__main__":
-    unittest.main()

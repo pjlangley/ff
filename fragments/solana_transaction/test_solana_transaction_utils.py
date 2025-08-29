@@ -41,7 +41,3 @@ class TestSolanaTransactionUtils(unittest.TestCase):
         is_confirmed = confirm_recent_signature(tx.signatures[0], 0.1)
 
         self.assertFalse(is_confirmed)
-
-
-if __name__ == "__main__":
-    unittest.main()

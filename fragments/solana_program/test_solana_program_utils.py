@@ -22,7 +22,3 @@ class TestSolanaProgramUtils(unittest.TestCase):
         pda = get_program_derived_address(user_address, program_address, "counter")
 
         self.assertEqual(pda, Pubkey.from_string("9yFnCu3Nyr4aa7kdd4ckAyPKABQyTPLX2Xm4Aj2MXsLc"))
-
-
-if __name__ == "__main__":
-    unittest.main()

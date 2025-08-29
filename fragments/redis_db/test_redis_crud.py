@@ -29,7 +29,3 @@ class TestRedisCrud(unittest.TestCase):
         self.assertEqual(redis_delete("python_test_del"), "OK")
         deleted = redis_read("python_test_del")
         self.assertNotIn("favourite_coin", deleted)
-
-
-if __name__ == "__main__":
-    unittest.main()

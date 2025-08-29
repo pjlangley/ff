@@ -78,7 +78,3 @@ class TestSolanaCounterInterface(unittest.TestCase):
 
         error_str = str(cm.exception)
         self.assertRegex(error_str, r"Account .* does not exist")
-
-
-if __name__ == "__main__":
-    unittest.main()

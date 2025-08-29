@@ -14,7 +14,3 @@ class TestGetEnvVar(unittest.TestCase):
         if "REPO_NAME" in os.environ:
             del os.environ["REPO_NAME"]
         self.assertEqual(get_env_var("REPO_NAME"), None)
-
-
-if __name__ == "__main__":
-    unittest.main()

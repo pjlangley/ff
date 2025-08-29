@@ -16,7 +16,3 @@ class TestSolanaAirdrop(unittest.TestCase):
 
         latest_balance = get_balance(address)
         self.assertEqual(latest_balance, LAMPORTS_PER_SOL)
-
-
-if __name__ == "__main__":
-    unittest.main()

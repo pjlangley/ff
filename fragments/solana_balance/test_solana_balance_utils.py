@@ -9,7 +9,3 @@ class TestSolanaBalance(unittest.TestCase):
         address = keypair.pubkey()
         balance = get_balance(address)
         self.assertEqual(balance, 0)
-
-
-if __name__ == "__main__":
-    unittest.main()

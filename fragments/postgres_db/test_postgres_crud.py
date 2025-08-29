@@ -50,7 +50,3 @@ class TestPostgresCrud(unittest.TestCase):
 
     def test_update_item_nonexistent(self):
         self.assertEqual(update_item(("XRP", "Ripple", 2012)), None)
-
-
-if __name__ == "__main__":
-    unittest.main()
