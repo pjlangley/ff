@@ -9,7 +9,7 @@ fn init_connection() -> Result<redis::Connection, redis::RedisError> {
     let url = if get_env_var("CI").is_empty() {
         "redis://127.0.0.1/"
     } else {
-        "redis://redis-stack-server:6379"
+        "redis://redis:6379"
     };
     let client = redis::Client::open(url)?;
     let connection = client.get_connection()?;

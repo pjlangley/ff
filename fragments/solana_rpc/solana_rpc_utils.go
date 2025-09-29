@@ -19,7 +19,7 @@ func getRpcUrl() string {
 		return localhost
 	}
 
-	return strings.Replace(localhost, "127.0.0.1", "solana-validator", 1)
+	return strings.Replace(localhost, "127.0.0.1", "solana", 1)
 }
 
 func getRpcSubscriptionsUrl() string {
@@ -29,7 +29,7 @@ func getRpcSubscriptionsUrl() string {
 		return localhost
 	}
 
-	return strings.Replace(localhost, "127.0.0.1", "solana-validator", 1)
+	return strings.Replace(localhost, "127.0.0.1", "solana", 1)
 }
 
 func InitRpcClient() *rpc.Client {

@@ -15,7 +15,7 @@ INSERT INTO crypto_coins (ticker, name, launched) VALUES
 ON CONFLICT (ticker) DO NOTHING;
 `;
 
-interface CryptoCoin {
+export interface CryptoCoin {
   id: number;
   ticker: string;
   name: string;
@@ -23,9 +23,9 @@ interface CryptoCoin {
 }
 
 const initClient = async () => {
-  const isCI = getEnvVar("CI");
+  const host = getEnvVar("POSTGRES_HOST") || "localhost";
   const client = new Client({
-    connectionString: `postgres://postgres:pgpass@${isCI ? "postgres" : "localhost"}:5432`,
+    connectionString: `postgres://postgres:pgpass@${host}:5432`,
   });
   client.on("error", (err) => {
     console.error("Postgres client error");

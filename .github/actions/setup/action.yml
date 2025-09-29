@@ -11,15 +11,15 @@ runs:
     - name: solana test validator
       run: |
         docker run -d \
-        --name solana-validator \
-        --entrypoint solana-test-validator \
-        --network ci-network \
-        -p 8899:8899 -p 1024:1024 -p 1027:1027 -p 8900:8900 \
-        pjlangley/ff_solana:latest
+          --name solana \
+          --entrypoint solana-test-validator \
+          --network ci-network \
+          -p 8899:8899 -p 1024:1024 -p 1027:1027 -p 8900:8900 \
+          pjlangley/ff_solana:latest
       shell: bash
 
     - name: start redis
-      run: docker run -d --name redis-stack-server --network ci-network -p 6379:6379 redis/redis-stack-server:latest 
+      run: docker run -d --name redis --network ci-network -p 6379:6379 redis/redis-stack-server:latest 
       shell: bash
 
     - name: start postgres
@@ -31,41 +31,41 @@ runs:
       shell: bash
 
     - name: solana logs
-      run: docker logs solana-validator
+      run: docker logs solana
       shell: bash
 
     - name: show validators
       shell: bash
       run: |
         docker run --rm \
-        --network ci-network \
-        pjlangley/ff_solana:latest \
-        validators \
-        --verbose \
-        --url http://solana-validator:8899
+          --network ci-network \
+          pjlangley/ff_solana:latest \
+          validators \
+          --verbose \
+          --url http://solana:8899
 
     - name: deploy solana programs
       shell: bash
       run: |
         docker run --rm \
-        --network ci-network \
-        --entrypoint bash \
-        pjlangley/ff_anchor:latest \
-        -c '
-          set -e
-          solana airdrop --url http://solana-validator:8899 21
-          anchor deploy \
-            --provider.wallet /root/.config/solana/id.json \
-            --provider.cluster http://solana-validator:8899 \
-            -- --ws ws://solana-validator:8900
-        '
+          --network ci-network \
+          --entrypoint bash \
+          pjlangley/ff_anchor:latest \
+          -c '
+            set -e
+            solana airdrop --url http://solana:8899 21
+            anchor deploy \
+              --provider.wallet /root/.config/solana/id.json \
+              --provider.cluster http://solana:8899 \
+              -- --ws ws://solana:8900
+          '
 
     - name: extract solana program keys
       shell: bash
       run: |
         docker run --rm \
-        pjlangley/ff_anchor:latest \
-        keys list > program_keys.txt
+          pjlangley/ff_anchor:latest \
+          keys list > program_keys.txt
 
         chmod +x ./solana_extract_program_keys.sh
         ./solana_extract_program_keys.sh program_keys.txt program_keys.env

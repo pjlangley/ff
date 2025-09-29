@@ -15,7 +15,7 @@ func init_client() *redis.Client {
 		if len(env_vars.GetEnvVar("CI")) == 0 {
 			return "redis://localhost:6379"
 		} else {
-			return "redis://redis-stack-server:6379"
+			return "redis://redis:6379"
 		}
 	}()
 	opt, err := redis.ParseURL(url)

@@ -2,9 +2,9 @@ import { createClient } from "redis";
 import { getEnvVar } from "../env_vars/env_vars_utils";
 
 const initClient = async () => {
-  const isCI = getEnvVar("CI");
+  const host = getEnvVar("REDIS_HOST");
   const client = createClient({
-    url: isCI ? "redis://redis-stack-server:6379" : undefined,
+    url: host ? `redis://${host}:6379` : undefined,
   });
   client.on("error", (err) => {
     console.error("Redis Client Error");

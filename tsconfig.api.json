@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./fragments/api/fastify/dist",
+    "rootDir": "./fragments"
+  }
+}

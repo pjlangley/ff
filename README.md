@@ -30,6 +30,7 @@ Every sample in every language can be run both locally and via Docker. See _Runn
 1. Working with SQLite: [`fragments/sqlite_db`](./fragments/sqlite_db/)
 1. Working with Redis: [`fragments/redis_db`](./fragments/redis_db/)
 1. Working with PostgreSQL: [`fragments/postgres_db`](./fragments/postgres_db/)
+1. Working with REST APIs: [`fragments/api`](./fragments/api/)
 1. Creating Solana RPC clients: [`fragments/solana_rpc`](./fragments/solana_rpc/)
 1. Working with Solana balance: [`fragments/solana_balance`](./fragments/solana_balance/)
 1. Working with Solana airdrops: [`fragments/solana_airdrop`](./fragments/solana_airdrop/)
@@ -118,6 +119,15 @@ execute the code.
   ```
   node --run format:check
   ```
+- Run the REST API (in watch mode):
+  ```
+  node --run api
+  node --run api:dev
+  ```
+- Run the REST API build:
+  ```
+  node --run api:build
+  ```
 
 #### Docker (Node.js)
 
@@ -132,15 +142,23 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm --network host ff_node
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node
   ```
 - Run unit tests:
   ```
   docker run --rm \
-    --network host \
-    --env counter_PROGRAM_ID=<program_id_here> \
-    --env username_PROGRAM_ID=<program_id_here> \
-    --env round_PROGRAM_ID=<program_id_here> \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    -e counter_PROGRAM_ID=<program_id_here> \
+    -e username_PROGRAM_ID=<program_id_here> \
+    -e round_PROGRAM_ID=<program_id_here> \
     ff_node \
     --run test
   ```
@@ -155,6 +173,30 @@ execute the code.
 - Run the format check:
   ```
   docker run --rm ff_node --run format:check
+  ```
+- Run the REST API (dev and dist):
+  ```
+  docker run --rm \
+    --network ff_default \
+    -p 3000:3000 \
+    -e FASTIFY_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node --run api
+
+  docker run --rm \
+    --network ff_default \
+    -p 3000:3000 \
+    -e FASTIFY_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node ./fragments/api/fastify/dist/api.js
+  ```
+- Run the REST API build:
+  ```
+  docker run --rm ff_node --run api:build
   ```
 
 ### Python
@@ -415,7 +457,7 @@ execute the code.
   ```
 - Run built binary:
   ```
-  docker run --rm --network host --entrypoint .bin/ff_go ff_go
+  docker run --rm --network host --entrypoint .bin/go_ff ff_go
   ```
 - Run unit tests:
   ```

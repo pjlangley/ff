@@ -12,7 +12,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pgpass
 
-  solana_validator:
+  solana:
     build:
       context: .
       dockerfile: docker.solana.Dockerfile
@@ -51,7 +51,7 @@ services:
       dockerfile: docker.solana.Dockerfile
     image: ff_solana
     depends_on:
-      solana_validator:
+      solana:
         condition: service_healthy
     profiles:
       - blockchain
@@ -70,7 +70,7 @@ services:
       dockerfile: docker.anchor.Dockerfile
     image: ff_anchor
     depends_on:
-      solana_validator:
+      solana:
         condition: service_healthy
     profiles:
       - blockchain
@@ -84,7 +84,7 @@ services:
       dockerfile: docker.anchor.Dockerfile
     image: ff_anchor
     depends_on:
-      solana_validator:
+      solana:
         condition: service_healthy
     profiles:
       - blockchain

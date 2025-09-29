@@ -7,7 +7,7 @@ def init_rpc_client() -> Client:
     url = "http://127.0.0.1:8899"
 
     if get_env_var("CI") is not None:
-        url = url.replace("127.0.0.1", "solana-validator")
+        url = url.replace("127.0.0.1", "solana")
 
     client = Client(url, Commitment("confirmed"))
 

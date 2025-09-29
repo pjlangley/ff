@@ -1,5 +1,6 @@
 # node
 node_modules
+/fragments/api/fastify/dist
 
 # python
 .venv

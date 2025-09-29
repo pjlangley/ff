@@ -2,13 +2,13 @@ import { createSolanaRpc, createSolanaRpcSubscriptions } from "@solana/kit";
 import { getEnvVar } from "../env_vars/env_vars_utils";
 
 export const initRpcClient = () => {
-  const isCI = getEnvVar("CI");
-  return createSolanaRpc(`http://${isCI ? "solana-validator" : "127.0.0.1"}:8899`);
+  const host = getEnvVar("SOLANA_HOST") || "127.0.0.1";
+  return createSolanaRpc(`http://${host}:8899`);
 };
 
 export const initRpcSubscriptionsClient = () => {
-  const isCI = getEnvVar("CI");
-  return createSolanaRpcSubscriptions(`ws://${isCI ? "solana-validator" : "127.0.0.1"}:8900`);
+  const host = getEnvVar("SOLANA_HOST") || "127.0.0.1";
+  return createSolanaRpcSubscriptions(`ws://${host}:8900`);
 };
 
 export const waitForSlot = async (slot: bigint, timeout = 5000) => {

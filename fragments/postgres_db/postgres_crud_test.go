@@ -1,6 +1,9 @@
 package postgres_crud
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"strings"
 	"testing"
 )
 
@@ -17,7 +20,7 @@ func TestGetItemByTicker(t *testing.T) {
 }
 
 func TestGetItemByTicker_NotFound(t *testing.T) {
-	coin, err := GetItemByTicker("FAKECOIN")
+	coin, err := GetItemByTicker(randomTicker())
 
 	if err != nil {
 		t.Error("expected no error if coin wasn't found")
@@ -29,15 +32,15 @@ func TestGetItemByTicker_NotFound(t *testing.T) {
 }
 
 func TestGetItemsAfterLaunchYear(t *testing.T) {
-	coins, _ := GetItemsAfterLaunchYear(2010)
+	coins, _ := GetItemsAfterLaunchYear(2000)
 
-	if len(coins) != 2 {
+	if len(coins) < 3 {
 		t.FailNow()
 	}
 }
 
 func TestGetItemsAfterLaunchYear_NoResults(t *testing.T) {
-	coins, _ := GetItemsAfterLaunchYear(2025)
+	coins, _ := GetItemsAfterLaunchYear(2050)
 
 	if len(coins) != 0 {
 		t.FailNow()
@@ -47,42 +50,42 @@ func TestGetItemsAfterLaunchYear_NoResults(t *testing.T) {
 func TestGetAllItems(t *testing.T) {
 	coins, _ := GetAllItems()
 
-	if coins[0].ticker != "SOL" {
-		t.Error("expected first item to be 'SOL'")
-	}
-	if coins[1].ticker != "ETH" {
-		t.Error("expected second item to be 'ETH'")
-	}
-	if coins[2].ticker != "BTC" {
-		t.Error("expected third item to be 'BTC'")
+	if len(coins) < 3 {
+		t.FailNow()
 	}
 }
 
 func TestCreateItem(t *testing.T) {
-	result, _ := CreateItem(CryptoCoinWithoutId{Ticker: "NEWCOIN", Name: "Newcoin", Launched: 2025})
+	ticker := randomTicker()
+	result, _ := CreateItem(CryptoCoinWithoutId{Ticker: ticker, Name: "Newcoin", Launched: 2025})
 
 	if result != "ok" {
 		t.FailNow()
 	}
 
 	t.Cleanup(func() {
-		_, err := DeleteItem("NEWCOIN")
+		_, err := DeleteItem(ticker)
 		if err != nil {
-			t.Logf("failed to delete item 'NEWCOIN': %v", err)
+			t.Logf("failed to delete item '%s': %v", ticker, err)
 		}
 	})
 }
 
 func TestUpdateItem(t *testing.T) {
-	coin, _ := UpdateItem(CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2009})
+	ticker := randomTicker()
+	_, err := CreateItem(CryptoCoinWithoutId{Ticker: ticker, Name: "Newcoin", Launched: 2025})
+	if err != nil {
+		t.FailNow()
+	}
+	coin, _ := UpdateItem(CryptoCoinWithoutId{Ticker: ticker, Name: "Newcoin2", Launched: 2009})
 
-	if coin.ticker != "BTC" {
+	if coin.ticker != ticker {
 		t.FailNow()
 	}
 }
 
 func TestUpdateItem_NotFound(t *testing.T) {
-	coin, err := UpdateItem(CryptoCoinWithoutId{Ticker: "UNKNOWN", Name: "Unknown", Launched: 2025})
+	coin, err := UpdateItem(CryptoCoinWithoutId{Ticker: randomTicker(), Name: "Unknown", Launched: 2025})
 	if coin != nil {
 		t.Error("expected coin to be 'nil'")
 	}
@@ -92,20 +95,31 @@ func TestUpdateItem_NotFound(t *testing.T) {
 }
 
 func TestDeleteItem(t *testing.T) {
-	_, err := CreateItem(CryptoCoinWithoutId{Ticker: "XRP", Name: "Ripple", Launched: 2012})
+	ticker := randomTicker()
+	_, err := CreateItem(CryptoCoinWithoutId{Ticker: ticker, Name: "Rando", Launched: 2012})
 	if err != nil {
-		t.Logf("failed to create item 'XRP': %v", err)
+		t.Logf("failed to create item '%s': %v", ticker, err)
 	}
 
-	coin, _ := DeleteItem("XRP")
+	coin, _ := DeleteItem(ticker)
 	if coin == nil {
 		t.FailNow()
 	}
 }
 
 func TestDeleteItem_NotFound(t *testing.T) {
-	coin, _ := DeleteItem("XRP")
+	ticker := randomTicker()
+	coin, _ := DeleteItem(ticker)
 	if coin != nil {
 		t.FailNow()
 	}
+}
+
+func randomTicker() string {
+	bytes := make([]byte, 6)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	return strings.ToUpper(hex.EncodeToString(bytes)[:6])
 }

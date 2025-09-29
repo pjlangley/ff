@@ -8,7 +8,7 @@ def init_client() -> redis.Redis:
     if get_env_var("CI") is None:
         return redis.Redis(decode_responses=True)
 
-    return redis.from_url("redis://redis-stack-server:6379", decode_responses=True)
+    return redis.from_url("redis://redis:6379", decode_responses=True)
 
 
 def redis_ping() -> bool:

@@ -15,7 +15,7 @@ pub fn init_rpc_client() -> RpcClient {
     let rpc_url = if get_env_var("CI").is_empty() {
         "http://127.0.0.1:8899"
     } else {
-        "http://solana-validator:8899"
+        "http://solana:8899"
     };
 
     RpcClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed())

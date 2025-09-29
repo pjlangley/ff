@@ -21,18 +21,43 @@ jobs:
             --build-arg DENO_VERSION=2.1.6 \
             -f docker.node.Dockerfile \
             -t ff_node .
+      - name: start fastify server
+        run: |
+          docker run -d \
+            --name fastify \
+            --network ci-network \
+            -p 3000:3000 \
+            -e FASTIFY_HOST=0.0.0.0 \
+            -e POSTGRES_HOST=postgres \
+            -e REDIS_HOST=redis \
+            -e SOLANA_HOST=solana \
+            ff_node ./fragments/api/fastify/dist/api.js
+      - name: pause for fastify server to start
+        run: sleep 5
+        shell: bash
+      - name: test fastify server
+        run: curl -i http://localhost:3000/postgres/coins
+        shell: bash
       - name: run all fragments
-        run: docker run --rm --network ci-network --env CI=$CI ff_node
+        run: |
+          docker run --rm \
+            --network ci-network \
+            -e POSTGRES_HOST=postgres \
+            -e REDIS_HOST=redis \
+            -e SOLANA_HOST=solana \
+            ff_node
       - name: unit tests
         run: |
           docker run --rm \
-          --network ci-network \
-          --env CI=$CI \
-          --env counter_PROGRAM_ID=$counter_PROGRAM_ID \
-          --env username_PROGRAM_ID=$username_PROGRAM_ID \
-          --env round_PROGRAM_ID=$round_PROGRAM_ID \
-          ff_node \
-          --run test
+            --network ci-network \
+            -e POSTGRES_HOST=postgres \
+            -e REDIS_HOST=redis \
+            -e SOLANA_HOST=solana \
+            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
+            -e username_PROGRAM_ID=$username_PROGRAM_ID \
+            -e round_PROGRAM_ID=$round_PROGRAM_ID \
+            ff_node \
+            --run test
       - name: lint
         run: docker run --rm ff_node --run lint
       - name: typescript check

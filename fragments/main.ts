@@ -8,14 +8,6 @@ import {
   getItemsAfterLaunchYear,
   updateItem,
 } from "./sqlite_db/sqlite_crud";
-import {
-  addItem as pgAddItem,
-  getAllItems as pgGetAllItems,
-  getItemByTicker as pgGetItemByTicker,
-  getItemsAfterLaunchYear as pgGetItemsAfterLaunchYear,
-  removeItem as pgRemoveItem,
-  updateItem as pgUpdateItem,
-} from "./postgres_db/postgres_crud";
 import { getBalance } from "./solana_balance/solana_balance_utils";
 import { sendAndConfirmAirdrop } from "./solana_airdrop/solana_airdrop_utils";
 import { initRpcClient as initSolanaRpcClient } from "./solana_rpc/solana_rpc_utils";
@@ -43,20 +35,6 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
   console.log('fragment "redis_db/redisRead" output:', await redisRead("nodejs"));
   console.log('fragment "redis_db/redisUpdate" output:', await redisUpdate("nodejs", "pepe"));
   console.log('fragment "redis_db/redisDelete" output:', await redisDelete("nodejs"));
-
-  // postgres
-  console.log('fragment "postgres_db/getItemByTicker" output:', await pgGetItemByTicker("BTC"));
-  console.log('fragment "postgres_db/getItemsAfterLaunchYear" output:', await pgGetItemsAfterLaunchYear(2010));
-  console.log('fragment "postgres_db/getAllItems" output:', await pgGetAllItems());
-  console.log(
-    'fragment "postgres_db/addItem" output:',
-    await pgAddItem({ ticker: "PEPE", name: "Pepe", launched: 2023 }),
-  );
-  console.log('fragment "postgres_db/removeItem" output:', await pgRemoveItem("PEPE"));
-  console.log(
-    'fragment "postgres_db/updateItem" output:',
-    await pgUpdateItem({ ticker: "ETH", name: "Ethereum", launched: 2015 }),
-  );
 
   const solanaKeypair = await generateKeyPairSigner();
   const solanaKeypairAddress = solanaKeypair.address;

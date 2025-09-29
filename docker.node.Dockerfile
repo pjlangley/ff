@@ -9,12 +9,14 @@ ENV REPO_NAME=ff
 WORKDIR /usr/src/app
 COPY package*.json .
 COPY tsconfig.json .
+COPY tsconfig.api.json .
 COPY .npmrc .
 COPY deno.json .
 COPY *.md .
 COPY docker_hub/ docker_hub/
 RUN npm ci
 COPY fragments/ ./fragments/
+RUN node --run api:build
 
 ENTRYPOINT ["node"]
 CMD ["--run", "fragments"]
