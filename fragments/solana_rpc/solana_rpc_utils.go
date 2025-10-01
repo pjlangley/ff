@@ -14,22 +14,24 @@ import (
 
 func getRpcUrl() string {
 	localhost := "http://127.0.0.1:8899"
+	host := env_vars.GetEnvVar("SOLANA_HOST")
 
-	if len(env_vars.GetEnvVar("CI")) == 0 {
+	if len(host) == 0 {
 		return localhost
 	}
 
-	return strings.Replace(localhost, "127.0.0.1", "solana", 1)
+	return strings.Replace(localhost, "127.0.0.1", host, 1)
 }
 
 func getRpcSubscriptionsUrl() string {
 	localhost := "ws://127.0.0.1:8900"
+	host := env_vars.GetEnvVar("SOLANA_HOST")
 
-	if len(env_vars.GetEnvVar("CI")) == 0 {
+	if len(host) == 0 {
 		return localhost
 	}
 
-	return strings.Replace(localhost, "127.0.0.1", "solana", 1)
+	return strings.Replace(localhost, "127.0.0.1", host, 1)
 }
 
 func InitRpcClient() *rpc.Client {

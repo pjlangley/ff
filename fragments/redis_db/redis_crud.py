@@ -5,10 +5,11 @@ from fragments.env_vars import get_env_var
 
 
 def init_client() -> redis.Redis:
-    if get_env_var("CI") is None:
+    host = get_env_var("REDIS_HOST")
+    if host is None:
         return redis.Redis(decode_responses=True)
 
-    return redis.from_url("redis://redis:6379", decode_responses=True)
+    return redis.from_url(f"redis://{host}:6379", decode_responses=True)
 
 
 def redis_ping() -> bool:

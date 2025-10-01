@@ -3,6 +3,7 @@ package redis_crud
 import (
 	"context"
 	"ff/env_vars"
+	"fmt"
 	"log"
 
 	"github.com/redis/go-redis/v9"
@@ -11,11 +12,12 @@ import (
 var ctx = context.Background()
 
 func init_client() *redis.Client {
+	host := env_vars.GetEnvVar("REDIS_HOST")
 	url := func() string {
-		if len(env_vars.GetEnvVar("CI")) == 0 {
+		if len(host) == 0 {
 			return "redis://localhost:6379"
 		} else {
-			return "redis://redis:6379"
+			return fmt.Sprintf("redis://%s:6379", host)
 		}
 	}()
 	opt, err := redis.ParseURL(url)

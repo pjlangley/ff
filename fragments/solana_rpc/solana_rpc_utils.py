@@ -5,9 +5,10 @@ from fragments.env_vars import get_env_var
 
 def init_rpc_client() -> Client:
     url = "http://127.0.0.1:8899"
+    host = get_env_var("SOLANA_HOST")
 
-    if get_env_var("CI") is not None:
-        url = url.replace("127.0.0.1", "solana")
+    if host is not None:
+        url = url.replace("127.0.0.1", host)
 
     client = Client(url, Commitment("confirmed"))
 

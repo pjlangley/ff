@@ -6,10 +6,11 @@ use redis::Commands;
 use crate::env_vars::env_vars_utils::get_env_var;
 
 fn init_connection() -> Result<redis::Connection, redis::RedisError> {
-    let url = if get_env_var("CI").is_empty() {
-        "redis://127.0.0.1/"
+    let host = get_env_var("REDIS_HOST");
+    let url = if host.is_empty() {
+        "redis://127.0.0.1/".to_string()
     } else {
-        "redis://redis:6379"
+        format!("redis://{}:6379", host)
     };
     let client = redis::Client::open(url)?;
     let connection = client.get_connection()?;

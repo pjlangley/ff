@@ -7,11 +7,12 @@ CryptoCoin = Tuple[int, str, str, int]
 
 def get_connection_string() -> str:
     connection_string = "postgres://postgres:pgpass@localhost:5432"
+    host = get_env_var("POSTGRES_HOST")
 
-    if get_env_var("CI") is None:
+    if host is None:
         return connection_string
 
-    return connection_string.replace("localhost", "postgres")
+    return connection_string.replace("localhost", host)
 
 
 def init_db() -> psycopg.Connection:

@@ -12,10 +12,11 @@ use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
 
 pub fn init_rpc_client() -> RpcClient {
-    let rpc_url = if get_env_var("CI").is_empty() {
-        "http://127.0.0.1:8899"
+    let host = get_env_var("SOLANA_HOST");
+    let rpc_url = if host.is_empty() {
+        "http://127.0.0.1:8899".to_string()
     } else {
-        "http://solana:8899"
+        format!("http://{}:8899", host)
     };
 
     RpcClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed())

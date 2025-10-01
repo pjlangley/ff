@@ -262,15 +262,23 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm --network host ff_python
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_python
   ```
 - Run unit tests:
   ```
   docker run --rm \
-    --network host \
-    --env counter_PROGRAM_ID=<program_id_here> \
-    --env username_PROGRAM_ID=<program_id_here> \
-    --env round_PROGRAM_ID=<program_id_here> \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    -e counter_PROGRAM_ID=<program_id_here> \
+    -e username_PROGRAM_ID=<program_id_here> \
+    -e round_PROGRAM_ID=<program_id_here> \
     ff_python \
     -m unittest -v
   ```
@@ -353,19 +361,33 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm --network host ff_rust
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_rust
   ```
 - Run built binary:
   ```
-  docker run --rm --network host --entrypoint target/debug/fragments ff_rust
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    --entrypoint target/debug/fragments \
+    ff_rust
   ```
 - Run unit tests:
   ```
   docker run --rm \
-    --network host \
-    --env counter_PROGRAM_ID=<program_id_here> \
-    --env username_PROGRAM_ID=<program_id_here> \
-    --env round_PROGRAM_ID=<program_id_here> \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    -e counter_PROGRAM_ID=<program_id_here> \
+    -e username_PROGRAM_ID=<program_id_here> \
+    -e round_PROGRAM_ID=<program_id_here> \
     --entrypoint cargo \
     ff_rust \
     test
@@ -453,19 +475,33 @@ execute the code.
   ```
 - Run all fragments:
   ```
-  docker run --rm --network host ff_go
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_go
   ```
 - Run built binary:
   ```
-  docker run --rm --network host --entrypoint .bin/go_ff ff_go
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    --entrypoint .bin/go_ff \
+    ff_go
   ```
 - Run unit tests:
   ```
   docker run --rm \
-    --network host \
-    --env counter_PROGRAM_ID=<program_id_here> \
-    --env username_PROGRAM_ID=<program_id_here> \
-    --env round_PROGRAM_ID=<program_id_here> \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    -e counter_PROGRAM_ID=<program_id_here> \
+    -e username_PROGRAM_ID=<program_id_here> \
+    -e round_PROGRAM_ID=<program_id_here> \
     --entrypoint go \
     ff_go \
     test -v ./fragments/...
@@ -598,27 +634,59 @@ The following commands apply to the TypeScript file(s):
   ```
 - Generate a keypair:
   ```
-  docker run --rm -v "$(pwd):/usr/ff" \
-  --entrypoint solana-keygen ff_solana \
-  --config ./solana-cli.local.yml \
-  new -o ./solana.id.json --no-bip39-passphrase
+  docker run --rm \
+    -v "$(pwd):/usr/ff" \
+    --entrypoint solana-keygen \
+    ff_solana \
+    --config ./solana-cli.local.yml \
+    new -o ./solana.id.json --no-bip39-passphrase
   ```
   Confirm the key pair generation; it should output your public key:
   ```
-  docker run --rm -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.local.yml address
+  docker run --rm \
+    -v "$(pwd):/usr/ff" \
+    ff_solana \
+    --config ./solana-cli.local.yml \
+    address
   ```
 - Run the solana test validator (if not running already with `docker compose --profile blockchain up`):
   ```
-  docker run --rm --entrypoint solana-test-validator \
-  -p 8899:8899 -p 1024:1024 -p 1027:1027 -p 8900:8900 ff_solana
+  docker network create ff_default
+
+  docker run --rm -d \
+    --network ff_default \
+    --name solana \
+    --entrypoint solana-test-validator \
+    -p 8899:8899 \
+    -p 1024:1024 \
+    -p 1027:1027 \
+    -p 8900:8900 \
+    ff_solana
+
+  # once you're done:
+  docker network rm ff_default
   ```
 - Airdrop some SOL to your address (required for `anchor deploy`):
   ```
-  docker run --rm --network host -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.local.yml airdrop 5
+  docker run --rm \
+    --network ff_default \
+    -v "$(pwd):/usr/ff" \
+    ff_solana \
+    --config ./solana-cli.local.yml \
+    --url http://solana:8899 \
+    --ws ws://solana:8900 \
+    airdrop 5
   ```
   Confirm the airdrop:
   ```
-  docker run --rm --network host -v "$(pwd):/usr/ff" ff_solana --config ./solana-cli.local.yml balance
+  docker run --rm \
+    --network ff_default \
+    -v "$(pwd):/usr/ff" \
+    ff_solana \
+    --config ./solana-cli.local.yml \
+    --url http://solana:8899 \
+    --ws ws://solana:8900 \
+    balance
   ```
 
 #### Docker (Anchor)

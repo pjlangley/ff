@@ -27,11 +27,12 @@ var ctx = context.Background()
 
 func getConnectionString() string {
 	localhost := "postgres://postgres:pgpass@localhost:5432"
+	host := env_vars.GetEnvVar("POSTGRES_HOST")
 
-	if len(env_vars.GetEnvVar("CI")) == 0 {
+	if len(host) == 0 {
 		return localhost
 	} else {
-		return strings.Replace(localhost, "localhost", "postgres", 1)
+		return strings.Replace(localhost, "localhost", host, 1)
 	}
 }
 

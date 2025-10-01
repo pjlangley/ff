@@ -21,12 +21,13 @@ impl fmt::Display for CryptoCoin {
 }
 
 fn init_client() -> Result<Client, Error> {
-    let params = if get_env_var("CI").is_empty() {
-        "host=localhost user=postgres password=pgpass"
+    let host = get_env_var("POSTGRES_HOST");
+    let params = if host.is_empty() {
+        "host=localhost user=postgres password=pgpass".to_string()
     } else {
-        "host=postgres user=postgres password=pgpass"
+        format!("host={} user=postgres password=pgpass", host)
     };
-    let mut client = Client::connect(params, NoTls)?;
+    let mut client = Client::connect(&params, NoTls)?;
     client.batch_execute(
         "
     CREATE TABLE IF NOT EXISTS crypto_coins (
