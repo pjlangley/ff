@@ -84,9 +84,8 @@ describe("fastify postgres api", () => {
   });
 
   describe("PUT /postgres/coins/:ticker", () => {
-    const ticker = randomUUID().slice(0, 6).toUpperCase();
-
     test("creates a new coin", async () => {
+      const ticker = randomUUID().slice(0, 6).toUpperCase();
       const response = await api.inject({
         method: "PUT",
         url: `/postgres/coins/${ticker}`,
