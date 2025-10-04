@@ -128,6 +128,10 @@ execute the code.
   ```
   node --run api:build
   ```
+- Run the Bruno smoke tests (ensure the API is already running):
+  ```
+  node --run api:bru:fastify
+  ```
 
 #### Docker (Node.js)
 
@@ -178,6 +182,7 @@ execute the code.
   ```
   docker run --rm \
     --network ff_default \
+    --name fastify \
     -p 3000:3000 \
     -e FASTIFY_HOST=0.0.0.0 \
     -e POSTGRES_HOST=postgres \
@@ -187,6 +192,7 @@ execute the code.
 
   docker run --rm \
     --network ff_default \
+    --name fastify \
     -p 3000:3000 \
     -e FASTIFY_HOST=0.0.0.0 \
     -e POSTGRES_HOST=postgres \
@@ -197,6 +203,15 @@ execute the code.
 - Run the REST API build:
   ```
   docker run --rm ff_node --run api:build
+  ```
+- Run the Bruno smoke tests (ensure the fastify API is already running via Docker):
+  ```
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node --run api:bru:fastify:docker
   ```
 
 ### Python

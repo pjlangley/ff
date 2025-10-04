@@ -1,0 +1,29 @@
+meta {
+  name: add coin
+  type: http
+}
+
+put {
+  url: {{base_url}}/postgres/coins/:ticker
+}
+
+params:path {
+  ticker: PEPE
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "name": "Pepe",
+    "launched": 2023
+  }
+}
+
+tests {
+  test("200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

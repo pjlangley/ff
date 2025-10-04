@@ -1,0 +1,18 @@
+meta {
+  name: delete coin
+  type: http
+}
+
+delete {
+  url: {{base_url}}/postgres/coins/:ticker
+}
+
+params:path {
+  ticker: PEPE
+}
+
+tests {
+  test("204 no content", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}
