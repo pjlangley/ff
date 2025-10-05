@@ -1,0 +1,29 @@
+meta {
+  name: create favourite
+  type: http
+}
+
+put {
+  url: {{base_url}}/redis/favourites/:namespace
+}
+
+params:path {
+  namespace: {{api_name}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "favouriteCoin": "BTC"
+  }
+}
+
+tests {
+  test("200 OK", function() {
+    const response = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+}

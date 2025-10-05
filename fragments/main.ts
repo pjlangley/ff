@@ -1,5 +1,4 @@
 import { getEnvVar } from "./env_vars/env_vars_utils";
-import { redisCreate, redisDelete, redisPing, redisRead, redisUpdate } from "./redis_db/redis_crud";
 import {
   addItem,
   deleteItem,
@@ -28,13 +27,6 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
     await updateItem({ ticker: "BTC", name: "Bitcoin", launched: 2009 }),
   );
   console.log('fragment "sqlite_db/deleteItem" output:', await deleteItem("ETH"));
-
-  // redis
-  console.log('fragment "redis_db/redisPing" output:', await redisPing());
-  console.log('fragment "redis_db/redisCreate" output:', await redisCreate("nodejs", "bitcoin"));
-  console.log('fragment "redis_db/redisRead" output:', await redisRead("nodejs"));
-  console.log('fragment "redis_db/redisUpdate" output:', await redisUpdate("nodejs", "pepe"));
-  console.log('fragment "redis_db/redisDelete" output:', await redisDelete("nodejs"));
 
   const solanaKeypair = await generateKeyPairSigner();
   const solanaKeypairAddress = solanaKeypair.address;

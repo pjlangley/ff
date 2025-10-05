@@ -1,0 +1,21 @@
+meta {
+  name: ping redis
+  type: http
+}
+
+get {
+  url: {{base_url}}/redis/ping
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and message is PONG", function() {
+    const response = res.getBody();
+
+    expect(res.getStatus()).to.equal(200);
+    expect(response.message).to.equal('PONG');
+  });
+}

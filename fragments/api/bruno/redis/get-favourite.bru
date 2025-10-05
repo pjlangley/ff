@@ -1,0 +1,25 @@
+meta {
+  name: get favourites by namespace
+  type: http
+}
+
+get {
+  url: {{base_url}}/redis/favourites/:namespace
+}
+
+params:path {
+  namespace: {{api_name}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and favourite has expected structure", function() {
+    const favourite = res.getBody();
+
+    expect(res.getStatus()).to.equal(200);
+    expect(favourite).to.have.property('favouriteCoin');
+  });
+}

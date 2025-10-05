@@ -1,0 +1,18 @@
+meta {
+  name: delete favourite
+  type: http
+}
+
+delete {
+  url: {{base_url}}/redis/favourites/:namespace
+}
+
+params:path {
+  namespace: bruno
+}
+
+tests {
+  test("204 no content", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}
