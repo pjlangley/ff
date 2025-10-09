@@ -1,0 +1,24 @@
+meta {
+  name: get coin by ticker
+  type: http
+}
+
+get {
+  url: {{base_url}}/sqlite/coins/:ticker
+}
+
+params:path {
+  ticker: BTC
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and coin has expected ticker", function() {
+    const coin = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(coin.ticker).to.equal('BTC');
+  });
+}

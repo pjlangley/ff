@@ -1,0 +1,25 @@
+meta {
+  name: get all coins
+  type: http
+}
+
+get {
+  url: {{base_url}}/sqlite/coins
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and coin has expected structure", function() {
+    const coins = res.getBody();
+
+    expect(res.getStatus()).to.equal(200);
+    expect(coins).to.have.lengthOf.at.least(3);
+    expect(coins[0]).to.have.property('id');
+    expect(coins[0]).to.have.property('ticker');
+    expect(coins[0]).to.have.property('name');
+    expect(coins[0]).to.have.property('launched');
+  });
+}

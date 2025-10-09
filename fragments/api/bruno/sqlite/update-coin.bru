@@ -1,0 +1,32 @@
+meta {
+  name: update coin
+  type: http
+}
+
+patch {
+  url: {{base_url}}/sqlite/coins/:ticker
+}
+
+params:path {
+  ticker: BTC
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "name": "Bitcoin",
+    "launched": 2009
+  }
+}
+
+tests {
+  test("200 OK", function() {
+    const coin = res.getBody();
+
+    expect(res.getStatus()).to.equal(200);
+    expect(coin.name).to.equal('Bitcoin');
+  });
+}

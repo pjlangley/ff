@@ -1,0 +1,28 @@
+meta {
+  name: get coins after year
+  type: http
+}
+
+get {
+  url: {{base_url}}/sqlite/coins/after/:year
+}
+
+params:path {
+  year: 2010
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and all coins launched after specified year", function() {
+    const coins = res.getBody();
+    const year = 2010;
+
+    expect(res.getStatus()).to.equal(200);
+    coins.forEach(coin => {
+      expect(coin.launched).to.be.greaterThan(year);
+    });
+  });
+}

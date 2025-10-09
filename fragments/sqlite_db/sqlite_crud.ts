@@ -1,4 +1,5 @@
 import { verbose as sqlite3 } from "sqlite3";
+import process from "node:process";
 
 const sqlite = sqlite3();
 
@@ -15,16 +16,16 @@ INSERT INTO crypto_coins VALUES
 (NULL, 'SOL', 'Solana', 2020);
 `;
 
-interface CryptoCoin {
+export interface CryptoCoin {
   id: number;
   ticker: string;
   name: string;
   launched: number;
 }
 
-const initDb = async () => {
-  const db = new sqlite.Database(":memory:");
+const db = new sqlite.Database(":memory:");
 
+(async function initDb() {
   try {
     await new Promise((resolve, reject) => {
       db.exec(INIT_DB_SQL, (err) => {
@@ -34,14 +35,11 @@ const initDb = async () => {
     });
   } catch (e) {
     console.error(e);
-    throw new Error("init_db sql failed!");
+    process.exit(1);
   }
-
-  return db;
-};
+})();
 
 export const getItemByTicker = async (ticker: string) => {
-  const db = await initDb();
   const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
     db.get<CryptoCoin | undefined>("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1", [ticker], (err, row) => {
       if (err) {
@@ -55,7 +53,6 @@ export const getItemByTicker = async (ticker: string) => {
 };
 
 export const getItemsAfterLaunchYear = async (launchYear: number) => {
-  const db = await initDb();
   const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
     db.all<CryptoCoin>("SELECT * FROM crypto_coins WHERE launched > ?", [launchYear], (err, rows) => {
       if (err) {
@@ -69,7 +66,6 @@ export const getItemsAfterLaunchYear = async (launchYear: number) => {
 };
 
 export const getAllItems = async () => {
-  const db = await initDb();
   const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
     db.all<CryptoCoin>("SELECT * FROM crypto_coins ORDER BY launched DESC", [], (err, rows) => {
       if (err) reject(err);
@@ -81,7 +77,6 @@ export const getAllItems = async () => {
 };
 
 export const addItem = async (coin: Omit<CryptoCoin, "id">) => {
-  const db = await initDb();
   const result = await new Promise<string>((resolve, reject) => {
     db.run(
       "INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?1, ?2, ?3)",
@@ -97,7 +92,6 @@ export const addItem = async (coin: Omit<CryptoCoin, "id">) => {
 };
 
 export const updateItem = async (coin: Omit<CryptoCoin, "id">) => {
-  const db = await initDb();
   const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
     db.get<CryptoCoin | undefined>(
       "UPDATE crypto_coins SET name = ?1, launched = ?2 WHERE ticker = ?3 RETURNING *",
@@ -117,7 +111,6 @@ export const updateItem = async (coin: Omit<CryptoCoin, "id">) => {
 };
 
 export const deleteItem = async (ticker: string) => {
-  const db = await initDb();
   const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
     db.get<CryptoCoin | undefined>("DELETE FROM crypto_coins WHERE ticker = ? RETURNING *", [ticker], (err, row) => {
       if (err) reject(err);
