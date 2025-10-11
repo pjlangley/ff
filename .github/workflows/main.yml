@@ -31,6 +31,9 @@ jobs:
             -e POSTGRES_HOST=postgres \
             -e REDIS_HOST=redis \
             -e SOLANA_HOST=solana \
+            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
+            -e username_PROGRAM_ID=$username_PROGRAM_ID \
+            -e round_PROGRAM_ID=$round_PROGRAM_ID \
             ff_node ./fragments/api/fastify/dist/api.js
       - name: run all fragments
         run: |

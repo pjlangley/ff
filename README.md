@@ -160,9 +160,7 @@ execute the code.
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
-    -e counter_PROGRAM_ID=<program_id_here> \
-    -e username_PROGRAM_ID=<program_id_here> \
-    -e round_PROGRAM_ID=<program_id_here> \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_node \
     --run test
   ```
@@ -188,6 +186,7 @@ execute the code.
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_node --run api
 
   docker run --rm \
@@ -198,6 +197,7 @@ execute the code.
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_node ./fragments/api/fastify/dist/api.js
   ```
 - Run the REST API build:

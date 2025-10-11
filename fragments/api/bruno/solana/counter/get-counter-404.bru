@@ -1,0 +1,18 @@
+meta {
+  name: get counter value
+  type: http
+}
+
+get {
+  url: {{base_url}}/solana/counter/11111111111111111111111111111111
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("404 Not Found", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

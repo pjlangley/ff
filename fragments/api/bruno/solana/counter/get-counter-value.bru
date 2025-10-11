@@ -1,0 +1,21 @@
+meta {
+  name: get counter value
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/solana/counter/{{COUNTER_ADDRESS}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and counter value returned", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.count).to.equal('0');
+  });
+}

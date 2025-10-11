@@ -1,0 +1,25 @@
+meta {
+  name: increment counter
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{base_url}}/solana/counter/{{COUNTER_ADDRESS}}/increment
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  null
+}
+
+tests {
+  test("200 OK and counter incremented", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.newCount).to.equal('1');
+  });
+}

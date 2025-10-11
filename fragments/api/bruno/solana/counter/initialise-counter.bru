@@ -1,0 +1,26 @@
+meta {
+  name: initialise counter
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/solana/counter/initialise
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  null
+}
+
+tests {
+  test("200 OK and counter initialised", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.address).to.be.a('string');
+    bru.setVar('COUNTER_ADDRESS', result.address);
+  });
+}

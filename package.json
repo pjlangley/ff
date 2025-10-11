@@ -14,11 +14,11 @@
     "tsc": "tsc --noEmit --project tsconfig.json",
     "format:write": "deno fmt",
     "format:check": "deno fmt --check",
-    "api": "tsx ./fragments/api.ts",
-    "api:dev": "tsx --watch ./fragments/api.ts",
+    "api": "tsx --env-file-if-exists=./solana_program_keys/solana_program_keys.env ./fragments/api.ts",
+    "api:dev": "tsx --env-file-if-exists=./solana_program_keys/solana_program_keys.env --watch ./fragments/api.ts",
     "api:build": "tsc --project tsconfig.api.json",
-    "api:bru:fastify": "(cd ./fragments/api/bruno && bru run -r --parallel --env-file ./environments/fastify.bru)",
-    "api:bru:fastify:docker": "(cd ./fragments/api/bruno && bru run -r --parallel --env-file ./environments/fastify.bru --env-var host=fastify)"
+    "api:bru:fastify": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru)",
+    "api:bru:fastify:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru --env-var host=fastify)"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",
