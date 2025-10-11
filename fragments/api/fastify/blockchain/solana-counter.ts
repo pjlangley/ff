@@ -15,19 +15,6 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 const keypairStorage: Record<string, KeyPairSigner> = {};
 
 export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
-  fastify.decorateRequest("programAddress", null);
-  fastify.addHook("preHandler", (request, reply) => {
-    const programId = getEnvVar("counter_PROGRAM_ID");
-
-    if (!programId) {
-      return reply.code(500).send({
-        error: "environment variable counter_PROGRAM_ID is not set",
-      });
-    }
-
-    request.setDecorator<Address>("programAddress", address(programId));
-  });
-
   fastify.get<{
     Params: { address: string };
     Reply: {
@@ -38,7 +25,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   }>("/counter/:address", async (request, reply) => {
     try {
       const { address } = request.params;
-      const programAddress = request.getDecorator<Address>("programAddress");
+      const programAddress = getProgramAddress();
       const keypair = keypairStorage[address];
       if (!keypair) {
         return reply.code(404).send();
@@ -63,7 +50,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
     };
   }>("/counter/initialise", async (request, reply) => {
     try {
-      const programAddress = request.getDecorator<Address>("programAddress");
+      const programAddress = getProgramAddress();
       const signer = await generateKeyPairSigner();
       await sendAndConfirmAirdrop(signer.address, BigInt(LAMPORTS_PER_SOL));
       keypairStorage[signer.address] = signer;
@@ -99,7 +86,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   }>("/counter/:address/increment", async (request, reply) => {
     try {
       const { address } = request.params;
-      const programAddress = request.getDecorator<Address>("programAddress");
+      const programAddress = getProgramAddress();
       const keypair = keypairStorage[address];
       if (!keypair) {
         return reply.code(404).send();
@@ -124,4 +111,12 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
       return reply.code(500).send({ error: "Internal Server Error" });
     }
   });
+};
+
+const getProgramAddress = (): Address => {
+  const programId = getEnvVar("counter_PROGRAM_ID");
+  if (!programId) {
+    throw new Error("environment variable counter_PROGRAM_ID is not set");
+  }
+  return address(programId);
 };
