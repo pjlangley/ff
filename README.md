@@ -1,7 +1,6 @@
-# Fullstack fragments
+# ff
 
-A collection of focused code samples in a variety of programming languages for comparison, with an emphasis on
-functional programming. What I call _fullstack fragments_.
+A polyglot of focused code samples for comparison - _fullstack fragments_.
 
 For the _core_ fragments, the supported programming languages are:
 
