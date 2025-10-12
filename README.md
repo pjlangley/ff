@@ -82,8 +82,8 @@ execute the code.
 
 ##### Setup
 
-- Install [`nvm`](https://github.com/nvm-sh/nvm)
-- `nvm install`. This installs and uses the version specified in [`.nvmrc`](./.nvmrc)
+- Install [`fnm`](https://github.com/Schniz/fnm)
+- `fnm install`. This installs and uses the version specified in [`.nvmrc`](./.nvmrc)
 - Run `npm install` at root of repo
 - Install [`dvm`](https://deno.land/x/dvm). Used for linting and formatting with deno
 - `dvm install 2.1.6` if you don't already have this version
