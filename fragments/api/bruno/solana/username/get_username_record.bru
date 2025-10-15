@@ -1,0 +1,27 @@
+meta {
+  name: get username record
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/solana/username/{{USERNAME_ADDRESS}}/record/:changeIndex
+}
+
+params:path {
+  changeIndex: 0
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and username record returned", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.oldUsername).to.equal('alice');
+    expect(result.changeIndex).to.equal('0');
+    expect(result.authority).to.equal(bru.getVar("USERNAME_ADDRESS"));
+  });
+}

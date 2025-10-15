@@ -1,0 +1,26 @@
+meta {
+  name: initialise username
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/solana/username/initialise
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  { "username": "alice" }
+}
+
+tests {
+  test("200 OK and username initialised", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.address).to.be.a('string');
+    bru.setVar('USERNAME_ADDRESS', result.address);
+  });
+}

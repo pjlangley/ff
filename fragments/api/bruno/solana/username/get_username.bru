@@ -1,0 +1,21 @@
+meta {
+  name: get username
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/solana/username/{{USERNAME_ADDRESS}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK and username returned", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.username).to.equal('bob');
+  });
+}
