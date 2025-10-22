@@ -1,0 +1,29 @@
+meta {
+  name: activate round
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{base_url}}/solana/round/{{ROUND_ADDRESS}}/activate
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {}
+}
+
+script:pre-request {
+  // Wait for the startSlot to be reached
+  await bru.sleep(5000);
+}
+
+tests {
+  test("200 OK - round activated", async function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+}

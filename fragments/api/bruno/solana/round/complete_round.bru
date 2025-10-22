@@ -1,0 +1,24 @@
+meta {
+  name: complete round
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{base_url}}/solana/round/{{ROUND_ADDRESS}}/complete
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {}
+}
+
+tests {
+  test("200 OK - round completed", async function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,27 @@
+meta {
+  name: initialise round
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/solana/round/initialise
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {}
+}
+
+tests {
+  test("200 OK - round initialised", async function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.address).to.be.a('string');
+    expect(result.startSlot).to.be.a('string');
+    bru.setVar('ROUND_ADDRESS', result.address);
+  });
+}
