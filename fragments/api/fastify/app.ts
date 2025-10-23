@@ -5,6 +5,7 @@ import { routes as sqlite } from "./datastore/sqlite";
 import { routes as solanaCounter } from "./blockchain/solana_counter";
 import { routes as solanaUsername } from "./blockchain/solana_username";
 import { routes as solanaRound } from "./blockchain/solana_round";
+import { routes as solanaBalance } from "./blockchain/solana_balance";
 
 export const build = () => {
   const api = fastify({ logger: true });
@@ -14,5 +15,6 @@ export const build = () => {
   api.register(solanaCounter, { prefix: "/solana" });
   api.register(solanaUsername, { prefix: "/solana" });
   api.register(solanaRound, { prefix: "/solana" });
+  api.register(solanaBalance, { prefix: "/solana" });
   return api;
 };

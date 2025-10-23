@@ -1,0 +1,23 @@
+meta {
+  name: get address balance
+  type: http
+}
+
+get {
+  url: {{base_url}}/solana/balance/:address
+}
+
+params:path {
+  address: 22222222222222222222222222222222
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("400 Bad Request returned for invalid address", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(400);
+  });
+}
