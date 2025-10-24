@@ -21,7 +21,7 @@ jobs:
             --build-arg DENO_VERSION=2.1.6 \
             -f docker.node.Dockerfile \
             -t ff_node .
-      - name: start fastify server
+      - name: start fastify api
         run: |
           docker run -d \
             --name fastify \
@@ -34,15 +34,7 @@ jobs:
             -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
             -e username_PROGRAM_ID=$username_PROGRAM_ID \
             -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            ff_node ./fragments/api/fastify/dist/api.js
-      - name: run all fragments
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            ff_node
+            ff_node 
       - name: unit tests
         run: |
           docker run --rm \

@@ -94,10 +94,6 @@ execute the code.
 > [!NOTE]
 > TypeScript files in `./fragments/blockchain/solana/` will be in scope for some of these commands.
 
-- Run all fragments:
-  ```
-  node --run fragments
-  ```
 - Run unit tests:
   ```
   node --run test
@@ -142,15 +138,6 @@ execute the code.
     --build-arg DENO_VERSION=2.1.6 \
     -f docker.node.Dockerfile \
     -t ff_node .
-  ```
-- Run all fragments:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_node
   ```
 - Run unit tests:
   ```
@@ -197,7 +184,7 @@ execute the code.
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    ff_node ./fragments/api/fastify/dist/api.js
+    ff_node
   ```
 - Run the REST API build:
   ```

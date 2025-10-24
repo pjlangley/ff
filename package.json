@@ -8,7 +8,6 @@
     "npm": "^10"
   },
   "scripts": {
-    "fragments": "tsx fragments/main.ts",
     "test": "tsx --env-file-if-exists=./solana_program_keys/solana_program_keys.env --test fragments/*/*.test.ts fragments/api/**/*.test.ts",
     "lint": "deno lint",
     "tsc": "tsc --noEmit --project tsconfig.json",
@@ -16,6 +15,7 @@
     "format:check": "deno fmt --check",
     "api": "tsx --env-file-if-exists=./solana_program_keys/solana_program_keys.env ./fragments/api.ts",
     "api:dev": "tsx --env-file-if-exists=./solana_program_keys/solana_program_keys.env --watch ./fragments/api.ts",
+    "api:dist": "node ./fragments/api/fastify/dist/api.js",
     "api:build": "tsc --project tsconfig.api.json",
     "api:bru:fastify": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru)",
     "api:bru:fastify:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru --env-var host=fastify)"
