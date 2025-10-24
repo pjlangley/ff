@@ -1,6 +1,6 @@
 # ff
 
-A polyglot of focused code samples for comparison - _fullstack fragments_.
+A polyglot of educational code samples for comparison - _fullstack fragments_.
 
 For the _core_ fragments, the supported programming languages are:
 
