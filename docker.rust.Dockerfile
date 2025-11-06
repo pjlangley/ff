@@ -8,6 +8,8 @@ COPY Cargo.toml .
 COPY rust-toolchain.toml .
 COPY fragments ./fragments/
 RUN cargo build -v --bin fragments
+RUN cargo build -v --bin api
+EXPOSE 3001
 
 ENTRYPOINT ["cargo"]
 CMD ["run", "--bin", "fragments"]

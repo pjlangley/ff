@@ -18,7 +18,9 @@
     "api:dist": "node ./fragments/api/fastify/dist/api.js",
     "api:build": "tsc --project tsconfig.api.json",
     "api:bru:fastify": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru)",
-    "api:bru:fastify:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru --env-var host=fastify)"
+    "api:bru:fastify:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru --env-var host=fastify)",
+    "api:bru:axum": "(cd ./fragments/api/bruno && bru run -r ./postgres --env-file ./environments/axum.bru)",
+    "api:bru:axum:docker": "(cd ./fragments/api/bruno && bru run -r ./postgres --env-file ./environments/axum.bru --env-var host=axum)"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",

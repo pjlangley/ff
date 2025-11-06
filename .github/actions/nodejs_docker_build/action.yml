@@ -1,0 +1,15 @@
+name: node.js docker build
+description: builds the node.js docker image
+
+runs:
+  using: "composite"
+  steps:
+    - name: node.js docker build
+      run: |
+          docker build \
+            --force-rm \
+            --build-arg NODE_VERSION=22 \
+            --build-arg DENO_VERSION=2.1.6 \
+            -f docker.node.Dockerfile \
+            -t ff_node .
+      shell: bash

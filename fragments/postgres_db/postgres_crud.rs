@@ -1,23 +1,13 @@
 use crate::env_vars::env_vars_utils::get_env_var;
 use postgres::{Client, Error, NoTls};
-use std::fmt;
+use serde::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CryptoCoin {
     id: i32,
     ticker: String,
     name: String,
     launched: i16,
-}
-
-impl fmt::Display for CryptoCoin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{{ id: {}, ticker: '{}', name: '{}', launched: {} }}",
-            self.id, self.ticker, self.name, self.launched
-        )
-    }
 }
 
 fn init_client() -> Result<Client, Error> {

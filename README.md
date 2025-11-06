@@ -123,7 +123,7 @@ execute the code.
   ```
   node --run api:build
   ```
-- Run the Bruno smoke tests (ensure the API is already running):
+- Run the Bruno integration tests (ensure the API is already running):
   ```
   node --run api:bru:fastify
   ```
@@ -190,7 +190,7 @@ execute the code.
   ```
   docker run --rm ff_node --run api:build
   ```
-- Run the Bruno smoke tests (ensure the fastify API is already running via Docker):
+- Run the Bruno integration tests (ensure the fastify API is already running via Docker):
   ```
   docker run --rm \
     --network ff_default \
@@ -317,6 +317,9 @@ execute the code.
 
 ##### Run
 
+> [!IMPORTANT]
+> The Bruno commands require the local Node.js setup, see earlier instructions.
+
 - Run all fragments:
   ```
   cargo run --bin fragments
@@ -333,9 +336,10 @@ execute the code.
   ```
   cargo test -- --nocapture
   ```
-- Run the build:
+- Run the builds:
   ```
   cargo build -v --bin fragments
+  cargo build -v --bin api
   ```
 - Run the linter:
   ```
@@ -349,8 +353,19 @@ execute the code.
   ```
   cargo fmt --check -v
   ```
+- Run the REST API:
+  ```
+  cargo run --bin api
+  ```
+- Run the Bruno integration tests (ensure the API is already running):
+  ```
+  node --run api:bru:axum
+  ```
 
 #### Docker (Rust)
+
+> [!IMPORTANT]
+> The Bruno commands require the Node.js Docker setup, see earlier instructions.
 
 - Build the image at root of repo (with optional build args):
   ```
@@ -369,7 +384,7 @@ execute the code.
     -e SOLANA_HOST=solana \
     ff_rust
   ```
-- Run built binary:
+- Run built fragments binary:
   ```
   docker run --rm \
     --network ff_default \
@@ -386,16 +401,15 @@ execute the code.
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
-    -e counter_PROGRAM_ID=<program_id_here> \
-    -e username_PROGRAM_ID=<program_id_here> \
-    -e round_PROGRAM_ID=<program_id_here> \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     --entrypoint cargo \
     ff_rust \
     test
   ```
-- Run the build:
+- Run the builds:
   ```
   docker run --rm --entrypoint cargo ff_rust build -v --bin fragments
+  docker run --rm --entrypoint cargo ff_rust build -v --bin api
   ```
 - Run the linter:
   ```
@@ -408,6 +422,41 @@ execute the code.
 - Run the format check:
   ```
   docker run --rm --entrypoint cargo ff_rust fmt -v --check
+  ```
+- Run the REST API (dev and compiled):
+  ```
+  docker run --rm \
+    --network ff_default \
+    --name axum \
+    -p 3001:3001 \
+    -e AXUM_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
+    ff_rust \
+    run --bin api
+
+  docker run --rm \
+    --network ff_default \
+    --name axum \
+    -p 3001:3001 \
+    -e AXUM_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
+    --entrypoint target/debug/api \
+    ff_rust
+  ```
+- Run the Bruno integration tests (ensure the Axum API is already running via Docker):
+  ```
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node --run api:bru:axum:docker
   ```
 
 ### Go
