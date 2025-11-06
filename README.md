@@ -324,17 +324,17 @@ execute the code.
   ```
   cargo run --bin fragments
   ```
-- Run unit tests:
+- Run unit tests (sequentially):
   ```
-  cargo test
+  cargo test -- --test-threads=1
   ```
 - Run specific unit test suite for module:
   ```
-  cargo test solana_counter_interface
+  cargo test solana_counter_interface -- --test-threads=1
   ```
 - Run unit tests with debugging on (e.g. show `println!` output):
   ```
-  cargo test -- --nocapture
+  cargo test -- --test-threads=1 --nocapture
   ```
 - Run the builds:
   ```
@@ -404,7 +404,7 @@ execute the code.
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     --entrypoint cargo \
     ff_rust \
-    test
+    test -- --test-threads=1
   ```
 - Run the builds:
   ```

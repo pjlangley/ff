@@ -149,7 +149,7 @@ jobs:
             -e round_PROGRAM_ID=$round_PROGRAM_ID \
             --entrypoint cargo \
             ff_rust \
-            test
+            test -- --test-threads=1
       - name: bruno integration tests for axum api
         run: |
           docker run --rm \
