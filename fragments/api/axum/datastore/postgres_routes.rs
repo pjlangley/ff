@@ -129,10 +129,7 @@ async fn add_coin(Path(ticker): Path<String>, Json(payload): Json<Coin>) -> impl
     }
 }
 
-async fn update_coin(
-    Path(ticker): Path<String>,
-    Json(payload): Json<Coin>,
-) -> impl IntoResponse {
+async fn update_coin(Path(ticker): Path<String>, Json(payload): Json<Coin>) -> impl IntoResponse {
     let ticker = ticker.to_uppercase();
     let result =
         tokio::task::spawn_blocking(move || update_item(&ticker, &payload.name, payload.launched))
