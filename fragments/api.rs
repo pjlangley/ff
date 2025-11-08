@@ -1,5 +1,6 @@
 mod env_vars;
 mod postgres_db;
+mod redis_db;
 mod api {
     pub mod axum;
 }

@@ -1,7 +1,6 @@
 use solana_sdk::{native_token::LAMPORTS_PER_SOL, signature::Keypair, signer::Signer};
 
 mod env_vars;
-mod redis_db;
 mod solana_airdrop;
 mod solana_balance;
 mod solana_program;
@@ -62,28 +61,6 @@ fn main() {
         "fragment 'sqlite_db/delete_item' output: {:?}",
         sqlite_db::sqlite_crud::delete_item("ETH")
             .unwrap_or_else(|e| panic!("Expected to delete item but got error: {:?}", e))
-    );
-
-    // redis
-    println!(
-        "fragment 'redis_db/ping' output: {:?}",
-        redis_db::redis_crud::redis_ping()
-    );
-    println!(
-        "fragment 'redis_db/create' output: {:?}",
-        redis_db::redis_crud::redis_create("rust", "bitcoin")
-    );
-    println!(
-        "fragment 'redis_db/read' output: {:?}",
-        redis_db::redis_crud::redis_read("rust")
-    );
-    println!(
-        "fragment 'redis_db/update' output: {:?}",
-        redis_db::redis_crud::redis_update("rust", "pepe")
-    );
-    println!(
-        "fragment 'redis_db/delete' output: {:?}",
-        redis_db::redis_crud::redis_delete("rust")
     );
 
     let solana_keypair = Keypair::new();
