@@ -5,7 +5,7 @@ use crate::postgres_db::postgres_crud::{
 use axum::{
     extract::Path,
     http::StatusCode,
-    response::{IntoResponse, Json},
+    response::{IntoResponse, Json, Response},
     routing::get,
     Router,
 };
@@ -43,14 +43,7 @@ async fn get_coins() -> impl IntoResponse {
             )
                 .into_response()
         }
-        Err(join_err) => {
-            eprintln!("Task join error: {join_err}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "internal failure" })),
-            )
-                .into_response()
-        }
+        Err(join_err) => handle_join_error(join_err),
     }
 }
 
@@ -68,14 +61,7 @@ async fn get_coin_by_ticker(Path(ticker): Path<String>) -> impl IntoResponse {
             )
                 .into_response()
         }
-        Err(join_err) => {
-            eprintln!("Task join error: {join_err}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "internal failure" })),
-            )
-                .into_response()
-        }
+        Err(join_err) => handle_join_error(join_err),
     }
 }
 
@@ -91,14 +77,7 @@ async fn get_coins_after_year(Path(year): Path<i16>) -> impl IntoResponse {
             )
                 .into_response()
         }
-        Err(join_err) => {
-            eprintln!("Task join error: {join_err}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "internal failure" })),
-            )
-                .into_response()
-        }
+        Err(join_err) => handle_join_error(join_err),
     }
 }
 
@@ -118,14 +97,7 @@ async fn add_coin(Path(ticker): Path<String>, Json(payload): Json<Coin>) -> impl
             )
                 .into_response()
         }
-        Err(join_err) => {
-            eprintln!("Task join error: {join_err}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "internal failure" })),
-            )
-                .into_response()
-        }
+        Err(join_err) => handle_join_error(join_err),
     }
 }
 
@@ -146,14 +118,7 @@ async fn update_coin(Path(ticker): Path<String>, Json(payload): Json<Coin>) -> i
             )
                 .into_response()
         }
-        Err(join_err) => {
-            eprintln!("Task join error: {join_err}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "internal failure" })),
-            )
-                .into_response()
-        }
+        Err(join_err) => handle_join_error(join_err),
     }
 }
 
@@ -172,15 +137,17 @@ async fn delete_coin(Path(ticker): Path<String>) -> impl IntoResponse {
             )
                 .into_response()
         }
-        Err(join_err) => {
-            eprintln!("Task join error: {join_err}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "internal failure" })),
-            )
-                .into_response()
-        }
+        Err(join_err) => handle_join_error(join_err),
     }
+}
+
+fn handle_join_error(join_err: tokio::task::JoinError) -> Response {
+    eprintln!("Task join error: {join_err}");
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(serde_json::json!({ "error": "internal failure" })),
+    )
+        .into_response()
 }
 
 #[cfg(test)]
