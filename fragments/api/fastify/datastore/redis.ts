@@ -20,7 +20,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   fastify.get<{
     Params: { namespace: string };
     Reply: {
-      200: { favouriteCoin?: string };
+      200: { favourite_coin?: string };
       404: void;
       500: { error: string };
     };
@@ -29,7 +29,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
       const { namespace } = request.params;
       const item = await redisRead(namespace);
 
-      if (!item.favouriteCoin) {
+      if (!item.favourite_coin) {
         return reply.code(404).send();
       }
       return item;
@@ -40,7 +40,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   });
 
   fastify.put<{
-    Body: { favouriteCoin: string };
+    Body: { favourite_coin: string };
     Params: { namespace: string };
     Reply: {
       200: void;
@@ -51,17 +51,17 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
     schema: {
       body: {
         type: "object",
-        required: ["favouriteCoin"],
+        required: ["favourite_coin"],
         properties: {
-          favouriteCoin: { type: "string" },
+          favourite_coin: { type: "string" },
         },
       },
     },
   }, async (request, reply) => {
     try {
       const { namespace } = request.params;
-      const { favouriteCoin } = request.body;
-      const result = await redisCreate(namespace, favouriteCoin);
+      const { favourite_coin } = request.body;
+      const result = await redisCreate(namespace, favourite_coin);
       if (result !== "OK") {
         throw new Error(result);
       }
@@ -73,7 +73,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   });
 
   fastify.patch<{
-    Body: { favouriteCoin: string };
+    Body: { favourite_coin: string };
     Params: { namespace: string };
     Reply: {
       200: void;
@@ -83,17 +83,17 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
     schema: {
       body: {
         type: "object",
-        required: ["favouriteCoin"],
+        required: ["favourite_coin"],
         properties: {
-          favouriteCoin: { type: "string" },
+          favourite_coin: { type: "string" },
         },
       },
     },
   }, async (request, reply) => {
     try {
       const { namespace } = request.params;
-      const { favouriteCoin } = request.body;
-      const result = await redisUpdate(namespace, favouriteCoin);
+      const { favourite_coin } = request.body;
+      const result = await redisUpdate(namespace, favourite_coin);
       if (result !== "OK") {
         throw new Error(result);
       }

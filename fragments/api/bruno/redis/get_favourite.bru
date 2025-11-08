@@ -20,6 +20,6 @@ tests {
     const favourite = res.getBody();
 
     expect(res.getStatus()).to.equal(200);
-    expect(favourite).to.have.property('favouriteCoin');
+    expect(favourite).to.have.property('favourite_coin');
   });
 }

@@ -31,7 +31,7 @@ describe("fastify redis api", () => {
         method: "PUT",
         url: `/redis/favourites/${namespace}`,
         payload: {
-          favouriteCoin: "BTC",
+          favourite_coin: "BTC",
         },
       });
 
@@ -42,7 +42,7 @@ describe("fastify redis api", () => {
 
       assert.strictEqual(response.statusCode, 200);
       const result = JSON.parse(response.payload);
-      assert.strictEqual(result.favouriteCoin, "BTC");
+      assert.strictEqual(result.favourite_coin, "BTC");
     });
 
     test("returns 404 for non-existent namespace", async () => {
@@ -89,7 +89,7 @@ describe("fastify redis api", () => {
         method: "PUT",
         url: `/redis/favourites/${namespace}`,
         payload: {
-          favouriteCoin: "SOL",
+          favourite_coin: "SOL",
         },
       });
       assert.strictEqual(createResponse.statusCode, 200);
@@ -98,7 +98,7 @@ describe("fastify redis api", () => {
         method: "PATCH",
         url: `/redis/favourites/${namespace}`,
         payload: {
-          favouriteCoin: "BTC",
+          favourite_coin: "BTC",
         },
       });
       assert.strictEqual(updateResponse.statusCode, 200);
@@ -108,7 +108,7 @@ describe("fastify redis api", () => {
         url: `/redis/favourites/${namespace}`,
       });
       const favourite = JSON.parse(getResponse.payload);
-      assert.strictEqual(favourite.favouriteCoin, "BTC");
+      assert.strictEqual(favourite.favourite_coin, "BTC");
     });
 
     test("can update non-existent namespace (creates it)", async () => {
@@ -117,7 +117,7 @@ describe("fastify redis api", () => {
         method: "PATCH",
         url: `/redis/favourites/${namespace}`,
         payload: {
-          favouriteCoin: "BTC",
+          favourite_coin: "BTC",
         },
       });
 
@@ -128,7 +128,7 @@ describe("fastify redis api", () => {
         url: `/redis/favourites/${namespace}`,
       });
       const favourite = JSON.parse(getResponse.payload);
-      assert.strictEqual(favourite.favouriteCoin, "BTC");
+      assert.strictEqual(favourite.favourite_coin, "BTC");
     });
 
     test("fails on invalid payload", async () => {
@@ -153,7 +153,7 @@ describe("fastify redis api", () => {
         method: "PUT",
         url: `/redis/favourites/${namespace}`,
         payload: {
-          favouriteCoin: "BTC",
+          favourite_coin: "BTC",
         },
       });
       assert.strictEqual(createResponse.statusCode, 200);

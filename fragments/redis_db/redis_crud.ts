@@ -21,10 +21,10 @@ export const redisPing = async () => {
   return pong;
 };
 
-export const redisCreate = async (namespace: string, favouriteCoin: string) => {
+export const redisCreate = async (namespace: string, favourite_coin: string) => {
   const client = await initClient();
   await client.hSet(namespace, {
-    favouriteCoin: favouriteCoin,
+    favourite_coin: favourite_coin,
   });
   await client.quit();
   return "OK";
@@ -37,9 +37,9 @@ export const redisRead = async (namespace: string) => {
   return item;
 };
 
-export const redisUpdate = async (namespace: string, favouriteCoin: string) => {
+export const redisUpdate = async (namespace: string, favourite_coin: string) => {
   const client = await initClient();
-  await client.hSet(namespace, "favouriteCoin", favouriteCoin);
+  await client.hSet(namespace, "favourite_coin", favourite_coin);
   await client.quit();
   return "OK";
 };
