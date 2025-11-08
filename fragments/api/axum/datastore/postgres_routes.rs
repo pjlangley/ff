@@ -9,6 +9,7 @@ use axum::{
     routing::get,
     Router,
 };
+use postgres::Error;
 use serde::Deserialize;
 use serde_json;
 
@@ -35,14 +36,7 @@ async fn get_coins() -> impl IntoResponse {
     let result = tokio::task::spawn_blocking(get_all_items).await;
     match result {
         Ok(Ok(coins)) => (StatusCode::OK, Json(coins)).into_response(),
-        Ok(Err(e)) => {
-            eprintln!("DB error: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "database failure" })),
-            )
-                .into_response()
-        }
+        Ok(Err(e)) => handle_postgres_error(e, "Failed to get coins"),
         Err(join_err) => handle_join_error(join_err),
     }
 }
@@ -53,14 +47,7 @@ async fn get_coin_by_ticker(Path(ticker): Path<String>) -> impl IntoResponse {
     match result {
         Ok(Ok(Some(coin))) => (StatusCode::OK, Json(coin)).into_response(),
         Ok(Ok(None)) => (StatusCode::NOT_FOUND).into_response(),
-        Ok(Err(e)) => {
-            eprintln!("DB error: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "database failure" })),
-            )
-                .into_response()
-        }
+        Ok(Err(e)) => handle_postgres_error(e, "Failed to get coin by ticker"),
         Err(join_err) => handle_join_error(join_err),
     }
 }
@@ -69,14 +56,7 @@ async fn get_coins_after_year(Path(year): Path<i16>) -> impl IntoResponse {
     let result = tokio::task::spawn_blocking(move || get_items_after_launch_year(year)).await;
     match result {
         Ok(Ok(coins)) => (StatusCode::OK, Json(coins)).into_response(),
-        Ok(Err(e)) => {
-            eprintln!("DB error: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "database failure" })),
-            )
-                .into_response()
-        }
+        Ok(Err(e)) => handle_postgres_error(e, "Failed to get coins after year"),
         Err(join_err) => handle_join_error(join_err),
     }
 }
@@ -89,14 +69,7 @@ async fn add_coin(Path(ticker): Path<String>, Json(payload): Json<Coin>) -> impl
 
     match result {
         Ok(Ok(_)) => (StatusCode::OK).into_response(),
-        Ok(Err(e)) => {
-            eprintln!("DB error: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "database failure" })),
-            )
-                .into_response()
-        }
+        Ok(Err(e)) => handle_postgres_error(e, "Failed to add coin"),
         Err(join_err) => handle_join_error(join_err),
     }
 }
@@ -110,14 +83,7 @@ async fn update_coin(Path(ticker): Path<String>, Json(payload): Json<Coin>) -> i
     match result {
         Ok(Ok(Some(coin))) => (StatusCode::OK, Json(coin)).into_response(),
         Ok(Ok(None)) => (StatusCode::NOT_FOUND).into_response(),
-        Ok(Err(e)) => {
-            eprintln!("DB error: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "database failure" })),
-            )
-                .into_response()
-        }
+        Ok(Err(e)) => handle_postgres_error(e, "Failed to update coin"),
         Err(join_err) => handle_join_error(join_err),
     }
 }
@@ -129,16 +95,18 @@ async fn delete_coin(Path(ticker): Path<String>) -> impl IntoResponse {
     match result {
         Ok(Ok(Some(_))) => (StatusCode::NO_CONTENT).into_response(),
         Ok(Ok(None)) => (StatusCode::NO_CONTENT).into_response(),
-        Ok(Err(e)) => {
-            eprintln!("DB error: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": "database failure" })),
-            )
-                .into_response()
-        }
+        Ok(Err(e)) => handle_postgres_error(e, "Failed to delete coin"),
         Err(join_err) => handle_join_error(join_err),
     }
+}
+
+fn handle_postgres_error(postgres_err: Error, message: &str) -> Response {
+    eprintln!("Postgres error: {postgres_err}");
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(serde_json::json!({ "error": message })),
+    )
+        .into_response()
 }
 
 fn handle_join_error(join_err: tokio::task::JoinError) -> Response {
