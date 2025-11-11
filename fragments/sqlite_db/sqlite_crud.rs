@@ -1,22 +1,12 @@
+use serde::Serialize;
 use sqlite;
-use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CryptoCoin {
     id: i64,
     ticker: String,
     name: String,
     launched: i64,
-}
-
-impl fmt::Display for CryptoCoin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{{ id: {}, ticker: '{}', name: '{}', launched: {} }}",
-            self.id, self.ticker, self.name, self.launched
-        )
-    }
 }
 
 fn init_db() -> Result<sqlite::Connection, sqlite::Error> {

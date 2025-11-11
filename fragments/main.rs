@@ -9,58 +9,12 @@ mod solana_program_round;
 mod solana_program_username;
 mod solana_rpc;
 mod solana_transaction;
-mod sqlite_db;
 
 fn main() {
     // env vars
     println!(
         "fragment 'env_vars' output: {}",
         env_vars::env_vars_utils::get_env_var("REPO_NAME")
-    );
-
-    // sqlite
-    println!(
-        "fragment 'sqlite_db/get_item_by_ticker' output: {:?}",
-        sqlite_db::sqlite_crud::get_item_by_ticker("BTC")
-            .unwrap_or_else(|e| panic!("Expected item by ticker result but got error: {:?}", e))
-    );
-
-    let sqlite_db_items_after_launch_year =
-        sqlite_db::sqlite_crud::get_items_after_launch_year(2010)
-            .unwrap_or_else(|e| panic!("Expected coins after launch year but got error: {:?}", e));
-    println!(
-        "fragment 'sqlite_db/get_items_after_launch_year' - found {} items",
-        sqlite_db_items_after_launch_year.len()
-    );
-    println!(
-        "fragment 'sqlite_db/get_items_after_launch_year' - item 1: {}",
-        sqlite_db_items_after_launch_year[0]
-    );
-    println!(
-        "fragment 'sqlite_db/get_items_after_launch_year' - item 2: {}",
-        sqlite_db_items_after_launch_year[1]
-    );
-
-    println!(
-        "fragment 'sqlite_db/get_all_items' - found {} items",
-        sqlite_db::sqlite_crud::get_all_items()
-            .unwrap_or_else(|e| panic!("Expected coins but got error: {:?}", e))
-            .len()
-    );
-    println!(
-        "fragment 'sqlite_db/add_item' output: {:?}",
-        sqlite_db::sqlite_crud::add_item("PEPE", "Pepe", 2023)
-            .unwrap_or_else(|e| panic!("Expected to add item but got error: {:?}", e))
-    );
-    println!(
-        "fragment 'sqlite_db/update_item' output: {:?}",
-        sqlite_db::sqlite_crud::update_item("BTC", "Bitcoin", 2008)
-            .unwrap_or_else(|e| panic!("Expected to update item but got error: {:?}", e))
-    );
-    println!(
-        "fragment 'sqlite_db/delete_item' output: {:?}",
-        sqlite_db::sqlite_crud::delete_item("ETH")
-            .unwrap_or_else(|e| panic!("Expected to delete item but got error: {:?}", e))
     );
 
     let solana_keypair = Keypair::new();
