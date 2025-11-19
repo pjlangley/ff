@@ -78,7 +78,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
     Params: { address: string };
     Reply: {
       200: {
-        newCount: string;
+        new_count: string;
       };
       404: void;
       500: { error: string };
@@ -104,7 +104,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
       const newCount = await getCount(keypair, programAddress);
 
       return {
-        newCount: newCount.toString(),
+        new_count: newCount.toString(),
       };
     } catch (error) {
       request.log.error(error, "Error incrementing counter");

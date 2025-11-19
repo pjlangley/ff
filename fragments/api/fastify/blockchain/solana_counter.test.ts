@@ -63,6 +63,6 @@ describe("Solana Counter API", () => {
     assert.strictEqual(incrementResponse.statusCode, 200);
     const incrementBody = incrementResponse.json();
 
-    assert.strictEqual(BigInt(incrementBody.newCount), 1n, "newCount should be 1");
+    assert.strictEqual(BigInt(incrementBody.new_count), 1n, "new_count should be 1");
   });
 });

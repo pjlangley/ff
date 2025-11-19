@@ -1,3 +1,4 @@
+use crate::api::axum::blockchain::solana_counter::solana_counter_routes;
 use crate::api::axum::datastore::postgres_routes::postgres_routes;
 use crate::api::axum::datastore::redis_routes::redis_routes;
 use crate::api::axum::datastore::sqlite_routes::sqlite_routes;
@@ -8,4 +9,5 @@ pub fn build_app() -> Router {
         .nest("/postgres", postgres_routes())
         .nest("/redis", redis_routes())
         .nest("/sqlite", sqlite_routes())
+        .nest("/solana", solana_counter_routes())
 }

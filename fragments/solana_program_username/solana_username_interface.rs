@@ -53,7 +53,7 @@ pub struct UsernameAccount {
     pub username_recent_history: Vec<Username>,
 }
 
-pub fn initialise_username(
+pub async fn initialise_username(
     user_keypair: &Keypair,
     program_id: Pubkey,
     username: &str,
@@ -71,20 +71,20 @@ pub fn initialise_username(
             AccountMeta::new_readonly(system_program::id(), false),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr);
+    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr).await;
     let client = init_rpc_client();
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
 
-pub fn get_username_account(
+pub async fn get_username_account(
     user_pubkey: &Pubkey,
     program_id: Pubkey,
 ) -> ClientResult<UsernameAccount> {
     let client = init_rpc_client();
     let user_account_pda = get_program_derived_address(user_pubkey, &program_id, "user_account");
-    let account = client.get_account(&user_account_pda)?;
+    let account = client.get_account(&user_account_pda).await?;
 
     let data = &account.data[8..]; // Skip the 8-byte discriminator
     let mut cursor = Cursor::new(data);
@@ -102,12 +102,12 @@ fn get_username_record_pda(user_pubkey: &Pubkey, program_id: Pubkey, change_inde
     pda
 }
 
-pub fn update_username(
+pub async fn update_username(
     user_keypair: &Keypair,
     program_id: Pubkey,
     username: &str,
 ) -> ClientResult<Signature> {
-    let username_account = get_username_account(&user_keypair.pubkey(), program_id)?;
+    let username_account = get_username_account(&user_keypair.pubkey(), program_id).await?;
     let change_count = username_account.change_count;
     let username_account_pda =
         get_program_derived_address(&user_keypair.pubkey(), &program_id, "user_account");
@@ -125,21 +125,21 @@ pub fn update_username(
             AccountMeta::new_readonly(system_program::id(), false),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr);
+    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr).await;
     let client = init_rpc_client();
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
 
-pub fn get_username_record_account(
+pub async fn get_username_record_account(
     user_pubkey: &Pubkey,
     program_id: Pubkey,
     change_index: u64,
 ) -> ClientResult<UsernameRecordAccount> {
     let client = init_rpc_client();
     let user_record_account_pda = get_username_record_pda(user_pubkey, program_id, change_index);
-    let account = client.get_account(&user_record_account_pda)?;
+    let account = client.get_account(&user_record_account_pda).await?;
 
     let data = &account.data[8..]; // Skip the 8-byte discriminator
     let mut cursor = Cursor::new(data);
@@ -185,31 +185,31 @@ mod tests {
         program_id
     });
 
-    #[test]
-    fn test_solana_initialise_username() {
+    #[tokio::test]
+    async fn test_solana_initialise_username() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
         let username = "my_username";
-        let _ = initialise_username(&keypair, *PROGRAM_ID, username);
+        let _ = initialise_username(&keypair, *PROGRAM_ID, username).await;
 
-        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
+        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
         assert_eq!(account.authority, keypair.pubkey());
         assert_eq!(account.username.value, username);
         assert_eq!(account.change_count, 0);
         assert!(account.username_recent_history.is_empty());
     }
 
-    #[test]
-    fn test_solana_initialise_and_update_username() {
+    #[tokio::test]
+    async fn test_solana_initialise_and_update_username() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
         let username = "my_username";
-        let _ = initialise_username(&keypair, *PROGRAM_ID, username);
-        let _ = update_username(&keypair, *PROGRAM_ID, "new_username");
+        let _ = initialise_username(&keypair, *PROGRAM_ID, username).await;
+        let _ = update_username(&keypair, *PROGRAM_ID, "new_username").await;
 
-        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
+        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
         assert_eq!(account.authority, keypair.pubkey());
         assert_eq!(account.username.value, "new_username");
         assert_eq!(account.change_count, 1);
@@ -217,20 +217,20 @@ mod tests {
         assert_eq!(account.username_recent_history[0].value, username);
     }
 
-    #[test]
-    fn test_solana_update_username_multiple_times() {
+    #[tokio::test]
+    async fn test_solana_update_username_multiple_times() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
         let username = "username_0";
-        let _ = initialise_username(&keypair, *PROGRAM_ID, username);
+        let _ = initialise_username(&keypair, *PROGRAM_ID, username).await;
 
         for i in 1..=3 {
             let new_username = format!("username_{}", i);
-            let _ = update_username(&keypair, *PROGRAM_ID, &new_username);
+            let _ = update_username(&keypair, *PROGRAM_ID, &new_username).await;
         }
 
-        let username_account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
+        let username_account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
         assert_eq!(username_account.username.value, "username_3");
         assert_eq!(username_account.change_count, 3);
         assert_eq!(username_account.username_recent_history.len(), 3);
@@ -249,7 +249,7 @@ mod tests {
 
         for i in 0..=2 {
             let username_record_account =
-                get_username_record_account(&keypair.pubkey(), *PROGRAM_ID, i).unwrap();
+                get_username_record_account(&keypair.pubkey(), *PROGRAM_ID, i).await.unwrap();
             assert_eq!(username_record_account.authority, keypair.pubkey());
             assert_eq!(
                 username_record_account.old_username.value,
@@ -259,12 +259,12 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_solana_update_username_before_init() {
+    #[tokio::test]
+    async fn test_solana_update_username_before_init() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let result = update_username(&keypair, *PROGRAM_ID, "new_username");
+        let result = update_username(&keypair, *PROGRAM_ID, "new_username").await;
 
         assert!(
             result.is_err(),
@@ -278,10 +278,10 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_get_username_account_before_init() {
+    #[tokio::test]
+    async fn test_solana_get_username_account_before_init() {
         let keypair = Keypair::new();
-        let result = get_username_account(&keypair.pubkey(), *PROGRAM_ID);
+        let result = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await;
 
         assert!(
             result.is_err(),
@@ -296,10 +296,10 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_get_username_record_account_before_init() {
+    #[tokio::test]
+    async fn test_solana_get_username_record_account_before_init() {
         let keypair = Keypair::new();
-        let result = get_username_record_account(&keypair.pubkey(), *PROGRAM_ID, 0);
+        let result = get_username_record_account(&keypair.pubkey(), *PROGRAM_ID, 0).await;
 
         assert!(
             result.is_err(),
@@ -314,13 +314,13 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_invalid_username_at_init() {
+    #[tokio::test]
+    async fn test_solana_invalid_username_at_init() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
         let username = "my_username!!!";
-        let result = initialise_username(&keypair, *PROGRAM_ID, username);
+        let result = initialise_username(&keypair, *PROGRAM_ID, username).await;
 
         assert!(
             result.is_err(),
@@ -335,14 +335,14 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_invalid_username_at_update() {
+    #[tokio::test]
+    async fn test_solana_invalid_username_at_update() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
         let username = "my_username";
-        let _ = initialise_username(&keypair, *PROGRAM_ID, username);
-        let result = update_username(&keypair, *PROGRAM_ID, "x");
+        let _ = initialise_username(&keypair, *PROGRAM_ID, username).await;
+        let result = update_username(&keypair, *PROGRAM_ID, "x").await;
 
         assert!(result.is_err(), "invalid username at update should fail");
 

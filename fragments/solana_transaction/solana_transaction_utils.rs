@@ -14,13 +14,16 @@ use solana_sdk::{
 
 use crate::solana_rpc::solana_rpc_utils::init_rpc_client;
 
-pub fn confirm_recent_signature(signature: &Signature, timeout: Option<u64>) -> ClientResult<bool> {
+pub async fn confirm_recent_signature(
+    signature: &Signature,
+    timeout: Option<u64>,
+) -> ClientResult<bool> {
     let client = init_rpc_client();
     let start = Instant::now();
     let deadline = Duration::from_millis(timeout.unwrap_or(5000));
 
     loop {
-        let is_confirmed = client.confirm_transaction(signature)?;
+        let is_confirmed = client.confirm_transaction(signature).await?;
 
         if is_confirmed {
             return Ok(true);
@@ -34,13 +37,14 @@ pub fn confirm_recent_signature(signature: &Signature, timeout: Option<u64>) -> 
     }
 }
 
-pub fn create_tx_with_fee_payer_and_lifetime(
+pub async fn create_tx_with_fee_payer_and_lifetime(
     user_keypair: &Keypair,
     instruction: Instruction,
 ) -> VersionedTransaction {
     let client = init_rpc_client();
     let latest_blockhash = client
         .get_latest_blockhash()
+        .await
         .unwrap_or_else(|err| panic!("Failed to get latest blockhash: {}", err));
     let msg = Message::try_compile(
         &user_keypair.pubkey(),
@@ -64,29 +68,31 @@ mod tests {
         transaction::VersionedTransaction,
     };
 
-    fn create_test_transaction(user_keypair: Keypair) -> VersionedTransaction {
+    async fn create_test_transaction(user_keypair: Keypair) -> VersionedTransaction {
         let instr = system_instruction::transfer(&user_keypair.pubkey(), &user_keypair.pubkey(), 0);
-        create_tx_with_fee_payer_and_lifetime(&user_keypair, instr)
+        create_tx_with_fee_payer_and_lifetime(&user_keypair, instr).await
     }
 
-    #[test]
-    fn test_solana_confirm_recent_signature_success() {
+    #[tokio::test]
+    async fn test_solana_confirm_recent_signature_success() {
         let client = init_rpc_client();
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let tx = create_test_transaction(user_keypair);
-        let sig = client.send_transaction(&tx).unwrap();
-        let is_confirmed = confirm_recent_signature(&sig, None).unwrap();
+        let tx = create_test_transaction(user_keypair).await;
+        let sig = client.send_transaction(&tx).await.unwrap();
+        let is_confirmed = confirm_recent_signature(&sig, None).await.unwrap();
 
         assert_eq!(is_confirmed, true);
     }
 
-    #[test]
-    fn test_solana_confirm_recent_signature_failure() {
+    #[tokio::test]
+    async fn test_solana_confirm_recent_signature_failure() {
         let user_keypair = Keypair::new();
-        let tx = create_test_transaction(user_keypair);
-        let is_confirmed = confirm_recent_signature(&tx.signatures[0], Some(10)).unwrap();
+        let tx = create_test_transaction(user_keypair).await;
+        let is_confirmed = confirm_recent_signature(&tx.signatures[0], Some(10))
+            .await
+            .unwrap();
 
         assert_eq!(is_confirmed, false);
     }

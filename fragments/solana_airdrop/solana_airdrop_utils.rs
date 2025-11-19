@@ -4,7 +4,7 @@ use num_format::{Locale, ToFormattedString};
 use solana_client::client_error::{ClientError, ClientErrorKind};
 use solana_sdk::pubkey::Pubkey;
 
-pub fn send_and_confirm_airdrop(pubkey: Pubkey, amount: u64) -> Result<(), ClientError> {
+pub async fn send_and_confirm_airdrop(pubkey: Pubkey, amount: u64) -> Result<(), ClientError> {
     let client = init_rpc_client();
 
     println!(
@@ -13,9 +13,8 @@ pub fn send_and_confirm_airdrop(pubkey: Pubkey, amount: u64) -> Result<(), Clien
         pubkey
     );
 
-    let signature = client.request_airdrop(&pubkey, amount)?;
-    let is_confirmed = confirm_recent_signature(&signature, None)?;
-
+    let signature = client.request_airdrop(&pubkey, amount).await?;
+    let is_confirmed = confirm_recent_signature(&signature, None).await?;
     if !is_confirmed {
         return Err(ClientError {
             request: Some(solana_client::rpc_request::RpcRequest::Custom {
@@ -43,16 +42,17 @@ mod tests {
         signer::Signer,
     };
 
-    #[test]
-    fn test_solana_airdrop() {
+    #[tokio::test]
+    async fn test_solana_airdrop() {
         let address = Keypair::new().pubkey();
         let rpc_client = init_rpc_client();
         let commitment = CommitmentConfig::confirmed();
         let airdrop_amount = LAMPORTS_PER_SOL;
-        let _ = send_and_confirm_airdrop(address, airdrop_amount);
+        let _ = send_and_confirm_airdrop(address, airdrop_amount).await;
 
         let balance = rpc_client
             .wait_for_balance_with_commitment(&address, Some(airdrop_amount), commitment)
+            .await
             .unwrap();
 
         assert_eq!(balance, airdrop_amount);

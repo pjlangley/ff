@@ -20,6 +20,6 @@ tests {
   test("200 OK and counter incremented", function() {
     const result = res.getBody();
     expect(res.getStatus()).to.equal(200);
-    expect(result.newCount).to.equal('1');
+    expect(result.new_count).to.equal('1');
   });
 }

@@ -1,6 +1,11 @@
 mod env_vars;
 mod postgres_db;
 mod redis_db;
+mod solana_airdrop;
+mod solana_program;
+mod solana_program_counter;
+mod solana_rpc;
+mod solana_transaction;
 mod sqlite_db;
 mod api {
     pub mod axum;

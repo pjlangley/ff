@@ -45,7 +45,7 @@ pub struct RoundAccount {
     pub completed_at: Option<u64>,
 }
 
-pub fn initialise_round(
+pub async fn initialise_round(
     authority: &Keypair,
     program_id: Pubkey,
     start_slot: u64,
@@ -64,18 +64,17 @@ pub fn initialise_round(
             AccountMeta::new_readonly(system_program::id(), false),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(authority, instr);
+    let tx = create_tx_with_fee_payer_and_lifetime(authority, instr).await;
     let client = init_rpc_client();
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
 
-pub fn get_round_account(authority: &Pubkey, program_id: Pubkey) -> ClientResult<RoundAccount> {
+pub async fn get_round_account(authority: &Pubkey, program_id: Pubkey) -> ClientResult<RoundAccount> {
     let client = init_rpc_client();
     let pda = get_program_derived_address(authority, &program_id, "round");
-    let account = client.get_account(&pda)?;
-
+    let account = client.get_account(&pda).await?;
     let data = &account.data[8..]; // Skip the 8-byte discriminator
     let mut cursor = Cursor::new(data);
     let round_account = RoundAccount::read_le(&mut cursor)
@@ -84,7 +83,7 @@ pub fn get_round_account(authority: &Pubkey, program_id: Pubkey) -> ClientResult
     Ok(round_account)
 }
 
-pub fn activate_round(
+pub async fn activate_round(
     payer: &Keypair,
     program_id: Pubkey,
     authority: &Pubkey,
@@ -99,14 +98,14 @@ pub fn activate_round(
             AccountMeta::new(payer.pubkey(), true),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(payer, instr);
+    let tx = create_tx_with_fee_payer_and_lifetime(payer, instr).await;
     let client = init_rpc_client();
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
 
-pub fn complete_round(authority: &Keypair, program_id: Pubkey) -> ClientResult<Signature> {
+pub async fn complete_round(authority: &Keypair, program_id: Pubkey) -> ClientResult<Signature> {
     let pda = get_program_derived_address(&authority.pubkey(), &program_id, "round");
     let instr_discriminator = get_instruction_discriminator("complete_round", "round");
     let instr = Instruction::new_with_bytes(
@@ -117,9 +116,9 @@ pub fn complete_round(authority: &Keypair, program_id: Pubkey) -> ClientResult<S
             AccountMeta::new(authority.pubkey(), true),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(authority, instr);
+    let tx = create_tx_with_fee_payer_and_lifetime(authority, instr).await;
     let client = init_rpc_client();
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
@@ -146,45 +145,45 @@ mod tests {
         program_id
     });
 
-    #[test]
-    fn test_solana_initialise_activate_complete_round() {
+    #[tokio::test]
+    async fn test_solana_initialise_activate_complete_round() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
         let client = init_rpc_client();
-        let recent_slot = client.get_slot().unwrap();
+        let recent_slot = client.get_slot().await.unwrap();
         let start_slot = recent_slot + 3;
 
-        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).unwrap();
-        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
+        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).await.unwrap();
+        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
         assert_eq!(account.authority, keypair.pubkey());
         assert_eq!(account.start_slot, start_slot);
         assert!(account.activated_at.is_none());
         assert!(account.activated_by.is_none());
         assert!(account.completed_at.is_none());
 
-        let at_slot = wait_for_slot(start_slot, None).unwrap();
+        let at_slot = wait_for_slot(start_slot, None).await.unwrap();
 
         if !at_slot {
             panic!("Failed to reach slot {} in time", start_slot);
         }
 
-        let _ = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).unwrap();
-        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
+        let _ = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).await.unwrap();
+        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
         assert!(account.activated_at.is_some());
         assert!(account.activated_by.is_some());
 
-        let _ = complete_round(&keypair, *PROGRAM_ID).unwrap();
-        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).unwrap();
+        let _ = complete_round(&keypair, *PROGRAM_ID).await.unwrap();
+        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
         assert!(account.completed_at.is_some());
     }
 
-    #[test]
-    fn test_solana_initialise_round_invalid_start_slot() {
+    #[tokio::test]
+    async fn test_solana_initialise_round_invalid_start_slot() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
         let start_slot = 0;
 
-        let result = initialise_round(&keypair, *PROGRAM_ID, start_slot);
+        let result = initialise_round(&keypair, *PROGRAM_ID, start_slot).await;
         assert!(
             result.is_err(),
             "Initialising round with invalid start slot should fail"
@@ -198,12 +197,12 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_activate_round_no_initialise() {
+    #[tokio::test]
+    async fn test_solana_activate_round_no_initialise() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey());
+        let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).await;
         assert!(
             result.is_err(),
             "Activating round without initialising should fail"
@@ -217,16 +216,16 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_activate_round_invalid_start_slot() {
+    #[tokio::test]
+    async fn test_solana_activate_round_invalid_start_slot() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
         let client = init_rpc_client();
-        let recent_slot = client.get_slot().unwrap();
+        let recent_slot = client.get_slot().await.unwrap();
         let start_slot = recent_slot + 50;
 
-        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).unwrap();
-        let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey());
+        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).await.unwrap();
+        let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).await;
         assert!(
             result.is_err(),
             "Activating round with invalid start slot should fail"
@@ -240,12 +239,12 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_complete_round_no_initialise() {
+    #[tokio::test]
+    async fn test_solana_complete_round_no_initialise() {
         let keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let result = complete_round(&keypair, *PROGRAM_ID);
+        let result = complete_round(&keypair, *PROGRAM_ID).await;
         assert!(
             result.is_err(),
             "Completing round without initialising should fail"

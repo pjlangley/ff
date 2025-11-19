@@ -1,6 +1,3 @@
-// Ignore these warnings - this isolated fragment is covered by unit tests
-#![allow(dead_code)]
-
 use binrw::{binread, BinRead};
 use solana_client::client_error::Result as ClientResult;
 use solana_sdk::{
@@ -26,7 +23,10 @@ pub struct Counter {
     pub count: u64,
 }
 
-pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
+pub async fn initialize_account(
+    user_keypair: &Keypair,
+    &program_id: &Pubkey,
+) -> ClientResult<Signature> {
     let discriminator = get_instruction_discriminator("initialize", "counter");
     let counter_pda = get_program_derived_address(&user_keypair.pubkey(), &program_id, "counter");
     let client = init_rpc_client();
@@ -39,16 +39,16 @@ pub fn initialize_account(user_keypair: &Keypair, &program_id: &Pubkey) -> Clien
             AccountMeta::new_readonly(system_program::id(), false),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr);
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr).await;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
 
-fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Counter> {
+pub async fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Counter> {
     let client = init_rpc_client();
     let counter_pda = get_program_derived_address(&user_keypair.pubkey(), &program_id, "counter");
-    let account = client.get_account(&counter_pda)?;
+    let account = client.get_account(&counter_pda).await?;
 
     let data = &account.data[8..]; // rm discriminator from account data
     let mut cursor = Cursor::new(data);
@@ -58,7 +58,10 @@ fn get_count(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Count
     Ok(counter)
 }
 
-pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> ClientResult<Signature> {
+pub async fn increment_counter(
+    user_keypair: &Keypair,
+    &program_id: &Pubkey,
+) -> ClientResult<Signature> {
     let discriminator = get_instruction_discriminator("increment", "counter");
     let counter_pda = get_program_derived_address(&user_keypair.pubkey(), &program_id, "counter");
     let client = init_rpc_client();
@@ -70,8 +73,8 @@ pub fn increment_counter(user_keypair: &Keypair, &program_id: &Pubkey) -> Client
             AccountMeta::new(user_keypair.pubkey(), true),
         ],
     );
-    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr);
-    let signature = client.send_and_confirm_transaction(&tx)?;
+    let tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instr).await;
+    let signature = client.send_and_confirm_transaction(&tx).await?;
 
     Ok(signature)
 }
@@ -97,38 +100,37 @@ mod tests {
         program_id
     });
 
-    #[test]
-    fn test_solana_initialize_account() {
+    #[tokio::test]
+    async fn test_solana_initialize_account() {
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let _ = initialize_account(&user_keypair, &PROGRAM_ID);
-        let counter = get_count(&user_keypair, &PROGRAM_ID).unwrap();
+        let _ = initialize_account(&user_keypair, &PROGRAM_ID).await;
+        let counter = get_count(&user_keypair, &PROGRAM_ID).await.unwrap();
 
         assert_eq!(counter.count, 0)
     }
 
-    #[test]
-    fn test_solana_initialize_account_and_increment() {
+    #[tokio::test]
+    async fn test_solana_initialize_account_and_increment() {
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let _ = initialize_account(&user_keypair, &PROGRAM_ID);
-        let counter = get_count(&user_keypair, &PROGRAM_ID).unwrap();
+        let _ = initialize_account(&user_keypair, &PROGRAM_ID).await;
+        let counter = get_count(&user_keypair, &PROGRAM_ID).await.unwrap();
         assert_eq!(counter.count, 0);
 
-        let _signature = increment_counter(&user_keypair, &PROGRAM_ID);
-        let latest_counter = get_count(&user_keypair, &PROGRAM_ID).unwrap();
+        let _signature = increment_counter(&user_keypair, &PROGRAM_ID).await;
+        let latest_counter = get_count(&user_keypair, &PROGRAM_ID).await.unwrap();
         assert_eq!(latest_counter.count, 1);
     }
 
-    #[test]
-    fn test_solana_increment_before_initialize() {
+    #[tokio::test]
+    async fn test_solana_increment_before_initialize() {
         let user_keypair = Keypair::new();
-        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL);
+        let _ = send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL).await;
 
-        let result = increment_counter(&user_keypair, &PROGRAM_ID);
-
+        let result = increment_counter(&user_keypair, &PROGRAM_ID).await;
         assert!(
             result.is_err(),
             "Incrementing counter before initialization should fail"
@@ -141,11 +143,11 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_solana_get_count_before_initialize() {
+    #[tokio::test]
+    async fn test_solana_get_count_before_initialize() {
         let user_keypair = Keypair::new();
 
-        let result = get_count(&user_keypair, &PROGRAM_ID);
+        let result = get_count(&user_keypair, &PROGRAM_ID).await;
         assert!(
             result.is_err(),
             "Getting count before initialization should fail"
