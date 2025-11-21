@@ -1,6 +1,3 @@
-// Ignore these warnings - this isolated fragment is covered by unit tests
-#![allow(dead_code)]
-
 use binrw::{binread, BinRead};
 use std::io::Cursor;
 
@@ -193,7 +190,9 @@ mod tests {
         let username = "my_username";
         let _ = initialise_username(&keypair, *PROGRAM_ID, username).await;
 
-        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
+        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID)
+            .await
+            .unwrap();
         assert_eq!(account.authority, keypair.pubkey());
         assert_eq!(account.username.value, username);
         assert_eq!(account.change_count, 0);
@@ -209,7 +208,9 @@ mod tests {
         let _ = initialise_username(&keypair, *PROGRAM_ID, username).await;
         let _ = update_username(&keypair, *PROGRAM_ID, "new_username").await;
 
-        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
+        let account = get_username_account(&keypair.pubkey(), *PROGRAM_ID)
+            .await
+            .unwrap();
         assert_eq!(account.authority, keypair.pubkey());
         assert_eq!(account.username.value, "new_username");
         assert_eq!(account.change_count, 1);
@@ -230,7 +231,9 @@ mod tests {
             let _ = update_username(&keypair, *PROGRAM_ID, &new_username).await;
         }
 
-        let username_account = get_username_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
+        let username_account = get_username_account(&keypair.pubkey(), *PROGRAM_ID)
+            .await
+            .unwrap();
         assert_eq!(username_account.username.value, "username_3");
         assert_eq!(username_account.change_count, 3);
         assert_eq!(username_account.username_recent_history.len(), 3);
@@ -249,7 +252,9 @@ mod tests {
 
         for i in 0..=2 {
             let username_record_account =
-                get_username_record_account(&keypair.pubkey(), *PROGRAM_ID, i).await.unwrap();
+                get_username_record_account(&keypair.pubkey(), *PROGRAM_ID, i)
+                    .await
+                    .unwrap();
             assert_eq!(username_record_account.authority, keypair.pubkey());
             assert_eq!(
                 username_record_account.old_username.value,

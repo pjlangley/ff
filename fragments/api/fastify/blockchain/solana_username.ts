@@ -53,7 +53,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   fastify.get<{
     Params: { address: string };
     Reply: {
-      200: { username: string; changeCount: string; usernameRecentHistory: string[] };
+      200: { username: string; change_count: string; username_recent_history: string[] };
       404: void;
       500: { error: string };
     };
@@ -71,8 +71,8 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
 
       return reply.code(200).send({
         username: account.username.value,
-        changeCount: account.change_count.toString(),
-        usernameRecentHistory: account.username_recent_history.map((u) => u.value),
+        change_count: account.change_count.toString(),
+        username_recent_history: account.username_recent_history.map((u) => u.value),
       });
     } catch (error) {
       request.log.error(error, "Error fetching username account");
@@ -118,7 +118,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
   fastify.get<{
     Params: { address: string; changeIndex: string };
     Reply: {
-      200: { oldUsername: string; changeIndex: string; authority: Address };
+      200: { old_username: string; change_index: string; authority: Address };
       404: void;
       500: { error: string };
     };
@@ -135,8 +135,8 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
       try {
         const account = await getUsernameRecordAccount(keypair, programAddress, BigInt(changeIndex));
         return reply.code(200).send({
-          oldUsername: account.old_username.value,
-          changeIndex: account.change_index.toString(),
+          old_username: account.old_username.value,
+          change_index: account.change_index.toString(),
           authority: account.authority,
         });
       } catch (e) {

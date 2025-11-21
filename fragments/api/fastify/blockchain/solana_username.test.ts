@@ -113,8 +113,8 @@ describe("Solana username API", () => {
 
     assert.strictEqual(recordResponse.statusCode, 200);
     const recordRes = recordResponse.json();
-    assert.strictEqual(recordRes.oldUsername, "alice");
-    assert.strictEqual(recordRes.changeIndex, "0");
+    assert.strictEqual(recordRes.old_username, "alice");
+    assert.strictEqual(recordRes.change_index, "0");
     assert.strictEqual(recordRes.authority, initBody.address);
   });
 
