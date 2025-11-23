@@ -16,10 +16,10 @@ tests {
   test("200 OK - completed round info", async function() {
     const result = res.getBody();
     expect(res.getStatus()).to.equal(200);
-    expect(result.startSlot).to.be.a('string');
-    expect(result.authority).to.be.a('string');
-    expect(result.activatedAt).to.be.a('string');
-    expect(result.activatedBy).to.be.a('string');
-    expect(result.completedAt).to.be.a('string');
+    expect(result.start_slot).to.be.ok;
+    expect(result.authority).to.be.ok;
+    expect(result.activated_at).to.be.ok;
+    expect(result.activated_by).to.be.ok;
+    expect(result.completed_at).to.be.ok;
   });
 }

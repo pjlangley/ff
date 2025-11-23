@@ -1,6 +1,3 @@
-// Ignore these warnings - this isolated fragment is covered by unit tests
-#![allow(dead_code)]
-
 use binrw::{binread, BinRead};
 use std::io::Cursor;
 
@@ -71,7 +68,10 @@ pub async fn initialise_round(
     Ok(signature)
 }
 
-pub async fn get_round_account(authority: &Pubkey, program_id: Pubkey) -> ClientResult<RoundAccount> {
+pub async fn get_round_account(
+    authority: &Pubkey,
+    program_id: Pubkey,
+) -> ClientResult<RoundAccount> {
     let client = init_rpc_client();
     let pda = get_program_derived_address(authority, &program_id, "round");
     let account = client.get_account(&pda).await?;
@@ -153,8 +153,12 @@ mod tests {
         let recent_slot = client.get_slot().await.unwrap();
         let start_slot = recent_slot + 3;
 
-        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).await.unwrap();
-        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
+        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot)
+            .await
+            .unwrap();
+        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID)
+            .await
+            .unwrap();
         assert_eq!(account.authority, keypair.pubkey());
         assert_eq!(account.start_slot, start_slot);
         assert!(account.activated_at.is_none());
@@ -167,13 +171,19 @@ mod tests {
             panic!("Failed to reach slot {} in time", start_slot);
         }
 
-        let _ = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).await.unwrap();
-        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
+        let _ = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey())
+            .await
+            .unwrap();
+        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID)
+            .await
+            .unwrap();
         assert!(account.activated_at.is_some());
         assert!(account.activated_by.is_some());
 
         let _ = complete_round(&keypair, *PROGRAM_ID).await.unwrap();
-        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID).await.unwrap();
+        let account = get_round_account(&keypair.pubkey(), *PROGRAM_ID)
+            .await
+            .unwrap();
         assert!(account.completed_at.is_some());
     }
 
@@ -224,7 +234,9 @@ mod tests {
         let recent_slot = client.get_slot().await.unwrap();
         let start_slot = recent_slot + 50;
 
-        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot).await.unwrap();
+        let _ = initialise_round(&keypair, *PROGRAM_ID, start_slot)
+            .await
+            .unwrap();
         let result = activate_round(&keypair, *PROGRAM_ID, &keypair.pubkey()).await;
         assert!(
             result.is_err(),

@@ -20,8 +20,8 @@ tests {
   test("200 OK - round initialised", async function() {
     const result = res.getBody();
     expect(res.getStatus()).to.equal(200);
-    expect(result.address).to.be.a('string');
-    expect(result.startSlot).to.be.a('string');
+    expect(result.address).to.be.ok;
+    expect(result.start_slot).to.be.ok;
     bru.setVar('ROUND_ADDRESS', result.address);
   });
 }

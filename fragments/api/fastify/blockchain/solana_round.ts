@@ -22,7 +22,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
 
   fastify.post<{
     Reply: {
-      200: { address: string; startSlot: string };
+      200: { address: string; start_slot: string };
       400: { error: string };
       500: { error: string };
     };
@@ -47,7 +47,7 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
 
       return reply.code(200).send({
         address: signer.address,
-        startSlot: startSlot.toString(),
+        start_slot: startSlot.toString(),
       });
     } catch (error) {
       request.log.error(error, "Error initialising round");
@@ -59,11 +59,11 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
     Params: { address: string };
     Reply: {
       200: {
-        startSlot: string;
+        start_slot: string;
         authority: string;
-        activatedAt: string | null;
-        activatedBy: string | null;
-        completedAt: string | null;
+        activated_at: string | null;
+        activated_by: string | null;
+        completed_at: string | null;
       };
       404: void;
       500: { error: string };
@@ -81,11 +81,11 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
       const account = await getRoundAccount(keypair.address, programAddress);
 
       return reply.code(200).send({
-        startSlot: account.start_slot.toString(),
+        start_slot: account.start_slot.toString(),
         authority: account.authority,
-        activatedAt: isSome(account.activated_at) && unwrapOption(account.activated_at)?.toString() || null,
-        activatedBy: isSome(account.activated_by) && unwrapOption(account.activated_by) || null,
-        completedAt: isSome(account.completed_at) && unwrapOption(account.completed_at)?.toString() || null,
+        activated_at: isSome(account.activated_at) && unwrapOption(account.activated_at)?.toString() || null,
+        activated_by: isSome(account.activated_by) && unwrapOption(account.activated_by) || null,
+        completed_at: isSome(account.completed_at) && unwrapOption(account.completed_at)?.toString() || null,
       });
     } catch (error) {
       request.log.error(error, "Error fetching round account");

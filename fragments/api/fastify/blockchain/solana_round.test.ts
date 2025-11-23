@@ -19,7 +19,7 @@ describe("Solana round API", () => {
     assert.strictEqual(response.statusCode, 200);
     const res = response.json();
     assert.ok(res.address);
-    assert.ok(res.startSlot);
+    assert.ok(res.start_slot);
   });
 
   test("GET /solana/round/:address - fetches PENDING round info", async () => {
@@ -38,11 +38,11 @@ describe("Solana round API", () => {
 
     assert.strictEqual(getResponse.statusCode, 200);
     const getRes = getResponse.json();
-    assert.ok(getRes.startSlot);
+    assert.ok(getRes.start_slot);
     assert.ok(getRes.authority);
-    assert.strictEqual(getRes.activatedAt, null);
-    assert.strictEqual(getRes.activatedBy, null);
-    assert.strictEqual(getRes.completedAt, null);
+    assert.strictEqual(getRes.activated_at, null);
+    assert.strictEqual(getRes.activated_by, null);
+    assert.strictEqual(getRes.completed_at, null);
   });
 
   test("PATCH /solana/round/:address/activate - activates a round", async () => {
@@ -54,9 +54,9 @@ describe("Solana round API", () => {
     assert.strictEqual(initResponse.statusCode, 200);
     const initBody = initResponse.json();
 
-    const atSlot = await waitForSlot(BigInt(initBody.startSlot));
+    const atSlot = await waitForSlot(BigInt(initBody.start_slot));
     if (!atSlot) {
-      assert.fail(`Round start slot ${initBody.startSlot} not reached within timeout`);
+      assert.fail(`Round start slot ${initBody.start_slot} not reached within timeout`);
     }
 
     const patchResponse = await api.inject({
@@ -72,11 +72,11 @@ describe("Solana round API", () => {
 
     assert.strictEqual(getResponse.statusCode, 200);
     const getRes = getResponse.json();
-    assert.ok(getRes.startSlot);
+    assert.ok(getRes.start_slot);
     assert.ok(getRes.authority);
-    assert.ok(getRes.activatedAt);
-    assert.ok(getRes.activatedBy);
-    assert.strictEqual(getRes.completedAt, null);
+    assert.ok(getRes.activated_at);
+    assert.ok(getRes.activated_by);
+    assert.strictEqual(getRes.completed_at, null);
   });
 
   test("PATCH /solana/round/:address/complete - completes a round", async () => {
@@ -87,9 +87,9 @@ describe("Solana round API", () => {
     assert.strictEqual(initResponse.statusCode, 200);
     const initBody = initResponse.json();
 
-    const atSlot = await waitForSlot(BigInt(initBody.startSlot));
+    const atSlot = await waitForSlot(BigInt(initBody.start_slot));
     if (!atSlot) {
-      assert.fail(`Round start slot ${initBody.startSlot} not reached within timeout`);
+      assert.fail(`Round start slot ${initBody.start_slot} not reached within timeout`);
     }
 
     const activateResponse = await api.inject({
@@ -111,11 +111,11 @@ describe("Solana round API", () => {
 
     assert.strictEqual(getResponse.statusCode, 200);
     const getRes = getResponse.json();
-    assert.ok(getRes.startSlot);
+    assert.ok(getRes.start_slot);
     assert.ok(getRes.authority);
-    assert.ok(getRes.activatedAt);
-    assert.ok(getRes.activatedBy);
-    assert.ok(getRes.completedAt);
+    assert.ok(getRes.activated_at);
+    assert.ok(getRes.activated_by);
+    assert.ok(getRes.completed_at);
   });
 
   test("GET /solana/round/:address - returns 404 for non-existent round", async () => {
