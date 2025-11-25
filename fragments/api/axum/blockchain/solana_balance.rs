@@ -26,16 +26,22 @@ async fn get_balance_handler(AxumPath(address): AxumPath<String>) -> impl IntoRe
             Json(serde_json::json!({ "balance": balance })),
         )
             .into_response(),
-        Ok(Err(e)) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Solana RPC error: {}", e),
-        )
-            .into_response(),
-        Err(join_err) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Task join error: {}", join_err),
-        )
-            .into_response(),
+        Ok(Err(e)) => {
+            eprintln!("Solana RPC error: {e}");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": "Failed to fetch balance" })),
+            )
+                .into_response()
+        }
+        Err(join_err) => {
+            eprintln!("Task join error: {join_err}");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": "internal failure" })),
+            )
+        }
+        .into_response(),
     }
 }
 

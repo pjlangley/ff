@@ -113,15 +113,6 @@ jobs:
             --build-arg RUST_VERSION=1.85.1 \
             -f docker.rust.Dockerfile \
             -t ff_rust .
-      - name: run all fragments
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            --entrypoint target/debug/fragments \
-            ff_rust
       - name: start axum api
         run: |
           docker run -d \
@@ -135,7 +126,6 @@ jobs:
             -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
             -e username_PROGRAM_ID=$username_PROGRAM_ID \
             -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            --entrypoint target/debug/api \
             ff_rust
       - name: unit tests
         run: |

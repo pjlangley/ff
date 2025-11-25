@@ -320,10 +320,6 @@ execute the code.
 > [!IMPORTANT]
 > The Bruno commands require the local Node.js setup, see earlier instructions.
 
-- Run all fragments:
-  ```
-  cargo run --bin fragments
-  ```
 - Run unit tests (sequentially):
   ```
   cargo test -- --test-threads=1
@@ -336,9 +332,8 @@ execute the code.
   ```
   cargo test -- --test-threads=1 --nocapture
   ```
-- Run the builds:
+- Run the REST API build:
   ```
-  cargo build -v --bin fragments
   cargo build -v --bin api
   ```
 - Run the linter:
@@ -375,25 +370,6 @@ execute the code.
     -f docker.rust.Dockerfile \
     -t ff_rust .
   ```
-- Run all fragments:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_rust
-  ```
-- Run built fragments binary:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    --entrypoint target/debug/fragments \
-    ff_rust
-  ```
 - Run unit tests:
   ```
   docker run --rm \
@@ -406,9 +382,8 @@ execute the code.
     ff_rust \
     test -- --test-threads=1
   ```
-- Run the builds:
+- Run the REST API build:
   ```
-  docker run --rm --entrypoint cargo ff_rust build -v --bin fragments
   docker run --rm --entrypoint cargo ff_rust build -v --bin api
   ```
 - Run the linter:

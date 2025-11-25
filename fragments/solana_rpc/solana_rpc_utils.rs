@@ -1,12 +1,11 @@
-// Ignore these warnings - this isolated fragment is covered by unit tests
-#![allow(dead_code)]
-
+#[cfg(test)]
 use std::{
     thread::sleep,
     time::{Duration, Instant},
 };
 
 use crate::env_vars::env_vars_utils::get_env_var;
+#[cfg(test)]
 use solana_client::client_error::Result as ClientResult;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -22,6 +21,7 @@ pub fn init_rpc_client() -> RpcClient {
     RpcClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed())
 }
 
+#[cfg(test)]
 pub async fn wait_for_slot(slot: u64, timeout: Option<u64>) -> ClientResult<bool> {
     let client = init_rpc_client();
     let deadline = Instant::now() + Duration::from_millis(timeout.unwrap_or(5000));
