@@ -1,3 +1,4 @@
+use crate::api::axum::blockchain::solana_balance::solana_balance_routes;
 use crate::api::axum::blockchain::solana_counter::solana_counter_routes;
 use crate::api::axum::blockchain::solana_round::solana_round_routes;
 use crate::api::axum::blockchain::solana_username::solana_username_routes;
@@ -14,4 +15,5 @@ pub fn build_app() -> Router {
         .nest("/solana", solana_round_routes())
         .nest("/solana", solana_counter_routes())
         .nest("/solana", solana_username_routes())
+        .nest("/solana", solana_balance_routes())
 }
