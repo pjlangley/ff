@@ -242,7 +242,7 @@ mod tests {
             .unwrap()
             .to_bytes();
         let init_response_json: Value = serde_json::from_slice(&init_response_body).unwrap();
-        let address = init_response_json["address"].as_str().unwrap().to_string();
+        let address = init_response_json["address"].as_str().unwrap();
 
         let get_request = Request::get(format!("/solana/username/{}", address))
             .body(Body::empty())
@@ -290,7 +290,7 @@ mod tests {
             .unwrap()
             .to_bytes();
         let init_response_json: Value = serde_json::from_slice(&init_response_body).unwrap();
-        let address = init_response_json["address"].as_str().unwrap().to_string();
+        let address = init_response_json["address"].as_str().unwrap();
 
         let update_body = serde_json::json!({ "username": "bob" });
         let update_request = Request::patch(format!("/solana/username/{}", address))
@@ -346,7 +346,7 @@ mod tests {
             .unwrap()
             .to_bytes();
         let init_response_json: Value = serde_json::from_slice(&init_response_body).unwrap();
-        let address = init_response_json["address"].as_str().unwrap().to_string();
+        let address = init_response_json["address"].as_str().unwrap();
 
         let update_body = serde_json::json!({ "username": "bob" });
         let update_request = Request::patch(format!("/solana/username/{}", address))

@@ -208,7 +208,7 @@ mod tests {
             .unwrap()
             .to_bytes();
         let init_body_json: Value = serde_json::from_slice(&init_response_body).unwrap();
-        let address = init_body_json.get("address").unwrap().as_str().unwrap();
+        let address = init_body_json["address"].as_str().unwrap();
 
         let get_request = Request::get(format!("/solana/round/{}", address))
             .body(Body::empty())
@@ -241,7 +241,7 @@ mod tests {
             .unwrap()
             .to_bytes();
         let init_body_json: Value = serde_json::from_slice(&init_response_body).unwrap();
-        let address = init_body_json["address"].as_str().unwrap().to_string();
+        let address = init_body_json["address"].as_str().unwrap();
         let start_slot = init_body_json["start_slot"].as_u64().unwrap();
 
         let is_at_slot = wait_for_slot(start_slot, None).await.unwrap();
@@ -281,7 +281,7 @@ mod tests {
             .unwrap()
             .to_bytes();
         let init_body_json: Value = serde_json::from_slice(&init_response_body).unwrap();
-        let address = init_body_json["address"].as_str().unwrap().to_string();
+        let address = init_body_json["address"].as_str().unwrap();
         let start_slot = init_body_json["start_slot"].as_u64().unwrap();
 
         let is_at_slot = wait_for_slot(start_slot, None).await.unwrap();
