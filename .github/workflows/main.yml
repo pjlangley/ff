@@ -160,6 +160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - uses: ./.github/actions/nodejs_docker_build
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
       - run: |
@@ -170,14 +171,19 @@ jobs:
             --build-arg GO_CI_LINT_VERSION=1.61.0 \
             -f docker.go.Dockerfile \
             -t ff_go .
-      - name: run all fragments
+      - name: start gin api
         run: |
-          docker run --rm \
+          docker run -d \
+            --name gin \
             --network ci-network \
+            -p 3002:3002 \
+            -e GIN_HOST=0.0.0.0 \
             -e POSTGRES_HOST=postgres \
             -e REDIS_HOST=redis \
             -e SOLANA_HOST=solana \
-            --entrypoint .bin/go_ff \
+            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
+            -e username_PROGRAM_ID=$username_PROGRAM_ID \
+            -e round_PROGRAM_ID=$round_PROGRAM_ID \
             ff_go
       - name: unit tests
         run: |

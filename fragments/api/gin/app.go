@@ -1,0 +1,16 @@
+package api
+
+import (
+	datastore "ff/api/gin/datastore"
+
+	"github.com/gin-gonic/gin"
+)
+
+func BuildApp() *gin.Engine {
+	app := gin.New()
+
+	postgresGroup := app.Group("/postgres")
+	datastore.PostgresRoutes(postgresGroup)
+
+	return app
+}

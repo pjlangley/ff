@@ -409,6 +409,7 @@ execute the code.
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
+    --entrypoint cargo \
     ff_rust \
     run --bin api
 
@@ -453,10 +454,6 @@ execute the code.
 
 ##### Run
 
-- Run all fragments:
-  ```
-  goenv exec go run fragments/main.go
-  ```
 - Run unit tests:
   ```
   goenv exec go test -v ./fragments/...
@@ -471,7 +468,7 @@ execute the code.
   ```
 - Run the build:
   ```
-  goenv exec go build -v -o .bin/go_ff ./fragments/main.go
+  goenv exec go build -v -o .bin/go_ff ./fragments/api.go
   ```
 - Run the linter:
   ```
@@ -484,6 +481,10 @@ execute the code.
 - Run the format check:
   ```
   test -z $(goenv exec gofmt -l ./fragments)
+  ```
+- Run the REST API:
+  ```
+  goenv exec go run fragments/api.go
   ```
 
 #### Docker (Go)
@@ -498,25 +499,6 @@ execute the code.
     -f docker.go.Dockerfile \
     -t ff_go .
   ```
-- Run all fragments:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_go
-  ```
-- Run built binary:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    --entrypoint .bin/go_ff \
-    ff_go
-  ```
 - Run unit tests:
   ```
   docker run --rm \
@@ -524,16 +506,14 @@ execute the code.
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
-    -e counter_PROGRAM_ID=<program_id_here> \
-    -e username_PROGRAM_ID=<program_id_here> \
-    -e round_PROGRAM_ID=<program_id_here> \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     --entrypoint go \
     ff_go \
     test -v ./fragments/...
   ```
-- Run the build:
+- Run the REST API build:
   ```
-  docker run --rm --entrypoint go ff_go build -v -o .bin/go_ff ./fragments/main.go
+  docker run --rm --entrypoint go ff_go build -v -o .bin/go_ff ./fragments/api.go
   ```
 - Run the linter:
   ```
@@ -546,6 +526,33 @@ execute the code.
 - Run the format check:
   ```
   docker run --rm --entrypoint test ff_go -z $(gofmt -l ./fragments)
+  ```
+- Run REST API (dev and compiled):
+  ```
+  docker run --rm \
+    --network ff_default \
+    --name gin \
+    -p 3002:3002 \
+    -e GIN_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
+    --entrypoint go \
+    ff_go \
+    run ./fragments/api.go
+
+  docker run --rm \
+    --network ff_default \
+    --name gin \
+    -p 3002:3002 \
+    -e GIN_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
+    --entrypoint .bin/go_ff \
+    ff_go
   ```
 
 ### Solana
