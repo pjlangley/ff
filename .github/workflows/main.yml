@@ -198,6 +198,15 @@ jobs:
             --entrypoint go \
             ff_go \
             test -v ./fragments/...
+      - name: bruno integration tests for gin api
+        run: |
+          docker run --rm \
+            --network ci-network \
+            -e POSTGRES_HOST=postgres \
+            -e REDIS_HOST=redis \
+            -e SOLANA_HOST=solana \
+            ff_node \
+            --run api:bru:gin:docker
       - name: lint
         run: docker run --rm --entrypoint golangci-lint ff_go run -v ./fragments/...
       - name: format check

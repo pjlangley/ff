@@ -14,7 +14,7 @@ func TestGetItemByTicker(t *testing.T) {
 		t.Error("expected coin 'BTC' to exist")
 	}
 
-	if coin.ticker != "BTC" {
+	if coin.Ticker != "BTC" {
 		t.Error("Expected coin with ticker 'BTC'")
 	}
 }
@@ -79,7 +79,7 @@ func TestUpdateItem(t *testing.T) {
 	}
 	coin, _ := UpdateItem(CryptoCoinWithoutId{Ticker: ticker, Name: "Newcoin2", Launched: 2009})
 
-	if coin.ticker != ticker {
+	if coin.Ticker != ticker {
 		t.FailNow()
 	}
 }

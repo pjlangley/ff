@@ -11,10 +11,10 @@ import (
 )
 
 type CryptoCoin struct {
-	id       int
-	ticker   string
-	name     string
-	launched int
+	ID       int    `json:"id"`
+	Ticker   string `json:"ticker"`
+	Name     string `json:"name"`
+	Launched int    `json:"launched"`
 }
 
 type CryptoCoinWithoutId struct {
@@ -68,7 +68,7 @@ func GetItemByTicker(ticker string) (*CryptoCoin, error) {
 	err := conn.QueryRow(ctx,
 		"SELECT * FROM crypto_coins WHERE ticker = $1 LIMIT 1",
 		ticker,
-	).Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+	).Scan(&coin.ID, &coin.Ticker, &coin.Name, &coin.Launched)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -93,7 +93,7 @@ func GetItemsAfterLaunchYear(launchYear int) ([]CryptoCoin, error) {
 
 	for rows.Next() {
 		var coin CryptoCoin
-		err := rows.Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+		err := rows.Scan(&coin.ID, &coin.Ticker, &coin.Name, &coin.Launched)
 		if err != nil {
 			return nil, fmt.Errorf("Error scanning row: %w", err)
 		}
@@ -120,7 +120,7 @@ func GetAllItems() ([]CryptoCoin, error) {
 
 	for rows.Next() {
 		var coin CryptoCoin
-		err := rows.Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+		err := rows.Scan(&coin.ID, &coin.Ticker, &coin.Name, &coin.Launched)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
@@ -154,7 +154,7 @@ func UpdateItem(coin CryptoCoinWithoutId) (*CryptoCoin, error) {
 	err := conn.QueryRow(ctx,
 		query,
 		coin.Name, coin.Launched, coin.Ticker,
-	).Scan(&result.id, &result.ticker, &result.name, &result.launched)
+	).Scan(&result.ID, &result.Ticker, &result.Name, &result.Launched)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -174,7 +174,7 @@ func DeleteItem(ticker string) (*CryptoCoin, error) {
 	err := conn.QueryRow(ctx,
 		query,
 		ticker,
-	).Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+	).Scan(&coin.ID, &coin.Ticker, &coin.Name, &coin.Launched)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {

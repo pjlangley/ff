@@ -454,6 +454,9 @@ execute the code.
 
 ##### Run
 
+> [!IMPORTANT]
+> The Bruno commands require the local Node.js setup, see earlier instructions.
+
 - Run unit tests:
   ```
   goenv exec go test -v ./fragments/...
@@ -486,8 +489,15 @@ execute the code.
   ```
   goenv exec go run fragments/api.go
   ```
+- Run the Bruno integration tests (ensure the API is already running):
+  ```
+  node --run api:bru:gin
+  ```
 
 #### Docker (Go)
+
+> [!IMPORTANT]
+> The Bruno commands require the local Node.js setup, see earlier instructions.
 
 - Build the image at root of repo (with optional build args):
   ```
@@ -553,6 +563,15 @@ execute the code.
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     --entrypoint .bin/go_ff \
     ff_go
+  ```
+- Run the Bruno integration tests (ensure the Gin API is already running via Docker):
+  ```
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node --run api:bru:gin:docker
   ```
 
 ### Solana
