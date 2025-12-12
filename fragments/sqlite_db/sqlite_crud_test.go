@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetItemByTicker(t *testing.T) {
-	result := GetItemByTicker("BTC")
+	result, _ := GetItemByTicker("BTC")
 
 	if result == nil {
 		t.Error("Expected coin 'BTC' to exist")
@@ -13,7 +13,7 @@ func TestGetItemByTicker(t *testing.T) {
 }
 
 func TestGetItemByTicker_NotFound(t *testing.T) {
-	result := GetItemByTicker("XRP")
+	result, _ := GetItemByTicker("XRP")
 
 	if result != nil {
 		t.Error("Expected query for XRP to be 'nil'")
@@ -21,7 +21,7 @@ func TestGetItemByTicker_NotFound(t *testing.T) {
 }
 
 func TestGetItemsAfterLaunchYear(t *testing.T) {
-	result := GetItemsAfterLaunchYear(2000)
+	result, _ := GetItemsAfterLaunchYear(2000)
 
 	if len(result) != 3 {
 		t.Errorf("Expected 3 results, but got %d", len(result))
@@ -29,7 +29,7 @@ func TestGetItemsAfterLaunchYear(t *testing.T) {
 }
 
 func TestGetItemsAfterLaunchYear_NoResults(t *testing.T) {
-	result := GetItemsAfterLaunchYear(2020)
+	result, _ := GetItemsAfterLaunchYear(2020)
 
 	if len(result) != 0 {
 		t.Errorf("Expected 0 results, but got %d", len(result))
@@ -37,22 +37,22 @@ func TestGetItemsAfterLaunchYear_NoResults(t *testing.T) {
 }
 
 func TestGetAllItems(t *testing.T) {
-	result := GetAllItems()
+	result, _ := GetAllItems()
 
-	if result[0].ticker != "SOL" {
-		t.Errorf("Expected first item to be SOL, but got %s", result[0].ticker)
+	if result[0].Ticker != "SOL" {
+		t.Errorf("Expected first item to be SOL, but got %s", result[0].Ticker)
 	}
-	if result[1].ticker != "ETH" {
-		t.Errorf("Expected first item to be ETH, but got %s", result[1].ticker)
+	if result[1].Ticker != "ETH" {
+		t.Errorf("Expected first item to be ETH, but got %s", result[1].Ticker)
 	}
-	if result[2].ticker != "BTC" {
-		t.Errorf("Expected first item to be BTC, but got %s", result[2].ticker)
+	if result[2].Ticker != "BTC" {
+		t.Errorf("Expected first item to be BTC, but got %s", result[2].Ticker)
 	}
 }
 
 func TestAddItem(t *testing.T) {
 	coin := CryptoCoinWithoutId{Ticker: "PEPE", Name: "Pepe", Launched: 2023}
-	_, newId := AddItem(coin)
+	_, newId, _ := AddItem(coin)
 
 	if newId != 4 {
 		t.Errorf("Expected 'newId' to be 4, but got %d instead", newId)
@@ -61,7 +61,7 @@ func TestAddItem(t *testing.T) {
 
 func TestAddItemDuplicate(t *testing.T) {
 	coin := CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2009}
-	_, newId := AddItem(coin)
+	_, newId, _ := AddItem(coin)
 
 	if newId != 3 {
 		t.Errorf("Expected 'newId' to be 3, but got %d instead", newId)
@@ -70,21 +70,21 @@ func TestAddItemDuplicate(t *testing.T) {
 
 func TestUpdateItem(t *testing.T) {
 	coin := CryptoCoinWithoutId{Ticker: "BTC", Name: "Bitcoin", Launched: 2008}
-	result := UpdateItem(coin)
+	result, _ := UpdateItem(coin)
 
 	if result == nil {
 		t.Error("Expected update to return coin")
 		t.FailNow()
 	}
 
-	if result.ticker != "BTC" {
-		t.Errorf("Expected ticker to be BTC, but got %s", result.ticker)
+	if result.Ticker != "BTC" {
+		t.Errorf("Expected ticker to be BTC, but got %s", result.Ticker)
 	}
 }
 
 func TestUpdateItem_NotFound(t *testing.T) {
 	coin := CryptoCoinWithoutId{Ticker: "XRP", Name: "Ripple", Launched: 2012}
-	result := UpdateItem(coin)
+	result, _ := UpdateItem(coin)
 
 	if result != nil {
 		t.FailNow()
@@ -92,22 +92,25 @@ func TestUpdateItem_NotFound(t *testing.T) {
 }
 
 func TestDeleteItem(t *testing.T) {
-	result := DeleteItem("ETH")
+	result, _ := DeleteItem("ETH")
 
 	if result == nil {
 		t.Error("Expected delete to return coin")
 		t.FailNow()
 	}
 
-	if result.ticker != "ETH" {
-		t.Errorf("Expected ticker to be ETH, but got %s", result.ticker)
+	if result.Ticker != "ETH" {
+		t.Errorf("Expected ticker to be ETH, but got %s", result.Ticker)
 	}
 }
 
 func TestDeleteItem_NotFound(t *testing.T) {
-	result := DeleteItem("XRP")
+	result, err := DeleteItem("XRP")
 
 	if result != nil {
+		t.FailNow()
+	}
+	if err != nil {
 		t.FailNow()
 	}
 }

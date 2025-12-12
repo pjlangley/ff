@@ -12,5 +12,8 @@ func BuildApp() *gin.Engine {
 	postgresGroup := app.Group("/postgres")
 	datastore.PostgresRoutes(postgresGroup)
 
+	sqliteGroup := app.Group("/sqlite")
+	datastore.SqliteRoutes(sqliteGroup)
+
 	return app
 }

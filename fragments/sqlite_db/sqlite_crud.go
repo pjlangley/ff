@@ -8,10 +8,10 @@ import (
 )
 
 type CryptoCoin struct {
-	id       int
-	ticker   string
-	name     string
-	launched int
+	Id       int    `json:"id"`
+	Ticker   string `json:"ticker"`
+	Name     string `json:"name"`
+	Launched int    `json:"launched"`
 }
 
 type CryptoCoinWithoutId struct {
@@ -47,130 +47,134 @@ func init_db() *sql.DB {
 	return db
 }
 
-func GetItemByTicker(ticker string) *CryptoCoin {
+func GetItemByTicker(ticker string) (*CryptoCoin, error) {
 	database := init_db()
 	defer database.Close()
 	query := `SELECT id, ticker, name, launched FROM crypto_coins WHERE ticker = ? LIMIT 1;`
 	var coin CryptoCoin
-	err := database.QueryRow(query, ticker).Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+	err := database.QueryRow(query, ticker).Scan(&coin.Id, &coin.Ticker, &coin.Name, &coin.Launched)
 	switch {
 	case err == sql.ErrNoRows:
 		log.Printf("no coin with ticker %s", ticker)
-		return nil
+		return nil, err
 	case err != nil:
 		log.Printf("Error querying coin: %v", err)
-		return nil
+		return nil, err
 	default:
-		return &coin
+		return &coin, nil
 	}
 }
 
-func GetItemsAfterLaunchYear(launch_year int) []CryptoCoin {
+func GetItemsAfterLaunchYear(launch_year int) ([]CryptoCoin, error) {
 	database := init_db()
 	defer database.Close()
 	query := `SELECT * FROM crypto_coins WHERE launched > ?;`
-	var coins []CryptoCoin
+	coins := []CryptoCoin{}
 	rows, err := database.Query(query, launch_year)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("error with query %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var coin CryptoCoin
-		err := rows.Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+		err := rows.Scan(&coin.Id, &coin.Ticker, &coin.Name, &coin.Launched)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
-			return []CryptoCoin{}
+			return nil, err
 		}
 		coins = append(coins, coin)
 	}
 
 	if err = rows.Err(); err != nil {
 		log.Printf("Error iterating rows: %v", err)
-		return []CryptoCoin{}
+		return nil, err
 	}
 
-	return coins
+	return coins, nil
 }
 
-func GetAllItems() []CryptoCoin {
+func GetAllItems() ([]CryptoCoin, error) {
 	database := init_db()
 	defer database.Close()
 	query := `SELECT * FROM crypto_coins ORDER BY launched DESC;`
 	var coins []CryptoCoin
 	rows, err := database.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error with db query: %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var coin CryptoCoin
-		err := rows.Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+		err := rows.Scan(&coin.Id, &coin.Ticker, &coin.Name, &coin.Launched)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
-			return []CryptoCoin{}
+			return nil, err
 		}
 		coins = append(coins, coin)
 	}
 
 	if err = rows.Err(); err != nil {
 		log.Printf("Error iterating rows: %v", err)
-		return []CryptoCoin{}
+		return nil, err
 	}
 
-	return coins
+	return coins, nil
 }
 
-func AddItem(coin CryptoCoinWithoutId) (string, int64) {
+func AddItem(coin CryptoCoinWithoutId) (string, int64, error) {
 	database := init_db()
 	defer database.Close()
 	query := `INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?, ?, ?);`
 	result, err := database.Exec(query, coin.Ticker, coin.Name, coin.Launched)
 	if err != nil {
-		log.Fatal("Failed to add coin to crypto_coins table:", err)
+		log.Printf("Failed to add coin to crypto_coins table: %v", err)
+		return "", 0, err
 	}
 	newId, err := result.LastInsertId()
 	if err != nil {
-		log.Fatal("Failed to retrieve last insert ID:", err)
+		log.Printf("Failed to retrieve last insert ID %v", err)
+		return "", 0, err
 	}
 
-	return "ok", newId
+	return "ok", newId, nil
 }
 
-func UpdateItem(coin CryptoCoinWithoutId) *CryptoCoin {
+func UpdateItem(coin CryptoCoinWithoutId) (*CryptoCoin, error) {
 	database := init_db()
 	defer database.Close()
 	query := `UPDATE crypto_coins SET name = ?, launched = ? WHERE ticker = ? RETURNING *;`
 	var result CryptoCoin
-	err := database.QueryRow(query, coin.Name, coin.Launched, coin.Ticker).Scan(&result.id, &result.ticker, &result.name, &result.launched)
+	err := database.QueryRow(query, coin.Name, coin.Launched, coin.Ticker).Scan(&result.Id, &result.Ticker, &result.Name, &result.Launched)
 	switch {
 	case err == sql.ErrNoRows:
 		log.Printf("no coin with ticker %s", coin.Ticker)
-		return nil
+		return nil, err
 	case err != nil:
 		log.Printf("Error updating coin: %v", err)
-		return nil
+		return nil, err
 	default:
-		return &result
+		return &result, nil
 	}
 }
 
-func DeleteItem(ticker string) *CryptoCoin {
+func DeleteItem(ticker string) (*CryptoCoin, error) {
 	database := init_db()
 	defer database.Close()
 	query := `DELETE FROM crypto_coins WHERE ticker = ? RETURNING *;`
 	var coin CryptoCoin
-	err := database.QueryRow(query, ticker).Scan(&coin.id, &coin.ticker, &coin.name, &coin.launched)
+	err := database.QueryRow(query, ticker).Scan(&coin.Id, &coin.Ticker, &coin.Name, &coin.Launched)
 	switch {
 	case err == sql.ErrNoRows:
 		log.Printf("no coin with ticker %s", ticker)
-		return nil
+		return nil, nil
 	case err != nil:
 		log.Printf("Error deleting coin: %v", err)
-		return nil
+		return nil, err
 	default:
-		return &coin
+		return &coin, nil
 	}
 }
