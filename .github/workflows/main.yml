@@ -197,7 +197,7 @@ jobs:
             -e round_PROGRAM_ID=$round_PROGRAM_ID \
             --entrypoint go \
             ff_go \
-            test -v ./fragments/...
+            test -v -p 1 ./fragments/...
       - name: bruno integration tests for gin api
         run: |
           docker run --rm \

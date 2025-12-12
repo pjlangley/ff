@@ -457,17 +457,17 @@ execute the code.
 > [!IMPORTANT]
 > The Bruno commands require the local Node.js setup, see earlier instructions.
 
-- Run unit tests:
+- Run unit tests (sequentially):
   ```
-  goenv exec go test -v ./fragments/...
+  goenv exec go test -v -p 1 ./fragments/...
   ```
 - Run specific unit test suite for module:
   ```
-  goenv exec go test -v ./fragments/solana_program_counter
+  goenv exec go test -v -p 1 ./fragments/solana_program_counter
   ```
 - Run specific unit test in module test suite:
   ```
-  goenv exec go test -v ./fragments/solana_program_counter -run 'GetCountBeforeInitialize$'
+  goenv exec go test -v -p 1 ./fragments/solana_program_counter -run 'GetCountBeforeInitialize$'
   ```
 - Run the build:
   ```
@@ -519,7 +519,7 @@ execute the code.
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     --entrypoint go \
     ff_go \
-    test -v ./fragments/...
+    test -v -p 1 ./fragments/...
   ```
 - Run the REST API build:
   ```
