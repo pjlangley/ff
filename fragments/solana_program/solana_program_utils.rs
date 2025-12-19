@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::collections::HashMap;
 
 use once_cell::sync::Lazy;
 use serde::Deserialize;
@@ -18,32 +15,26 @@ struct Idl {
     instructions: Vec<IdlInstruction>,
 }
 
+static COUNTER_IDL_JSON: &str =
+    include_str!("../../fragments/blockchain/solana/target/idl/counter.json");
+static ROUND_IDL_JSON: &str =
+    include_str!("../../fragments/blockchain/solana/target/idl/round.json");
+static USERNAME_IDL_JSON: &str =
+    include_str!("../../fragments/blockchain/solana/target/idl/username.json");
+
 static PROGRAM_ID_MAP: Lazy<HashMap<String, Idl>> = Lazy::new(|| {
-    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let idls: HashMap<String, PathBuf> = HashMap::from([
-        (
-            "counter".to_string(),
-            manifest_dir.join("fragments/blockchain/solana/target/idl/counter.json"),
-        ),
-        (
-            "round".to_string(),
-            manifest_dir.join("fragments/blockchain/solana/target/idl/round.json"),
-        ),
-        (
-            "username".to_string(),
-            manifest_dir.join("fragments/blockchain/solana/target/idl/username.json"),
-        ),
-    ]);
     let mut program_id_map: HashMap<String, Idl> = HashMap::new();
+    let idls: &[(&str, &str)] = &[
+        ("counter", COUNTER_IDL_JSON),
+        ("round", ROUND_IDL_JSON),
+        ("username", USERNAME_IDL_JSON),
+    ];
 
-    for (name, idl_path) in idls {
-        let idl_content = std::fs::read_to_string(idl_path)
-            .unwrap_or_else(|err| panic!("Unable to read IDL file for {}: {}", name, err));
-
-        let idl: Idl = serde_json::from_str(&idl_content)
+    for (name, idl_json) in idls {
+        let idl: Idl = serde_json::from_str(idl_json)
             .unwrap_or_else(|err| panic!("Failed to parse IDL for {}: {}", name, err));
 
-        program_id_map.insert(name, idl);
+        program_id_map.insert(name.to_string(), idl);
     }
 
     program_id_map

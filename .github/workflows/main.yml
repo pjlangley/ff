@@ -103,56 +103,57 @@ jobs:
     name: rust
     steps:
       - uses: actions/checkout@v4
+
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/nodejs_docker_build
+
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
-      - run: |
-          docker build \
-            --force-rm \
-            --build-arg RUST_VERSION=1.85.1 \
-            -f docker.rust.Dockerfile \
-            -t ff_rust .
-      - name: start axum api
-        run: |
-          docker run -d \
-            --name axum \
-            --network ci-network \
-            -p 3001:3001 \
-            -e AXUM_HOST=0.0.0.0 \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
-            -e username_PROGRAM_ID=$username_PROGRAM_ID \
-            -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            ff_rust
-      - name: unit tests
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
-            -e username_PROGRAM_ID=$username_PROGRAM_ID \
-            -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            --entrypoint cargo \
-            ff_rust \
-            test -- --test-threads=1
-      - name: bruno integration tests for axum api
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            ff_node \
-            --run api:bru:axum:docker
+
+      - uses: moonrepo/setup-rust@v1
+        with:
+          inherit-toolchain: true
+
       - name: lint
-        run: docker run --rm --entrypoint cargo ff_rust clippy -- -D warnings
+        run: cargo clippy -- -D warnings
+
       - name: format check
-        run: docker run --rm --entrypoint cargo ff_rust fmt -v --check
+        run : cargo fmt -v --check
+
+      - name: unit tests
+        run: cargo test -- --test-threads=1
+
+      - name: build
+        run: cargo build --bin api
+
+      - name: run axum api
+        run: ./target/debug/api &
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: install npm dependencies
+        run: npm ci
+
+      - name: bruno integration tests for axum api
+        run: node --run api:bru:axum
+
+      - name: disk space before cleanup
+        run: |
+          df -h
+          docker system df
+
+      - name: Docker cleanup (frees disk space for moonrepo caching)
+        run: |
+          docker ps -aq | xargs -r docker rm -f
+          docker images -aq | xargs -r docker rmi -f
+          docker system prune -af || true
+
+      - name: disk space after cleanup
+        run: |
+          df -h
+          docker system df
 
   ff_go:
     runs-on: ubuntu-latest
