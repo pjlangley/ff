@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	api "ff/api/gin"
 	postgres_crud "ff/postgres_db"
 	"fmt"
 	"net/http"
@@ -15,7 +14,6 @@ import (
 )
 
 func TestPostgresGetCoins(t *testing.T) {
-	app := api.BuildApp()
 	req, _ := http.NewRequest("GET", "/postgres/coins", nil)
 	recorder := httptest.NewRecorder()
 	app.ServeHTTP(recorder, req)
@@ -37,7 +35,6 @@ func TestPostgresGetCoins(t *testing.T) {
 }
 
 func TestPostgresGetCoinByTicker(t *testing.T) {
-	app := api.BuildApp()
 	req, _ := http.NewRequest("GET", "/postgres/coins/BTC", nil)
 	recorder := httptest.NewRecorder()
 	app.ServeHTTP(recorder, req)
@@ -59,7 +56,6 @@ func TestPostgresGetCoinByTicker(t *testing.T) {
 }
 
 func TestPostgresGetCoinByTickerNotFound(t *testing.T) {
-	app := api.BuildApp()
 	req, _ := http.NewRequest("GET", "/postgres/coins/UNKNOWN", nil)
 	recorder := httptest.NewRecorder()
 	app.ServeHTTP(recorder, req)
@@ -70,7 +66,6 @@ func TestPostgresGetCoinByTickerNotFound(t *testing.T) {
 }
 
 func TestPostgresGetCoinByTickerLowercase(t *testing.T) {
-	app := api.BuildApp()
 	req, _ := http.NewRequest("GET", "/postgres/coins/eth", nil)
 	recorder := httptest.NewRecorder()
 	app.ServeHTTP(recorder, req)
@@ -92,7 +87,6 @@ func TestPostgresGetCoinByTickerLowercase(t *testing.T) {
 }
 
 func TestPostgresGetCoinsAfterYear(t *testing.T) {
-	app := api.BuildApp()
 	req, _ := http.NewRequest("GET", "/postgres/coins/after/2008", nil)
 	recorder := httptest.NewRecorder()
 	app.ServeHTTP(recorder, req)
@@ -116,7 +110,6 @@ func TestPostgresGetCoinsAfterYear(t *testing.T) {
 }
 
 func TestPostgresGetCoinsAfterYearNoResults(t *testing.T) {
-	app := api.BuildApp()
 	req, _ := http.NewRequest("GET", "/postgres/coins/after/2050", nil)
 	recorder := httptest.NewRecorder()
 	app.ServeHTTP(recorder, req)
@@ -138,7 +131,6 @@ func TestPostgresGetCoinsAfterYearNoResults(t *testing.T) {
 }
 
 func TestPostgresCreateNewCoin(t *testing.T) {
-	app := api.BuildApp()
 	ticker := randomTicker()
 	payload := map[string]any{
 		"name":     "Test Coin",
@@ -179,7 +171,6 @@ func TestPostgresCreateNewCoin(t *testing.T) {
 }
 
 func TestPostgresCreateNewCoinInvalidPayload(t *testing.T) {
-	app := api.BuildApp()
 	ticker := randomTicker()
 	payload := map[string]any{
 		"name": "Incomplete Coin",
@@ -200,7 +191,6 @@ func TestPostgresCreateNewCoinInvalidPayload(t *testing.T) {
 }
 
 func TestPostgresDeleteCoin(t *testing.T) {
-	app := api.BuildApp()
 	ticker := randomTicker()
 	payload := map[string]any{
 		"name":     "Delete Coin",
@@ -238,7 +228,6 @@ func TestPostgresDeleteCoin(t *testing.T) {
 }
 
 func TestPostgresDeleteCoinNonExistent(t *testing.T) {
-	app := api.BuildApp()
 	ticker := randomTicker()
 
 	deleteReq, _ := http.NewRequest("DELETE", fmt.Sprintf("/postgres/coins/%s", ticker), nil)
@@ -251,7 +240,6 @@ func TestPostgresDeleteCoinNonExistent(t *testing.T) {
 }
 
 func TestPostgresUpdateCoin(t *testing.T) {
-	app := api.BuildApp()
 	ticker := randomTicker()
 	payload := map[string]any{
 		"name":     "Update Coin",
@@ -305,7 +293,6 @@ func TestPostgresUpdateCoin(t *testing.T) {
 }
 
 func TestPostgresUpdateCoinNonExistent(t *testing.T) {
-	app := api.BuildApp()
 	ticker := randomTicker()
 
 	updatePayload := map[string]any{
