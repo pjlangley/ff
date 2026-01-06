@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"ff/env_vars"
-	redis_crud "ff/redis_db"
 	solana_airdrop "ff/solana_airdrop"
 	solana_balance "ff/solana_balance"
 	"ff/solana_rpc"
@@ -33,13 +32,6 @@ func main() {
 
 // todo will be removed once Api is fully implemented
 func Run() {
-	// redis
-	fmt.Println("fragment 'redis_db/ping' output:", redis_crud.RedisPing())
-	fmt.Println("fragment 'redis_db/create' output:", redis_crud.RedisCreate("go", "bitcoin"))
-	fmt.Println("fragment 'redis_db/read' output:", redis_crud.RedisRead("go"))
-	fmt.Println("fragment 'redis_db/update' output:", redis_crud.RedisUpdate("go", "pepe"))
-	fmt.Println("fragment 'redis_db/delete' output:", redis_crud.RedisDelete("go"))
-
 	solanaKeypair, _ := solana.NewRandomPrivateKey()
 
 	// solana balance

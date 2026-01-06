@@ -15,5 +15,8 @@ func BuildApp() *gin.Engine {
 	sqliteGroup := app.Group("/sqlite")
 	datastore.SqliteRoutes(sqliteGroup)
 
+	redisGroup := app.Group("/redis")
+	datastore.RedisRoutes(redisGroup)
+
 	return app
 }

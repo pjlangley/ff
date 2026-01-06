@@ -27,42 +27,46 @@ func init_client() *redis.Client {
 	return redis.NewClient(opt)
 }
 
-func RedisPing() string {
+func RedisPing() (string, error) {
 	client := init_client()
 	pong, err := client.Ping(ctx).Result()
 	if err != nil {
-		log.Fatal("Failed to ping:", err)
+		log.Printf("Failed to ping: %v", err)
+		return "", err
 	}
-	return pong
+	return pong, nil
 }
 
-func RedisCreate(namespace string, favouriteCoin string) string {
+func RedisCreate(namespace string, favouriteCoin string) (string, error) {
 	client := init_client()
 	err := client.HSet(ctx, namespace, map[string]string{"favourite_coin": favouriteCoin}).Err()
 	if err != nil {
-		log.Fatal("Failed to set:", err)
+		log.Printf("Failed to set: %v", err)
+		return "", err
 	}
-	return "ok"
+	return "ok", nil
 }
 
-func RedisRead(namespace string) map[string]string {
+func RedisRead(namespace string) (map[string]string, error) {
 	client := init_client()
 	item, err := client.HGetAll(ctx, namespace).Result()
 	if err != nil {
-		log.Fatal("Failed to get:", err)
+		log.Printf("Failed to get: %v", err)
+		return nil, err
 	}
-	return item
+	return item, nil
 }
 
-func RedisUpdate(namespace string, favouriteCoin string) string {
+func RedisUpdate(namespace string, favouriteCoin string) (string, error) {
 	return RedisCreate(namespace, favouriteCoin)
 }
 
-func RedisDelete(namespace string) string {
+func RedisDelete(namespace string) (string, error) {
 	client := init_client()
 	err := client.Del(ctx, namespace).Err()
 	if err != nil {
-		log.Fatal("Failed to delete:", err)
+		log.Printf("Failed to delete: %v", err)
+		return "", err
 	}
-	return "ok"
+	return "ok", nil
 }
