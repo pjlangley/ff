@@ -22,7 +22,10 @@ func TestSolanaAirdrop(t *testing.T) {
 		t.Errorf("expected initial balance of zero but got: %d", balance)
 	}
 
-	SendAndConfirmAirdrop(keypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	err = SendAndConfirmAirdrop(keypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 
 	latestBalance, err := solana_balance.GetBalance(keypair.PublicKey())
 	if err != nil {

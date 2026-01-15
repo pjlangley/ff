@@ -39,7 +39,9 @@ var programId = func() solana.PublicKey {
 
 func TestSolanaRoundInterface_Init_Activate_Complete(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	recentSlot := getSlot(t)
 	startSlot := recentSlot + 3
 	initialiseRound(userKeypair, startSlot, t)
@@ -79,7 +81,9 @@ func TestSolanaRoundInterface_Init_Activate_Complete(t *testing.T) {
 
 func TestSolanaRoundInterface_InvalidStartSlotAtInit(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Fatalf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	_, err := InitialiseRound(userKeypair, programId, 0)
 	if err == nil {
 		t.Fatalf("Expected InitialiseRound to fail with past start slot, but it succeeded")
@@ -91,7 +95,9 @@ func TestSolanaRoundInterface_InvalidStartSlotAtInit(t *testing.T) {
 
 func TestSolanaRoundInterface_ActivateWithoutInitialise(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Fatalf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	_, err := ActivateRound(userKeypair, programId, userKeypair.PublicKey())
 	if err == nil {
 		t.Fatalf("Expected ActivateRound to fail without initialise, but it succeeded")
@@ -103,7 +109,9 @@ func TestSolanaRoundInterface_ActivateWithoutInitialise(t *testing.T) {
 
 func TestSolanaRoundInterface_InvalidSlotAtActivate(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Fatalf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	recentSlot := getSlot(t)
 	startSlot := recentSlot + 50
 	initialiseRound(userKeypair, startSlot, t)
@@ -118,7 +126,9 @@ func TestSolanaRoundInterface_InvalidSlotAtActivate(t *testing.T) {
 
 func TestSolanaRoundInterface_CompleteRoundNoInit(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Fatalf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	_, err := CompleteRound(userKeypair, programId)
 	if err == nil {
 		t.Fatalf("Expected CompleteRound to fail without initialise, but it succeeded")

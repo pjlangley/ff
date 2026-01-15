@@ -1,7 +1,8 @@
 package api
 
 import (
-	datastore "ff/api/gin/datastore"
+	"ff/api/gin/blockchain"
+	"ff/api/gin/datastore"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,9 @@ func BuildApp() *gin.Engine {
 
 	redisGroup := app.Group("/redis")
 	datastore.RedisRoutes(redisGroup)
+
+	solanaGroup := app.Group("/solana")
+	blockchain.SolanaCounterRoutes(solanaGroup)
 
 	return app
 }

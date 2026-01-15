@@ -1,14 +1,8 @@
 package main
 
 import (
-	"context"
 	"ff/env_vars"
-	solana_airdrop "ff/solana_airdrop"
-	solana_balance "ff/solana_balance"
-	"ff/solana_rpc"
 	"fmt"
-
-	"github.com/gagliardetto/solana-go"
 
 	api "ff/api/gin"
 )
@@ -28,22 +22,4 @@ func main() {
 	}
 
 	fmt.Printf("Server listening at %s\n", addr)
-}
-
-// todo will be removed once Api is fully implemented
-func Run() {
-	solanaKeypair, _ := solana.NewRandomPrivateKey()
-
-	// solana balance
-	solanaBalance, err := solana_balance.GetBalance(solanaKeypair.PublicKey())
-	fmt.Println("fragment 'solana_balance/GetBalance' output:", solanaBalance, "Error:", err)
-
-	// solana rpc
-	solanaClient := solana_rpc.InitRpcClient()
-	solanaClientVersionRes, err := solanaClient.GetVersion(context.Background())
-	fmt.Println("fragment 'solana_rpc/InitRpcClient GetVersion' output:", solanaClientVersionRes, "Error:", err)
-
-	// solana airdrop
-	fmt.Println("fragment 'solana_airdrop/SendAndConfirmAirdrop' output:")
-	solana_airdrop.SendAndConfirmAirdrop(solanaKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
 }

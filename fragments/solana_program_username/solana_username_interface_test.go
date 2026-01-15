@@ -36,7 +36,9 @@ var programId = func() solana.PublicKey {
 
 func TestSolanaUsernameInterface_InitialiseUsername(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	initialiseUsername(userKeypair, "my_username", t)
 
 	usernameAccount, err := GetUsernameAccount(userKeypair.PublicKey(), programId)
@@ -58,7 +60,9 @@ func TestSolanaUsernameInterface_InitialiseUsername(t *testing.T) {
 
 func TestSolanaUsernameInterface_InitialiseUsernameAndUpdate(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	initialiseUsername(userKeypair, "my_username", t)
 	updateUsername(userKeypair, "my_new_username", t)
 
@@ -84,7 +88,9 @@ func TestSolanaUsernameInterface_InitialiseUsernameAndUpdate(t *testing.T) {
 
 func TestSolanaUsernameInterface_UpdateUsernameManyTimes(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	initialiseUsername(userKeypair, "username_0", t)
 
 	for i := range 3 {
@@ -131,7 +137,9 @@ func TestSolanaUsernameInterface_UpdateUsernameManyTimes(t *testing.T) {
 
 func TestSolanaUsernameInterface_UpdateUsernameBeforeInit(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 
 	_, err := UpdateUsername(userKeypair, programId, "my_new_username")
 	if err == nil {
@@ -171,7 +179,9 @@ func TestSolanaUsernameInterface_GetUsernameRecordBeforeInit(t *testing.T) {
 
 func TestSolanaUsernameInterface_InvalidUsernameAtInit(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 
 	_, err := InitialiseUsername(userKeypair, programId, "username!!!")
 	if err == nil {
@@ -184,7 +194,9 @@ func TestSolanaUsernameInterface_InvalidUsernameAtInit(t *testing.T) {
 
 func TestSolanaUsernameInterface_InvalidUsernameAtUpdate(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 	initialiseUsername(userKeypair, "my_username", t)
 
 	_, err := UpdateUsername(userKeypair, programId, "x")

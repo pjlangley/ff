@@ -33,7 +33,9 @@ var programId = func() solana.PublicKey {
 
 func TestSolanaCounterInterface_InitializeAccount(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 
 	sig, err := InitializeAccount(userKeypair, programId)
 	if err != nil {
@@ -55,7 +57,9 @@ func TestSolanaCounterInterface_InitializeAccount(t *testing.T) {
 
 func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 
 	sig, err := InitializeAccount(userKeypair, programId)
 	if err != nil {
@@ -94,7 +98,9 @@ func TestSolanaCounterInterface_InitializeAccountAndIncrement(t *testing.T) {
 
 func TestSolanaCounterInterface_IncrementBeforeInitialize(t *testing.T) {
 	userKeypair, _ := solana.NewRandomPrivateKey()
-	solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL)
+	if err := solana_airdrop.SendAndConfirmAirdrop(userKeypair.PublicKey(), solana.LAMPORTS_PER_SOL); err != nil {
+		t.Errorf("SendAndConfirmAirdrop failed: %v", err)
+	}
 
 	_, err := IncrementCounter(userKeypair, programId)
 	if err == nil {

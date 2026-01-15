@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/gagliardetto/solana-go"
 )
@@ -23,18 +24,23 @@ const (
 	ProgramCounter ProgramName = "counter"
 )
 
-var programIdMap = func() map[string]Idl {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("failed to get working directory: %v", err)
+func mustFilePath(path string) string {
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		log.Fatal("cannot determine caller location")
+	}
+	baseDir := filepath.Dir(thisFile)
+	return filepath.Join(baseDir, path)
+}
+
+var programIdlMap = func() map[string]Idl {
+	idls := map[string]string{
+		"counter":  mustFilePath("../blockchain/solana/target/idl/counter.json"),
+		"round":    mustFilePath("../blockchain/solana/target/idl/round.json"),
+		"username": mustFilePath("../blockchain/solana/target/idl/username.json"),
 	}
 
-	idls := make(map[string]string)
-	idls["counter"] = filepath.Join(wd, "../blockchain/solana/target/idl/counter.json")
-	idls["round"] = filepath.Join(wd, "../blockchain/solana/target/idl/round.json")
-	idls["username"] = filepath.Join(wd, "../blockchain/solana/target/idl/username.json")
-
-	programIdMap := make(map[string]Idl)
+	programIdlMap := make(map[string]Idl)
 
 	for name, path := range idls {
 		data, err := os.ReadFile(path)
@@ -47,14 +53,14 @@ var programIdMap = func() map[string]Idl {
 			log.Fatalf("Error unmarshalling IDL data for %s: %v", name, err)
 		}
 
-		programIdMap[name] = idl
+		programIdlMap[name] = idl
 	}
 
-	return programIdMap
+	return programIdlMap
 }()
 
 func GetInstructionDiscriminator(instructionName string, programName string) ([]uint8, error) {
-	idl := programIdMap[programName]
+	idl := programIdlMap[programName]
 
 	for _, instruction := range idl.Instructions {
 		if instruction.Name == instructionName {
