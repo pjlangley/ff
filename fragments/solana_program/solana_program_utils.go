@@ -18,12 +18,6 @@ type Idl struct {
 	} `json:"instructions"`
 }
 
-type ProgramName string
-
-const (
-	ProgramCounter ProgramName = "counter"
-)
-
 func mustFilePath(path string) string {
 	_, thisFile, _, ok := runtime.Caller(0)
 	if !ok {
