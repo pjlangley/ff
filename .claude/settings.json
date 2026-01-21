@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./solana.id.json)",
+      "Edit(./solana.id.json)",
+      "Write(./solana.id.json)"
+    ],
+    "allow": [
+      "Bash(deno fmt:*)"
+    ]
+  }
+}
