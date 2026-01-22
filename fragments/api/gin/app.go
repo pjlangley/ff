@@ -21,6 +21,7 @@ func BuildApp() *gin.Engine {
 
 	solanaGroup := app.Group("/solana")
 	blockchain.SolanaCounterRoutes(solanaGroup)
+	blockchain.SolanaRoundRoutes(solanaGroup)
 
 	return app
 }
