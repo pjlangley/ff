@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	CounterProgramID solana.PublicKey
-	RoundProgramID   solana.PublicKey
+	CounterProgramID  solana.PublicKey
+	RoundProgramID    solana.PublicKey
+	UsernameProgramID solana.PublicKey
 )
 
 func init() {
@@ -36,4 +37,10 @@ func init() {
 		log.Fatalf("Environment variable 'round_PROGRAM_ID' not set")
 	}
 	RoundProgramID = solana.MustPublicKeyFromBase58(roundID)
+
+	usernameID := env_vars.GetEnvVar("username_PROGRAM_ID")
+	if usernameID == "" {
+		log.Fatalf("Environment variable 'username_PROGRAM_ID' not set")
+	}
+	UsernameProgramID = solana.MustPublicKeyFromBase58(usernameID)
 }
