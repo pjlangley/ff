@@ -21,8 +21,8 @@
     "api:bru:fastify:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/fastify.bru --env-var host=fastify)",
     "api:bru:axum": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/axum.bru)",
     "api:bru:axum:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/axum.bru --env-var host=axum)",
-    "api:bru:gin": "(cd ./fragments/api/bruno && bru run -r ./postgres ./sqlite ./redis ./solana/counter ./solana/round ./solana/username --env-file ./environments/gin.bru)",
-    "api:bru:gin:docker": "(cd ./fragments/api/bruno && bru run -r ./postgres ./sqlite ./redis ./solana/counter ./solana/round ./solana/username --env-file ./environments/gin.bru --env-var host=gin)"
+    "api:bru:gin": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/gin.bru)",
+    "api:bru:gin:docker": "(cd ./fragments/api/bruno && bru run -r --env-file ./environments/gin.bru --env-var host=gin)"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",

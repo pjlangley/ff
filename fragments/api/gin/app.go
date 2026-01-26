@@ -20,6 +20,7 @@ func BuildApp() *gin.Engine {
 	datastore.RedisRoutes(redisGroup)
 
 	solanaGroup := app.Group("/solana")
+	blockchain.SolanaBalanceRoutes(solanaGroup)
 	blockchain.SolanaCounterRoutes(solanaGroup)
 	blockchain.SolanaRoundRoutes(solanaGroup)
 	blockchain.SolanaUsernameRoutes(solanaGroup)

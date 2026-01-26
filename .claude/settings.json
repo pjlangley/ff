@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(deno fmt:*)",
-      "Bash(goenv exec go test:*)"
+      "Bash(goenv exec go test:*)",
+      "Bash(find:*)"
     ],
     "deny": [
       "Read(./solana.id.json)",
