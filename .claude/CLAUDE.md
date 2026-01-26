@@ -66,6 +66,7 @@
 - Production-grade code with a pragmatic understanding that this is for educational purposes. For example, I made a
   trade-off by using ephemeral in-memory keypairs in the API interfaces that operate on the Solana programs, i.e. in
   `./fragments/api/fastify/blockchain/solana_username.ts`.
+- Prefer snake case for file and directory names.
 
 ## Modules (aka fragments)
 
