@@ -10,7 +10,6 @@ RUN apk add --no-cache curl bash
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
     | sh -s -- -b $(go env GOPATH)/bin v${GO_CI_LINT_VERSION}
 WORKDIR /usr/src/app
-ENV REPO_NAME=ff
 COPY .golangci.yaml .
 COPY go.work .
 COPY fragments ./fragments/

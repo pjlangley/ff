@@ -561,7 +561,6 @@ execute the code.
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    --entrypoint .bin/go_ff \
     ff_go
   ```
 - Run the Bruno integration tests (ensure the Gin API is already running via Docker):
