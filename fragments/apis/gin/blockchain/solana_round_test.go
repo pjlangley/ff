@@ -2,7 +2,7 @@ package blockchain_test
 
 import (
 	"encoding/json"
-	api "ff/api/gin"
+	api "ff/apis/gin"
 	"ff/solana_rpc"
 	"net/http"
 	"net/http/httptest"

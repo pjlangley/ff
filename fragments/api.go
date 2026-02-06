@@ -4,7 +4,7 @@ import (
 	"ff/env_vars"
 	"fmt"
 
-	api "ff/api/gin"
+	api "ff/apis/gin"
 )
 
 func main() {

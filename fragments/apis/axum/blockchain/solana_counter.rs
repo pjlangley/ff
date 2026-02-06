@@ -160,7 +160,7 @@ fn handle_solana_rpc_error(error: ClientError, message: &str) -> Response {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::axum::app::build_app;
+    use crate::apis::axum::app::build_app;
     use axum::body::Body;
     use axum::http::Request;
     use http_body_util::BodyExt;

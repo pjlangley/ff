@@ -184,7 +184,7 @@ fn handle_solana_rpc_error(error: ClientError, message: &str) -> Response {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::axum::app::build_app;
+    use crate::apis::axum::app::build_app;
     use crate::solana_rpc::solana_rpc_utils::wait_for_slot;
     use axum::body::Body;
     use axum::http::{Request, StatusCode};

@@ -1,8 +1,8 @@
 package api
 
 import (
-	"ff/api/gin/blockchain"
-	"ff/api/gin/datastore"
+	"ff/apis/gin/blockchain"
+	"ff/apis/gin/datastore"
 
 	"github.com/gin-gonic/gin"
 )

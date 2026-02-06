@@ -3,7 +3,7 @@ package blockchain_test
 import (
 	"bytes"
 	"encoding/json"
-	api "ff/api/gin"
+	api "ff/apis/gin"
 	"net/http"
 	"net/http/httptest"
 	"testing"

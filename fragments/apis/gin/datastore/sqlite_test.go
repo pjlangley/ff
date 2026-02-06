@@ -3,7 +3,7 @@ package datastore_test
 import (
 	"bytes"
 	"encoding/json"
-	api "ff/api/gin"
+	api "ff/apis/gin"
 	sqlite_crud "ff/sqlite_db"
 	"fmt"
 	"net/http"

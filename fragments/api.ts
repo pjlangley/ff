@@ -1,5 +1,5 @@
 import process from "node:process";
-import { build } from "./api/fastify/app";
+import { build } from "./apis/fastify/app";
 import { getEnvVar } from "./env_vars/env_vars_utils";
 
 const api = build();

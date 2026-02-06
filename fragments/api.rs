@@ -10,11 +10,11 @@ mod solana_program_username;
 mod solana_rpc;
 mod solana_transaction;
 mod sqlite_db;
-mod api {
+mod apis {
     pub mod axum;
 }
 
-use crate::api::axum::app::build_app;
+use crate::apis::axum::app::build_app;
 use crate::env_vars::env_vars_utils::get_env_var;
 
 #[tokio::main]

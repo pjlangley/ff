@@ -48,7 +48,7 @@ async fn get_balance_handler(AxumPath(address): AxumPath<String>) -> impl IntoRe
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::axum::app::build_app;
+    use crate::apis::axum::app::build_app;
     use axum::body::Body;
     use axum::http::Request;
     use http_body_util::BodyExt;
