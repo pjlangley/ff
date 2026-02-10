@@ -8,8 +8,8 @@
 - Blockchain programs are built with Solana & Rust with the help of the Anchor framework; located in
   `./fragments/blockchain/solana/programs/`.
 - Each programming language has (or will have) its own API to interface with the various modules of code; located in
-  `./fragments/api/`.
-- Bruno CLI is used for integration testing against each API; located in `./fragments/api/bruno/`.
+  `./fragments/apis/`.
+- Bruno CLI is used for integration testing against each API; located in `./fragments/apis/bruno/`.
 - Unit tests and integration tests run against the infrastructure and deployed Solana programs (see "Common commands"
   section).
 - Integration tests (with Bruno) require the relevant API to be running (see "Common commands" section).
@@ -34,12 +34,13 @@
 - `goenv exec go test -v -p 1 ./fragments/...` for the Go unit tests (sequentially until I do some refactoring to make
   parallelism work).
 - `node --run api` to run the local Node.js API.
-- `node --run api:bru:fastify` to run the Bruno integration tests against the running API.
+- `node --run api:bru:fastify` to run the Bruno integration tests against the running Fastify API.
 - `cargo run --bin api` to run the local Rust API.
-- `node --run api:bru:axum` to run the Bruno integration tests against the running API.
+- `node --run api:bru:axum` to run the Bruno integration tests against the running Axum API.
 - `goenv exec go run fragments/api.go` to run the local Go API.
-- `node --run api:bru:gin` to run the Bruno integration tests against the running API.
-- todo: Python API
+- `node --run api:bru:gin` to run the Bruno integration tests against the running Gin API.
+- `python -m fragments.api` to run the local Python API.
+- `node --run api:bru:fastapi` to run the Bruno integration tests against the running FastAPI API.
 - `solana` and `anchor` CLI commands are available locally.
 - Further Rust commands and anchor CLI commands available once you change directory into
   `./fragments/blockchain/solana/`, e.g.:
@@ -65,7 +66,7 @@
   `./solana_program_keys/solana_program_keys.env`.
 - Production-grade code with a pragmatic understanding that this is for educational purposes. For example, I made a
   trade-off by using ephemeral in-memory keypairs in the API interfaces that operate on the Solana programs, i.e. in
-  `./fragments/api/fastify/blockchain/solana_username.ts`.
+  `./fragments/apis/fastify/blockchain/solana_username.ts`.
 - Prefer snake case for file and directory names.
 
 ## Modules (aka fragments)
@@ -73,7 +74,7 @@
 - `./rust-toolchain.toml` for the core Rust fragment dependencies, but
   `./fragments/blockchain/solana/rust-toolchain.toml` for the blockchain program dependencies.
 - Node.js API entry file: `./fragments/api.ts`.
-- Python entry file: `./fragments/main.py` (todo: will later change to `api.py` like the others).
+- Python API entry file: `./fragments/api.py`.
 - Rust API entry file: `./fragments/api.rs`.
 - Go API entry file: `./fragments/api.go`.
 - Blockchain programs (only Solana atm): `./fragments/blockchain/solana/programs/`.

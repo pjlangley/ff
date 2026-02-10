@@ -9,6 +9,7 @@ COPY pyproject.toml .
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY fragments/ ./fragments/
+EXPOSE 3003
 
 ENTRYPOINT ["python"]
-CMD ["-m", "fragments.main"]
+CMD ["-m", "fragments.api"]

@@ -222,10 +222,6 @@ execute the code.
 
 ##### Run
 
-- Run all fragments:
-  ```
-  python -m fragments.main
-  ```
 - Run unit tests:
   ```
   python -m unittest -v
@@ -250,6 +246,10 @@ execute the code.
   ```
   black ./fragments --check
   ```
+- Run the REST API:
+  ```
+  python -m fragments.api
+  ```
 
 #### Docker (Python)
 
@@ -261,15 +261,6 @@ execute the code.
     -f docker.python.Dockerfile \
     -t ff_python .
   ```
-- Run all fragments:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_python
-  ```
 - Run unit tests:
   ```
   docker run --rm \
@@ -277,9 +268,7 @@ execute the code.
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
     -e SOLANA_HOST=solana \
-    -e counter_PROGRAM_ID=<program_id_here> \
-    -e username_PROGRAM_ID=<program_id_here> \
-    -e round_PROGRAM_ID=<program_id_here> \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_python \
     -m unittest -v
   ```
@@ -298,6 +287,19 @@ execute the code.
 - Run the format check:
   ```
   docker run --rm --entrypoint black ff_python ./fragments --check
+  ```
+- Run the REST API:
+  ```
+  docker run --rm \
+    --network ff_default \
+    --name fastapi \
+    -p 3003:3003 \
+    -e FASTAPI_HOST=0.0.0.0 \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
+    ff_python
   ```
 
 ### Rust
