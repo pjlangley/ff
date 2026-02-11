@@ -37,13 +37,15 @@ class TestPostgresCrud(unittest.TestCase):
     def test_remove_item(self):
         ticker = str(uuid.uuid4())[:6].upper()
         add_item((ticker, "Test coin", 2023))
-        self.assertEqual(remove_item(ticker), (ticker, "Test coin", 2023))
+        result = remove_item(ticker)
+        self.assertEqual((result[1], result[2], result[3]), (ticker, "Test coin", 2023))
 
     def test_remove_item_nonexistent(self):
         self.assertEqual(remove_item("XRP"), None)
 
     def test_update_item(self):
-        self.assertEqual(update_item(("BTC", "Bitcoin", 2000)), ("BTC", "Bitcoin", 2000))
+        result = update_item(("BTC", "Bitcoin", 2000))
+        self.assertEqual((result[1], result[2], result[3]), ("BTC", "Bitcoin", 2000))
         update_item(("BTC", "Bitcoin", 2009))
 
     def test_update_item_nonexistent(self):

@@ -3,7 +3,12 @@
     "allow": [
       "Bash(deno fmt:*)",
       "Bash(goenv exec go test:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(python -m unittest:*)",
+      "Bash(mypy:*)",
+      "Bash(pylint:*)",
+      "Bash(black:*)"
     ],
     "deny": [
       "Read(./solana.id.json)",

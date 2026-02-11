@@ -22,7 +22,9 @@
     "api:bru:axum": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/axum.bru)",
     "api:bru:axum:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/axum.bru --env-var host=axum)",
     "api:bru:gin": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/gin.bru)",
-    "api:bru:gin:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/gin.bru --env-var host=gin)"
+    "api:bru:gin:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/gin.bru --env-var host=gin)",
+    "api:bru:fastapi": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastapi.bru ./postgres)",
+    "api:bru:fastapi:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastapi.bru --env-var host=fastapi ./postgres)"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.31.1",

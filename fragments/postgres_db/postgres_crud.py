@@ -84,7 +84,7 @@ def add_item(coin: Tuple[str, str, int]) -> Literal["ok"]:
 def remove_item(ticker: str) -> Optional[CryptoCoin]:
     connection = init_db()
     cursor = connection.execute(
-        "DELETE FROM crypto_coins WHERE ticker = %s RETURNING ticker, name, launched",
+        "DELETE FROM crypto_coins WHERE ticker = %s RETURNING *",
         (ticker,),
     )
     connection.commit()
@@ -99,7 +99,7 @@ def update_item(coin: Tuple[str, str, int]) -> Optional[CryptoCoin]:
     launched = coin[2]
     connection = init_db()
     cursor = connection.execute(
-        "UPDATE crypto_coins SET name = %s, launched = %s WHERE ticker = %s RETURNING ticker, name, launched",
+        "UPDATE crypto_coins SET name = %s, launched = %s WHERE ticker = %s RETURNING *",
         (
             name,
             launched,

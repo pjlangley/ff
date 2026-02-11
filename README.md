@@ -222,6 +222,9 @@ execute the code.
 
 ##### Run
 
+> [!IMPORTANT]
+> The Bruno commands require the local Node.js setup, see earlier instructions.
+
 - Run unit tests:
   ```
   python -m unittest -v
@@ -250,8 +253,15 @@ execute the code.
   ```
   python -m fragments.api
   ```
+- Run the Bruno integration tests (ensure the API is already running):
+  ```
+  node --run api:bru:fastapi
+  ```
 
 #### Docker (Python)
+
+> [!IMPORTANT]
+> The Bruno commands require the Node.js Docker setup, see earlier instructions.
 
 - Build the image at root of repo (with optional build args):
   ```
@@ -300,6 +310,15 @@ execute the code.
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_python
+  ```
+- Run the Bruno integration tests (ensure the FastAPI is already running via Docker):
+  ```
+  docker run --rm \
+    --network ff_default \
+    -e POSTGRES_HOST=postgres \
+    -e REDIS_HOST=redis \
+    -e SOLANA_HOST=solana \
+    ff_node --run api:bru:fastapi:docker
   ```
 
 ### Rust
