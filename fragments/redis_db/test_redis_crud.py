@@ -4,7 +4,7 @@ from .redis_crud import redis_ping, redis_create, redis_read, redis_update, redi
 
 class TestRedisCrud(unittest.TestCase):
     def test_redis_ping(self):
-        self.assertTrue(redis_ping())
+        self.assertEqual(redis_ping(), "PONG")
 
     def test_redis_create(self):
         self.assertEqual(redis_create("python", "bitcoin"), "OK")

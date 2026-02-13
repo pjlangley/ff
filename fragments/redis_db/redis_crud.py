@@ -12,15 +12,11 @@ def init_client() -> redis.Redis:
     return redis.from_url(f"redis://{host}:6379", decode_responses=True)
 
 
-def redis_ping() -> bool:
+def redis_ping() -> str:
     r = init_client()
     pong = r.ping()
     r.quit()
-
-    if isinstance(pong, bool):
-        return pong
-
-    return False
+    return "PONG" if pong else ""
 
 
 def redis_create(namespace: str, favourite_coin: str) -> Literal["OK"]:
