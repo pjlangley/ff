@@ -7,11 +7,11 @@ from fragments.solana_transaction import confirm_recent_signature, create_tx_wit
 from fragments.solana_rpc import init_rpc_client
 
 
-class TestSolanaTransactionUtils(unittest.TestCase):
+class TestSolanaTransactionUtils(unittest.IsolatedAsyncioTestCase):
 
-    def test_solana_confirm_recent_signature_success(self):
+    async def test_solana_confirm_recent_signature_success(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         instr = transfer(
             TransferParams(
@@ -20,14 +20,14 @@ class TestSolanaTransactionUtils(unittest.TestCase):
                 lamports=0,
             )
         )
-        tx = create_tx_with_fee_payer_and_lifetime(user_keypair=user_keypair, instruction=instr)
+        tx = await create_tx_with_fee_payer_and_lifetime(user_keypair=user_keypair, instruction=instr)
         client = init_rpc_client()
-        client.send_transaction(tx)
-        is_confirmed = confirm_recent_signature(tx.signatures[0])
+        await client.send_transaction(tx)
+        is_confirmed = await confirm_recent_signature(tx.signatures[0])
 
         self.assertTrue(is_confirmed)
 
-    def test_solana_confirm_recent_signature_failure(self):
+    async def test_solana_confirm_recent_signature_failure(self):
         user_keypair = Keypair()
         instr = transfer(
             TransferParams(
@@ -36,8 +36,8 @@ class TestSolanaTransactionUtils(unittest.TestCase):
                 lamports=0,
             )
         )
-        tx = create_tx_with_fee_payer_and_lifetime(user_keypair=user_keypair, instruction=instr)
+        tx = await create_tx_with_fee_payer_and_lifetime(user_keypair=user_keypair, instruction=instr)
 
-        is_confirmed = confirm_recent_signature(tx.signatures[0], 0.1)
+        is_confirmed = await confirm_recent_signature(tx.signatures[0], 0.1)
 
         self.assertFalse(is_confirmed)

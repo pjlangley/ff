@@ -43,7 +43,7 @@ username_record_account_schema = Struct(
 )
 
 
-def initialise_username(user_keypair: Keypair, program_address: Pubkey, username: str) -> Signature:
+async def initialise_username(user_keypair: Keypair, program_address: Pubkey, username: str) -> Signature:
     discriminator = get_instruction_discriminator("initialize_username", "username")
     username_pda = get_program_derived_address(user_keypair.pubkey(), program_address, "user_account")
     client = init_rpc_client()
@@ -57,15 +57,15 @@ def initialise_username(user_keypair: Keypair, program_address: Pubkey, username
             AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
-    response = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
+    response = await client.send_transaction(tx)
     return response.value
 
 
-def get_username_account(user_keypair: Keypair, program_address: Pubkey) -> UsernameAccount:
+async def get_username_account(user_keypair: Keypair, program_address: Pubkey) -> UsernameAccount:
     client = init_rpc_client()
     pda = get_program_derived_address(user_keypair.pubkey(), program_address, "user_account")
-    response = client.get_account_info(pda)
+    response = await client.get_account_info(pda)
     account_info = response.value
 
     if account_info is None:
@@ -93,8 +93,8 @@ def get_username_record_pda(user_address: Pubkey, program_address: Pubkey, chang
     return pda
 
 
-def update_username(user_keypair: Keypair, program_address: Pubkey, username: str) -> Signature:
-    username_account = get_username_account(user_keypair, program_address)
+async def update_username(user_keypair: Keypair, program_address: Pubkey, username: str) -> Signature:
+    username_account = await get_username_account(user_keypair, program_address)
     change_count = username_account["change_count"]
     discriminator = get_instruction_discriminator("update_username", "username")
     username_account_pda = get_program_derived_address(user_keypair.pubkey(), program_address, "user_account")
@@ -111,17 +111,17 @@ def update_username(user_keypair: Keypair, program_address: Pubkey, username: st
             AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
-    response = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
+    response = await client.send_transaction(tx)
     return response.value
 
 
-def get_username_record_account(
+async def get_username_record_account(
     user_address: Pubkey, program_address: Pubkey, change_index: int
 ) -> UsernameRecordAccount:
     client = init_rpc_client()
     pda = get_username_record_pda(user_address, program_address, change_index)
-    response = client.get_account_info(pda)
+    response = await client.get_account_info(pda)
     account_info = response.value
 
     if account_info is None:

@@ -30,7 +30,7 @@ round_account_schema = Struct(
 )
 
 
-def initialise_round(authority: Keypair, program_address: Pubkey, start_slot: int) -> Signature:
+async def initialise_round(authority: Keypair, program_address: Pubkey, start_slot: int) -> Signature:
     discriminator = get_instruction_discriminator("initialise_round", "round")
     payer = authority.pubkey()
     pda = get_program_derived_address(payer, program_address, "round")
@@ -45,15 +45,15 @@ def initialise_round(authority: Keypair, program_address: Pubkey, start_slot: in
             AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(authority, instr)
-    res = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(authority, instr)
+    res = await client.send_transaction(tx)
     return res.value
 
 
-def get_round_account(authority: Pubkey, program_address: Pubkey) -> RoundAccount:
+async def get_round_account(authority: Pubkey, program_address: Pubkey) -> RoundAccount:
     pda = get_program_derived_address(authority, program_address, "round")
     client = init_rpc_client()
-    res = client.get_account_info(pda)
+    res = await client.get_account_info(pda)
     account_info = res.value
 
     if account_info is None:
@@ -71,7 +71,7 @@ def get_round_account(authority: Pubkey, program_address: Pubkey) -> RoundAccoun
     )
 
 
-def activate_round(payer: Keypair, program_address: Pubkey, authority: Pubkey) -> Signature:
+async def activate_round(payer: Keypair, program_address: Pubkey, authority: Pubkey) -> Signature:
     discriminator = get_instruction_discriminator("activate_round", "round")
     pda = get_program_derived_address(authority, program_address, "round")
     client = init_rpc_client()
@@ -83,12 +83,12 @@ def activate_round(payer: Keypair, program_address: Pubkey, authority: Pubkey) -
             AccountMeta(pubkey=payer.pubkey(), is_signer=True, is_writable=True),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(payer, instr)
-    res = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(payer, instr)
+    res = await client.send_transaction(tx)
     return res.value
 
 
-def complete_round(authority: Keypair, program_address: Pubkey) -> Signature:
+async def complete_round(authority: Keypair, program_address: Pubkey) -> Signature:
     discriminator = get_instruction_discriminator("complete_round", "round")
     pda = get_program_derived_address(authority.pubkey(), program_address, "round")
     client = init_rpc_client()
@@ -100,6 +100,6 @@ def complete_round(authority: Keypair, program_address: Pubkey) -> Signature:
             AccountMeta(pubkey=authority.pubkey(), is_signer=True, is_writable=True),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(authority, instr)
-    res = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(authority, instr)
+    res = await client.send_transaction(tx)
     return res.value

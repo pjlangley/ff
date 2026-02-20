@@ -9,7 +9,7 @@ from fragments.solana_program import get_instruction_discriminator, get_program_
 from fragments.solana_transaction import create_tx_with_fee_payer_and_lifetime
 
 
-def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
+async def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
     discriminator = get_instruction_discriminator("initialize", "counter")
     counter_pda = get_program_derived_address(user_keypair.pubkey(), program_id, "counter")
     client = init_rpc_client()
@@ -22,15 +22,15 @@ def initialize_account(user_keypair: Keypair, program_id: Pubkey) -> Signature:
             AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
-    response = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
+    response = await client.send_transaction(tx)
     return response.value
 
 
-def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
+async def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
     client = init_rpc_client()
     counter_pda = get_program_derived_address(user_keypair.pubkey(), program_id, "counter")
-    response = client.get_account_info(counter_pda)
+    response = await client.get_account_info(counter_pda)
     account_info = response.value
 
     if account_info is None:
@@ -44,7 +44,7 @@ def get_count(user_keypair: Keypair, program_id: Pubkey) -> int:
     return parsed.count
 
 
-def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
+async def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
     discriminator = get_instruction_discriminator("increment", "counter")
     counter_pda = get_program_derived_address(user_keypair.pubkey(), program_id, "counter")
     client = init_rpc_client()
@@ -56,6 +56,6 @@ def increment_counter(user_keypair: Keypair, program_id: Pubkey) -> Signature:
             AccountMeta(pubkey=user_keypair.pubkey(), is_signer=True, is_writable=True),
         ],
     )
-    tx = create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
-    response = client.send_transaction(tx)
+    tx = await create_tx_with_fee_payer_and_lifetime(user_keypair, instruction)
+    response = await client.send_transaction(tx)
     return response.value

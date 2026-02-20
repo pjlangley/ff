@@ -11,7 +11,7 @@ from fragments.solana_transaction import confirm_recent_signature
 from fragments.env_vars import get_env_var
 
 
-class TestSolanaCounterInterface(unittest.TestCase):
+class TestSolanaCounterInterface(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         script_dir = Path(__file__).resolve().parent
@@ -25,56 +25,56 @@ class TestSolanaCounterInterface(unittest.TestCase):
 
         cls.program_id = Pubkey.from_string(program_id)
 
-    def test_solana_initialize_account(self):
+    async def test_solana_initialize_account(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
-        initialize_signature = initialize_account(user_keypair, self.program_id)
-        instruction_confirmed = confirm_recent_signature(initialize_signature)
+        initialize_signature = await initialize_account(user_keypair, self.program_id)
+        instruction_confirmed = await confirm_recent_signature(initialize_signature)
 
         if not instruction_confirmed:
             self.fail("Initialize instruction failed")
 
-        count = get_count(user_keypair, self.program_id)
+        count = await get_count(user_keypair, self.program_id)
         self.assertEqual(count, 0, "Count should be zero after initialization")
 
-    def test_solana_initialize_account_and_increment(self):
+    async def test_solana_initialize_account_and_increment(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
-        initialize_signature = initialize_account(user_keypair, self.program_id)
-        instruction_confirmed = confirm_recent_signature(initialize_signature)
+        initialize_signature = await initialize_account(user_keypair, self.program_id)
+        instruction_confirmed = await confirm_recent_signature(initialize_signature)
 
         if not instruction_confirmed:
             self.fail("Initialize instruction failed")
 
-        count = get_count(user_keypair, self.program_id)
+        count = await get_count(user_keypair, self.program_id)
         self.assertEqual(count, 0, "Count should be zero after initialization")
 
-        increment_signature = increment_counter(user_keypair, self.program_id)
-        increment_confirmed = confirm_recent_signature(increment_signature)
+        increment_signature = await increment_counter(user_keypair, self.program_id)
+        increment_confirmed = await confirm_recent_signature(increment_signature)
 
         if not increment_confirmed:
             self.fail("Increment instruction failed")
 
-        latest_count = get_count(user_keypair, self.program_id)
+        latest_count = await get_count(user_keypair, self.program_id)
         self.assertEqual(latest_count, 1, "Count should be 1 after incrementing")
 
-    def test_solana_increment_before_initialize(self):
+    async def test_solana_increment_before_initialize(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         with self.assertRaises(RPCException) as cm:
-            increment_counter(user_keypair, self.program_id)
+            await increment_counter(user_keypair, self.program_id)
 
         error_str = str(cm.exception)
         self.assertIn("The program expected this account to be already initialized", error_str)
 
-    def test_solana_get_count_before_initialize(self):
+    async def test_solana_get_count_before_initialize(self):
         user_keypair = Keypair()
 
         with self.assertRaises(ValueError) as cm:
-            get_count(user_keypair, self.program_id)
+            await get_count(user_keypair, self.program_id)
 
         error_str = str(cm.exception)
         self.assertRegex(error_str, r"Account .* does not exist")

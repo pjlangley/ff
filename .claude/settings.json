@@ -8,7 +8,9 @@
       "Bash(python -m unittest:*)",
       "Bash(mypy:*)",
       "Bash(pylint:*)",
-      "Bash(black:*)"
+      "Bash(black:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
     ],
     "deny": [
       "Read(./solana.id.json)",

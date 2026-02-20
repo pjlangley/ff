@@ -17,7 +17,7 @@ from fragments.solana_program_round import (
 from fragments.solana_transaction import confirm_recent_signature
 
 
-class TestSolanaRoundInterface(unittest.TestCase):
+class TestSolanaRoundInterface(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         script_dir = Path(__file__).resolve().parent
@@ -30,91 +30,96 @@ class TestSolanaRoundInterface(unittest.TestCase):
             cls.fail("Environment variable 'round_PROGRAM_ID' is not set")
 
         cls.program_id = Pubkey.from_string(program_id)
-        cls.client = init_rpc_client()
 
-    def test_solana_initialise_activate_complete_round(self):
+    async def test_solana_initialise_activate_complete_round(self):
+        client = init_rpc_client()
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
-        recent_slot = self.client.get_slot().value
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        recent_slot = (await client.get_slot()).value
 
-        sig = initialise_round(authority=user_keypair, program_address=self.program_id, start_slot=recent_slot + 3)
-        instr_confirmed = confirm_recent_signature(sig)
+        sig = await initialise_round(
+            authority=user_keypair, program_address=self.program_id, start_slot=recent_slot + 3
+        )
+        instr_confirmed = await confirm_recent_signature(sig)
         if not instr_confirmed:
             self.fail("Initialise round instruction failed")
 
-        round_account = get_round_account(user_keypair.pubkey(), self.program_id)
+        round_account = await get_round_account(user_keypair.pubkey(), self.program_id)
         self.assertEqual(round_account["start_slot"], recent_slot + 3)
         self.assertEqual(round_account["authority"], user_keypair.pubkey())
         self.assertIsNone(round_account["activated_at"])
         self.assertIsNone(round_account["activated_by"])
         self.assertIsNone(round_account["completed_at"])
 
-        at_slot = wait_for_slot(recent_slot + 3)
+        at_slot = await wait_for_slot(recent_slot + 3)
 
         if not at_slot:
             self.fail("Failed to reach slot in time")
 
-        activate_sig = activate_round(
+        activate_sig = await activate_round(
             payer=user_keypair, program_address=self.program_id, authority=user_keypair.pubkey()
         )
-        activate_confirmed = confirm_recent_signature(activate_sig)
+        activate_confirmed = await confirm_recent_signature(activate_sig)
         if not activate_confirmed:
             self.fail("Activate round instruction failed")
 
-        round_account = get_round_account(user_keypair.pubkey(), self.program_id)
+        round_account = await get_round_account(user_keypair.pubkey(), self.program_id)
         self.assertIsNotNone(round_account["activated_at"])
         self.assertEqual(round_account["activated_by"], user_keypair.pubkey())
 
-        complete_sig = complete_round(authority=user_keypair, program_address=self.program_id)
-        complete_confirmed = confirm_recent_signature(complete_sig)
+        complete_sig = await complete_round(authority=user_keypair, program_address=self.program_id)
+        complete_confirmed = await confirm_recent_signature(complete_sig)
         if not complete_confirmed:
             self.fail("Complete round instruction failed")
 
-        round_account = get_round_account(user_keypair.pubkey(), self.program_id)
+        round_account = await get_round_account(user_keypair.pubkey(), self.program_id)
         self.assertIsNotNone(round_account["completed_at"])
 
-    def test_solana_initialise_round_invalid_slot(self):
+    async def test_solana_initialise_round_invalid_slot(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         with self.assertRaises(RPCException) as cm:
-            initialise_round(authority=user_keypair, program_address=self.program_id, start_slot=0)
+            await initialise_round(authority=user_keypair, program_address=self.program_id, start_slot=0)
 
         error_str = str(cm.exception)
         self.assertIn("InvalidStartSlot", error_str)
 
-    def test_solana_activate_round_without_initialise(self):
+    async def test_solana_activate_round_without_initialise(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         with self.assertRaises(RPCException) as cm:
-            activate_round(payer=user_keypair, program_address=self.program_id, authority=user_keypair.pubkey())
+            await activate_round(payer=user_keypair, program_address=self.program_id, authority=user_keypair.pubkey())
 
         error_str = str(cm.exception)
         self.assertIn("AccountNotInitialized", error_str)
 
-    def test_solana_activate_round_invalid_slot(self):
+    async def test_solana_activate_round_invalid_slot(self):
+        client = init_rpc_client()
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
-        recent_slot = self.client.get_slot().value
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        recent_slot = (await client.get_slot()).value
 
-        sig = initialise_round(authority=user_keypair, program_address=self.program_id, start_slot=recent_slot + 50)
-        instr_confirmed = confirm_recent_signature(sig)
+        sig = await initialise_round(
+            authority=user_keypair, program_address=self.program_id, start_slot=recent_slot + 50
+        )
+        instr_confirmed = await confirm_recent_signature(sig)
         if not instr_confirmed:
             self.fail("Initialise round instruction failed")
 
         with self.assertRaises(RPCException) as cm:
-            activate_round(payer=user_keypair, program_address=self.program_id, authority=user_keypair.pubkey())
+            await activate_round(payer=user_keypair, program_address=self.program_id, authority=user_keypair.pubkey())
 
         error_str = str(cm.exception)
         self.assertIn("InvalidRoundActivationSlot", error_str)
 
-    def test_solana_complete_round_without_initialise(self):
+    async def test_solana_complete_round_without_initialise(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         with self.assertRaises(RPCException) as cm:
-            complete_round(authority=user_keypair, program_address=self.program_id)
+            await complete_round(authority=user_keypair, program_address=self.program_id)
 
         error_str = str(cm.exception)
         self.assertIn("AccountNotInitialized", error_str)

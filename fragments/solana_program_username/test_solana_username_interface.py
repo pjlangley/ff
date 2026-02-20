@@ -16,7 +16,7 @@ from fragments.solana_program_username import (
 from fragments.solana_transaction import confirm_recent_signature
 
 
-class TestSolanaUsernameInterface(unittest.TestCase):
+class TestSolanaUsernameInterface(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         script_dir = Path(__file__).resolve().parent
@@ -30,127 +30,137 @@ class TestSolanaUsernameInterface(unittest.TestCase):
 
         cls.program_id = Pubkey.from_string(program_id)
 
-    def test_solana_initialise_username(self):
+    async def test_solana_initialise_username(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
-        sig = initialise_username(user_keypair=user_keypair, program_address=self.program_id, username="my_username")
-        instr_confirmed = confirm_recent_signature(sig)
+        sig = await initialise_username(
+            user_keypair=user_keypair, program_address=self.program_id, username="my_username"
+        )
+        instr_confirmed = await confirm_recent_signature(sig)
 
         if not instr_confirmed:
             self.fail("Initialise username instruction failed")
 
-        user_account = get_username_account(user_keypair=user_keypair, program_address=self.program_id)
+        user_account = await get_username_account(user_keypair=user_keypair, program_address=self.program_id)
         self.assertEqual(user_account["username"]["value"], "my_username")
         self.assertEqual(user_account["authority"], user_keypair.pubkey())
         self.assertEqual(user_account["change_count"], 0)
         self.assertEqual(len(user_account["username_recent_history"]), 0)
 
-    def test_solana_init_username_update_username(self):
+    async def test_solana_init_username_update_username(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
-        sig = initialise_username(user_keypair=user_keypair, program_address=self.program_id, username="my_username")
-        instr_confirmed = confirm_recent_signature(sig)
+        sig = await initialise_username(
+            user_keypair=user_keypair, program_address=self.program_id, username="my_username"
+        )
+        instr_confirmed = await confirm_recent_signature(sig)
 
         if not instr_confirmed:
             self.fail("Initialise username instruction failed")
 
-        user_account = get_username_account(user_keypair=user_keypair, program_address=self.program_id)
+        user_account = await get_username_account(user_keypair=user_keypair, program_address=self.program_id)
         self.assertEqual(user_account["username"]["value"], "my_username")
 
-        update_sig = update_username(
+        update_sig = await update_username(
             user_keypair=user_keypair, program_address=self.program_id, username="new_username"
         )
-        update_instr_confirmed = confirm_recent_signature(update_sig)
+        update_instr_confirmed = await confirm_recent_signature(update_sig)
 
         if not update_instr_confirmed:
             self.fail("update username instruction failed")
 
-        updated_user_account = get_username_account(user_keypair=user_keypair, program_address=self.program_id)
+        updated_user_account = await get_username_account(user_keypair=user_keypair, program_address=self.program_id)
         self.assertEqual(updated_user_account["username"]["value"], "new_username")
         self.assertEqual(len(updated_user_account["username_recent_history"]), 1)
         self.assertEqual(updated_user_account["username_recent_history"][0]["value"], "my_username")
 
-    def test_solana_update_username_multiple_times(self):
+    async def test_solana_update_username_multiple_times(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
-        sig = initialise_username(user_keypair=user_keypair, program_address=self.program_id, username="username_0")
-        instr_confirmed = confirm_recent_signature(sig)
+        sig = await initialise_username(
+            user_keypair=user_keypair, program_address=self.program_id, username="username_0"
+        )
+        instr_confirmed = await confirm_recent_signature(sig)
 
         if not instr_confirmed:
             self.fail("Initialise username instruction failed")
 
         for i in range(4):
-            update_sig = update_username(
+            update_sig = await update_username(
                 user_keypair=user_keypair, program_address=self.program_id, username=f"username_{i + 1}"
             )
-            update_instr_confirmed = confirm_recent_signature(update_sig)
+            update_instr_confirmed = await confirm_recent_signature(update_sig)
 
             if not update_instr_confirmed:
                 self.fail("update username instruction failed")
 
         for i in range(4):
-            user_record_account = get_username_record_account(
+            user_record_account = await get_username_record_account(
                 user_address=user_keypair.pubkey(), program_address=self.program_id, change_index=i
             )
             self.assertEqual(user_record_account["authority"], user_keypair.pubkey())
             self.assertEqual(user_record_account["old_username"]["value"], f"username_{i}")
             self.assertEqual(user_record_account["change_index"], i)
 
-    def test_solana_update_username_before_init(self):
+    async def test_solana_update_username_before_init(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         with self.assertRaises(ValueError) as cm:
-            update_username(user_keypair=user_keypair, program_address=self.program_id, username="my_username")
+            await update_username(user_keypair=user_keypair, program_address=self.program_id, username="my_username")
 
         error_str = str(cm.exception)
         self.assertRegex(error_str, r"Account .* does not exist")
 
-    def test_solana_get_username_account_before_init(self):
+    async def test_solana_get_username_account_before_init(self):
         user_keypair = Keypair()
 
         with self.assertRaises(ValueError) as cm:
-            get_username_account(user_keypair=user_keypair, program_address=self.program_id)
+            await get_username_account(user_keypair=user_keypair, program_address=self.program_id)
 
         error_str = str(cm.exception)
         self.assertRegex(error_str, r"Account .* does not exist")
 
-    def test_solana_get_username_record_account_before_init(self):
+    async def test_solana_get_username_record_account_before_init(self):
         user_keypair = Keypair()
 
         with self.assertRaises(ValueError) as cm:
-            get_username_record_account(
+            await get_username_record_account(
                 user_address=user_keypair.pubkey(), program_address=self.program_id, change_index=0
             )
 
         error_str = str(cm.exception)
         self.assertRegex(error_str, r"Account .* does not exist")
 
-    def test_solana_invalid_username_at_init(self):
+    async def test_solana_invalid_username_at_init(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
         with self.assertRaises(RPCException) as cm:
-            initialise_username(user_keypair=user_keypair, program_address=self.program_id, username="my_username!!!")
+            await initialise_username(
+                user_keypair=user_keypair, program_address=self.program_id, username="my_username!!!"
+            )
 
         error_str = str(cm.exception)
         self.assertIn("UsernameInvalidCharacters", error_str)
 
-    def test_solana_invalid_username_at_update(self):
+    async def test_solana_invalid_username_at_update(self):
         user_keypair = Keypair()
-        send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
+        await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)
 
-        sig = initialise_username(user_keypair=user_keypair, program_address=self.program_id, username="my_username")
-        instr_confirmed = confirm_recent_signature(sig)
+        sig = await initialise_username(
+            user_keypair=user_keypair, program_address=self.program_id, username="my_username"
+        )
+        instr_confirmed = await confirm_recent_signature(sig)
 
         if not instr_confirmed:
             self.fail("Initialise username instruction failed")
 
         with self.assertRaises(RPCException) as cm:
-            update_username(user_keypair=user_keypair, program_address=self.program_id, username="z")
+            await update_username(user_keypair=user_keypair, program_address=self.program_id, username="z")
 
         error_str = str(cm.exception)
         self.assertIn("UsernameTooShort", error_str)
