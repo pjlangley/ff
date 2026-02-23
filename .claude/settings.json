@@ -10,7 +10,8 @@
       "Bash(pylint:*)",
       "Bash(black:*)",
       "Bash(cat:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python3:*)"
     ],
     "deny": [
       "Read(./solana.id.json)",
