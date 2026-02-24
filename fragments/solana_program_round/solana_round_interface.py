@@ -26,7 +26,7 @@ round_account_schema = Struct(
     "activated_by_present" / Flag,
     "activated_by" / If(lambda ctx: ctx.activated_by_present, Bytes(32)),
     "completed_at_present" / Flag,
-    "completed_at" / If(lambda ctx: ctx.activated_by_present, Int64ul),
+    "completed_at" / If(lambda ctx: ctx.completed_at_present, Int64ul),
 )
 
 
