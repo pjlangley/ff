@@ -12,14 +12,14 @@ logger = logging.getLogger(__name__)
 @solana_balance_router.get("/{address}", status_code=200)
 async def get_solana_balance(address: str):
     try:
-        try:
-            pubkey = Pubkey.from_string(address)
-        except ValueError:
-            return JSONResponse(
-                status_code=400,
-                content={"error": "Invalid Solana address"},
-            )
+        pubkey = Pubkey.from_string(address)
+    except ValueError:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid Solana address"},
+        )
 
+    try:
         balance = await get_balance(pubkey)
         return {"balance": str(balance)}
     except Exception as e:
