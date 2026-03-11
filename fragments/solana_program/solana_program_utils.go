@@ -62,7 +62,7 @@ func GetInstructionDiscriminator(instructionName string, programName string) ([]
 		}
 	}
 
-	return nil, fmt.Errorf("Instruction %s not found in program %s IDL", instructionName, programName)
+	return nil, fmt.Errorf("instruction %s not found in program %s IDL", instructionName, programName)
 }
 
 func GetProgramDerivedAddress(userPubkey solana.PublicKey, programPubkey solana.PublicKey, accountName string) solana.PublicKey {

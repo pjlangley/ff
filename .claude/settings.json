@@ -12,7 +12,8 @@
       "Bash(cat:*)",
       "Bash(ls:*)",
       "Bash(python3:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(golangci-lint run ./fragments/...)"
     ],
     "deny": [
       "Read(./solana.id.json)",

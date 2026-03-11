@@ -169,55 +169,49 @@ jobs:
     name: go
     steps:
       - uses: actions/checkout@v4
+
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/nodejs_docker_build
+
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
-      - run: |
-          docker build \
-            --force-rm \
-            --build-arg GO_VERSION=1.23.1 \
-            --build-arg ALPINE_VERSION=3.20 \
-            --build-arg GO_CI_LINT_VERSION=1.61.0 \
-            -f docker.go.Dockerfile \
-            -t ff_go .
-      - name: start gin api
-        run: |
-          docker run -d \
-            --name gin \
-            --network ci-network \
-            -p 3002:3002 \
-            -e GIN_HOST=0.0.0.0 \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
-            -e username_PROGRAM_ID=$username_PROGRAM_ID \
-            -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            ff_go
-      - name: unit tests
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
-            -e username_PROGRAM_ID=$username_PROGRAM_ID \
-            -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            --entrypoint go \
-            ff_go \
-            test -v -p 1 ./fragments/...
-      - name: bruno integration tests for gin api
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            ff_node \
-            --run api:bru:gin:docker
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache: true
+          cache-dependency-path: go.work.sum
+
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version-file: .golangci-lint-version
+          install-only: true
+
+      - name: install dependencies
+        working-directory: ./fragments
+        run: go mod tidy
+
       - name: lint
-        run: docker run --rm --entrypoint golangci-lint ff_go run -v ./fragments/...
+        run: golangci-lint run -v ./fragments/...
+
       - name: format check
-        run: docker run --rm --entrypoint test ff_go -z $(gofmt -l ./fragments)
+        run: test -z $(gofmt -l ./fragments)
+
+      - name: unit tests
+        run: go test -v -p 1 ./fragments/...
+
+      - name: build
+        run: go build -v -o .bin/go_ff ./fragments/api.go
+
+      - name: run gin api
+        run: ./.bin/go_ff &
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: install npm dependencies
+        run: npm ci
+
+      - name: bruno integration tests for gin api
+        run: node --run api:bru:gin

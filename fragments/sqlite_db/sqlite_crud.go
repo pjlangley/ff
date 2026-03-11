@@ -49,7 +49,7 @@ func init_db() *sql.DB {
 
 func GetItemByTicker(ticker string) (*CryptoCoin, error) {
 	database := init_db()
-	defer database.Close()
+	defer func() { _ = database.Close() }()
 	query := `SELECT id, ticker, name, launched FROM crypto_coins WHERE ticker = ? LIMIT 1;`
 	var coin CryptoCoin
 	err := database.QueryRow(query, ticker).Scan(&coin.Id, &coin.Ticker, &coin.Name, &coin.Launched)
@@ -67,7 +67,7 @@ func GetItemByTicker(ticker string) (*CryptoCoin, error) {
 
 func GetItemsAfterLaunchYear(launch_year int) ([]CryptoCoin, error) {
 	database := init_db()
-	defer database.Close()
+	defer func() { _ = database.Close() }()
 	query := `SELECT * FROM crypto_coins WHERE launched > ?;`
 	coins := []CryptoCoin{}
 	rows, err := database.Query(query, launch_year)
@@ -75,7 +75,7 @@ func GetItemsAfterLaunchYear(launch_year int) ([]CryptoCoin, error) {
 		log.Printf("error with query %v", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var coin CryptoCoin
@@ -97,7 +97,7 @@ func GetItemsAfterLaunchYear(launch_year int) ([]CryptoCoin, error) {
 
 func GetAllItems() ([]CryptoCoin, error) {
 	database := init_db()
-	defer database.Close()
+	defer func() { _ = database.Close() }()
 	query := `SELECT * FROM crypto_coins ORDER BY launched DESC;`
 	var coins []CryptoCoin
 	rows, err := database.Query(query)
@@ -105,7 +105,7 @@ func GetAllItems() ([]CryptoCoin, error) {
 		log.Printf("Error with db query: %v", err)
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var coin CryptoCoin
@@ -127,7 +127,7 @@ func GetAllItems() ([]CryptoCoin, error) {
 
 func AddItem(coin CryptoCoinWithoutId) (string, int64, error) {
 	database := init_db()
-	defer database.Close()
+	defer func() { _ = database.Close() }()
 	query := `INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?, ?, ?);`
 	result, err := database.Exec(query, coin.Ticker, coin.Name, coin.Launched)
 	if err != nil {
@@ -145,7 +145,7 @@ func AddItem(coin CryptoCoinWithoutId) (string, int64, error) {
 
 func UpdateItem(coin CryptoCoinWithoutId) (*CryptoCoin, error) {
 	database := init_db()
-	defer database.Close()
+	defer func() { _ = database.Close() }()
 	query := `UPDATE crypto_coins SET name = ?, launched = ? WHERE ticker = ? RETURNING *;`
 	var result CryptoCoin
 	err := database.QueryRow(query, coin.Name, coin.Launched, coin.Ticker).Scan(&result.Id, &result.Ticker, &result.Name, &result.Launched)
@@ -163,7 +163,7 @@ func UpdateItem(coin CryptoCoinWithoutId) (*CryptoCoin, error) {
 
 func DeleteItem(ticker string) (*CryptoCoin, error) {
 	database := init_db()
-	defer database.Close()
+	defer func() { _ = database.Close() }()
 	query := `DELETE FROM crypto_coins WHERE ticker = ? RETURNING *;`
 	var coin CryptoCoin
 	err := database.QueryRow(query, ticker).Scan(&coin.Id, &coin.Ticker, &coin.Name, &coin.Launched)

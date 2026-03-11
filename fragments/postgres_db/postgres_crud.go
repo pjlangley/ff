@@ -64,7 +64,7 @@ func initDb() *pgx.Conn {
 func GetItemByTicker(ticker string) (*CryptoCoin, error) {
 	var coin CryptoCoin
 	conn := initDb()
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	err := conn.QueryRow(ctx,
 		"SELECT * FROM crypto_coins WHERE ticker = $1 LIMIT 1",
 		ticker,
@@ -83,7 +83,7 @@ func GetItemByTicker(ticker string) (*CryptoCoin, error) {
 func GetItemsAfterLaunchYear(launchYear int) ([]CryptoCoin, error) {
 	var coins []CryptoCoin
 	conn := initDb()
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	rows, queryErr := conn.Query(ctx, "SELECT * FROM crypto_coins WHERE launched > $1", launchYear)
 	if queryErr != nil {
 		return nil, fmt.Errorf("get items after launch year query failed: %w", queryErr)
@@ -95,7 +95,7 @@ func GetItemsAfterLaunchYear(launchYear int) ([]CryptoCoin, error) {
 		var coin CryptoCoin
 		err := rows.Scan(&coin.ID, &coin.Ticker, &coin.Name, &coin.Launched)
 		if err != nil {
-			return nil, fmt.Errorf("Error scanning row: %w", err)
+			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
 		coins = append(coins, coin)
 	}
@@ -110,7 +110,7 @@ func GetItemsAfterLaunchYear(launchYear int) ([]CryptoCoin, error) {
 func GetAllItems() ([]CryptoCoin, error) {
 	var coins []CryptoCoin
 	conn := initDb()
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	rows, queryErr := conn.Query(ctx, "SELECT * FROM crypto_coins ORDER BY launched DESC")
 	if queryErr != nil {
 		return nil, fmt.Errorf("get all items failed: %w", queryErr)
@@ -137,7 +137,7 @@ func GetAllItems() ([]CryptoCoin, error) {
 func CreateItem(coin CryptoCoinWithoutId) (string, error) {
 	var query = "INSERT INTO crypto_coins (ticker, name, launched) VALUES($1, $2, $3) ON CONFLICT (ticker) DO NOTHING"
 	conn := initDb()
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	_, err := conn.Exec(ctx, query, coin.Ticker, coin.Name, coin.Launched)
 	if err != nil {
 		return "", fmt.Errorf("create item failed: %w", err)
@@ -150,7 +150,7 @@ func UpdateItem(coin CryptoCoinWithoutId) (*CryptoCoin, error) {
 	var result CryptoCoin
 	var query = "UPDATE crypto_coins SET name = $1, launched = $2 WHERE ticker = $3 RETURNING *"
 	conn := initDb()
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	err := conn.QueryRow(ctx,
 		query,
 		coin.Name, coin.Launched, coin.Ticker,
@@ -170,7 +170,7 @@ func DeleteItem(ticker string) (*CryptoCoin, error) {
 	var coin CryptoCoin
 	var query = "DELETE FROM crypto_coins WHERE ticker = $1 RETURNING *"
 	conn := initDb()
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	err := conn.QueryRow(ctx,
 		query,
 		ticker,
