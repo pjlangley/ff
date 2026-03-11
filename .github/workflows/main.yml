@@ -11,51 +11,44 @@ jobs:
     name: node.js
     steps:
       - uses: actions/checkout@v4
+
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/nodejs_docker_build
+
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
-      - name: start fastify api
-        run: |
-          docker run -d \
-            --name fastify \
-            --network ci-network \
-            -p 3000:3000 \
-            -e FASTIFY_HOST=0.0.0.0 \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
-            -e username_PROGRAM_ID=$username_PROGRAM_ID \
-            -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            ff_node 
-      - name: unit tests
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            -e counter_PROGRAM_ID=$counter_PROGRAM_ID \
-            -e username_PROGRAM_ID=$username_PROGRAM_ID \
-            -e round_PROGRAM_ID=$round_PROGRAM_ID \
-            ff_node \
-            --run test
-      - name: bruno integration tests for fastify api
-        run: |
-          docker run --rm \
-            --network ci-network \
-            -e POSTGRES_HOST=postgres \
-            -e REDIS_HOST=redis \
-            -e SOLANA_HOST=solana \
-            ff_node \
-            --run api:bru:fastify:docker
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: install npm dependencies
+        run: npm ci
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: lint
-        run: docker run --rm ff_node --run lint
-      - name: typescript check
-        run: docker run --rm ff_node --run tsc
+        run: node --run lint
+
+      - name: type check
+        run: node --run tsc
+
       - name: format check
-        run: docker run --rm ff_node --run format:check
+        run: node --run format:check
+
+      - name: unit tests
+        run: node --run test
+
+      - name: build
+        run: node --run api:build
+
+      - name: run fastify api
+        run: node --run api:dist &
+
+      - name: bruno integration tests for fastify api
+        run: node --run api:bru:fastify
 
   ff_python:
     runs-on: ubuntu-latest
