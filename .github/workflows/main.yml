@@ -3,7 +3,7 @@ name: core fragments
 on:
   push:
     branches:
-      - ci_py_on_host
+      - main
 
 jobs:
   ff_node:
