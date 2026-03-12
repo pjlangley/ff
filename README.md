@@ -206,19 +206,9 @@ execute the code.
 
 ##### Setup
 
-- Install [`pyenv`](https://github.com/pyenv/pyenv)
-- `pyenv install 3.12.4` if you don't already have this version
-- Ensure `python3 --version` prints the above version
-- Create a
-  [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/):
-  ```
-  python3 -m venv --clear .venv
-  ```
-- Activate the virtual environment: `source .venv/bin/activate`
-- Ensure the Python interpreter being used is the virtual environment: `which python`
-- Install dependencies: `pip install -r requirements.txt`
-- Verify it's been installed with `pip list`
-- You can run `deactivate` to exit the virtual environment at any time
+- Install [`uv`](https://docs.astral.sh/uv/getting-started/installation)
+- Run `uv sync` at root of repo. This installs the Python version specified in `pyproject.toml`, creates the virtual
+  environment, and installs all dependencies
 
 ##### Run
 
@@ -227,31 +217,31 @@ execute the code.
 
 - Run unit tests:
   ```
-  python -m unittest -v
+  uv run python -m unittest -v
   ```
 - Run specific unit test suite:
   ```
-  python -m unittest -v fragments.solana_program_counter.test_solana_counter_interface.TestSolanaCounterInterface
+  uv run python -m unittest -v fragments/solana_program_counter/test_solana_counter_interface.py
   ```
 - Run the type check:
   ```
-  mypy --config-file mypy.ini
+  uv run mypy
   ```
 - Run the linter:
   ```
-  pylint ./fragments --rcfile ./pylintrc
+  uv run pylint ./fragments
   ```
 - Run the formatter:
   ```
-  black ./fragments
+  uv run ruff format ./fragments
   ```
 - Run the format check:
   ```
-  black ./fragments --check
+  uv run ruff format --check ./fragments
   ```
 - Run the REST API:
   ```
-  python -m fragments.api
+  uv run python -m fragments.api
   ```
 - Run the Bruno integration tests (ensure the API is already running):
   ```
@@ -280,23 +270,23 @@ execute the code.
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_python \
-    -m unittest -v
+    python -m unittest -v
   ```
 - Run the type check:
   ```
-  docker run --rm --entrypoint mypy ff_python --config-file mypy.ini
+  docker run --rm ff_python mypy
   ```
 - Run the linter:
   ```
-  docker run --rm --entrypoint pylint ff_python ./fragments --rcfile ./pylintrc
+  docker run --rm ff_python pylint ./fragments
   ```
 - Run the formatter:
   ```
-  docker run --rm --entrypoint black ff_python ./fragments
+  docker run --rm ff_python ruff format ./fragments
   ```
 - Run the format check:
   ```
-  docker run --rm --entrypoint black ff_python ./fragments --check
+  docker run --rm ff_python ruff format --check ./fragments
   ```
 - Run the REST API:
   ```

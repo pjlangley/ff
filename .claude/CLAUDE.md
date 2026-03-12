@@ -24,9 +24,8 @@
   working with Claude Code).
 - `fnm` used for local Node.js, and version is specified in `.nvmrc`.
 - `node --run test` - runs the Node.js unit tests.
-- `pyenv` and `venv` used for local Python.
-- `source .venv/bin/activate` to activate the virtual environment.
-- `python -m unittest -v` runs the Python unit tests.
+- `uv` used for local Python; config in `./pyproject.toml`.
+- `uv run python -m unittest -v` runs the Python unit tests.
 - `cargo` for local Rust.
 - `cargo test -- --test-threads=1` for the Rust unit tests (sequentially until I do some refactoring to make parallelism
   work).
@@ -39,7 +38,7 @@
 - `node --run api:bru:axum` to run the Bruno integration tests against the running Axum API.
 - `goenv exec go run fragments/api.go` to run the local Go API.
 - `node --run api:bru:gin` to run the Bruno integration tests against the running Gin API.
-- `python -m fragments.api` to run the local Python API.
+- `uv run python -m fragments.api` to run the local Python API.
 - `node --run api:bru:fastapi` to run the Bruno integration tests against the running FastAPI API.
 - `solana` and `anchor` CLI commands are available locally.
 - Further Rust commands and anchor CLI commands available once you change directory into
@@ -56,9 +55,9 @@
   `./fragments/blockchain/solana/tests/`.
 - Local Solana validator settings in `./solana-cli.local.yml` (you do not have permission to read the referenced
   `./solana.id.json` key file though).
-- Python code is type-checked with `mypy`, see `./mypi.ini`.
-- Python code is linted with `pylint`, see `./pylintrc`.
-- Python code is formatted with `black`, see `./pyproject.toml`.
+- Python code is type-checked with `mypy`; config in `./pyproject.toml`.
+- Python code is linted with `pylint`; config in `./pyproject.toml`.
+- Python code is formatted with `ruff`; config in `./pyproject.toml`.
 - Rust code is linted with `clippy` and formatted with `cargo fmt`.
 - Go code is linted with `golangci-lint`, see `./.golangci.yaml`.
 - Go code is formatted with `gofmt -w ./fragments`.

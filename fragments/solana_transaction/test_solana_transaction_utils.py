@@ -8,7 +8,6 @@ from fragments.solana_rpc import init_rpc_client
 
 
 class TestSolanaTransactionUtils(unittest.IsolatedAsyncioTestCase):
-
     async def test_solana_confirm_recent_signature_success(self):
         user_keypair = Keypair()
         await send_and_confirm_airdrop(user_keypair.pubkey(), LAMPORTS_PER_SOL)

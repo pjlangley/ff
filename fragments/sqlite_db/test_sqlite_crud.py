@@ -10,7 +10,6 @@ from fragments.sqlite_db.sqlite_crud import (
 
 
 class TestSqliteCrud(unittest.TestCase):
-
     def test_get_item_by_ticker(self):
         self.assertEqual(get_item_by_ticker("BTC"), (1, "BTC", "Bitcoin", 2009))
 

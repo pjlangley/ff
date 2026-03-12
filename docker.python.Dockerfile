@@ -2,13 +2,11 @@ ARG PYTHON_VERSION=3.12.4
 
 FROM python:${PYTHON_VERSION}
 WORKDIR /usr/src/app
-COPY mypy.ini .
-COPY pylintrc .
-COPY pyproject.toml .
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY --from=ghcr.io/astral-sh/uv:0.10.8 /uv /uvx /bin/
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
 COPY fragments/ ./fragments/
 EXPOSE 3003
 
-ENTRYPOINT ["python"]
-CMD ["-m", "fragments.api"]
+ENTRYPOINT ["uv", "run"]
+CMD ["python", "-m", "fragments.api"]

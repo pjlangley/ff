@@ -13,7 +13,12 @@
       "Bash(ls:*)",
       "Bash(python3:*)",
       "Bash(python:*)",
-      "Bash(golangci-lint run ./fragments/...)"
+      "Bash(golangci-lint run ./fragments/...)",
+      "Bash(uv sync)",
+      "Bash(uv run python --version)",
+      "Bash(uv run mypy --version)",
+      "Bash(uv run pylint --version)",
+      "Bash(uv run ruff version)"
     ],
     "deny": [
       "Read(./solana.id.json)",
