@@ -1,7 +1,5 @@
-import { verbose as sqlite3 } from "sqlite3";
+import Database from "better-sqlite3";
 import process from "node:process";
-
-const sqlite = sqlite3();
 
 const INIT_DB_SQL = `
 CREATE TABLE IF NOT EXISTS crypto_coins (
@@ -23,100 +21,39 @@ export interface CryptoCoin {
   launched: number;
 }
 
-const db = new sqlite.Database(":memory:");
+const db = new Database(":memory:");
 
-(async function initDb() {
-  try {
-    await new Promise((resolve, reject) => {
-      db.exec(INIT_DB_SQL, (err) => {
-        if (err) reject(err);
-        resolve({});
-      });
-    });
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
-  }
-})();
+try {
+  db.exec(INIT_DB_SQL);
+} catch (e) {
+  console.error(e);
+  process.exit(1);
+}
 
-export const getItemByTicker = async (ticker: string) => {
-  const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
-    db.get<CryptoCoin | undefined>("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1", [ticker], (err, row) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(row);
-    });
-  });
-
-  return result;
+export const getItemByTicker = (ticker: string) => {
+  return db.prepare("SELECT * FROM crypto_coins WHERE ticker = ? LIMIT 1").get(ticker) as CryptoCoin | undefined;
 };
 
-export const getItemsAfterLaunchYear = async (launchYear: number) => {
-  const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
-    db.all<CryptoCoin>("SELECT * FROM crypto_coins WHERE launched > ?", [launchYear], (err, rows) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(rows);
-    });
-  });
-
-  return result;
+export const getItemsAfterLaunchYear = (launchYear: number) => {
+  return db.prepare("SELECT * FROM crypto_coins WHERE launched > ?").all(launchYear) as CryptoCoin[];
 };
 
-export const getAllItems = async () => {
-  const result = await new Promise<CryptoCoin[]>((resolve, reject) => {
-    db.all<CryptoCoin>("SELECT * FROM crypto_coins ORDER BY launched DESC", [], (err, rows) => {
-      if (err) reject(err);
-      resolve(rows);
-    });
-  });
-
-  return result;
+export const getAllItems = () => {
+  return db.prepare("SELECT * FROM crypto_coins ORDER BY launched DESC").all() as CryptoCoin[];
 };
 
-export const addItem = async (coin: Omit<CryptoCoin, "id">) => {
-  const result = await new Promise<string>((resolve, reject) => {
-    db.run(
-      "INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?1, ?2, ?3)",
-      { 1: coin.ticker, 2: coin.name, 3: coin.launched },
-      (err) => {
-        if (err) reject(err);
-        resolve("ok");
-      },
-    );
-  });
-
-  return result;
+export const addItem = (coin: Omit<CryptoCoin, "id">) => {
+  db.prepare("INSERT OR IGNORE INTO crypto_coins VALUES(NULL, ?, ?, ?)")
+    .run(coin.ticker, coin.name, coin.launched);
+  return "ok";
 };
 
-export const updateItem = async (coin: Omit<CryptoCoin, "id">) => {
-  const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
-    db.get<CryptoCoin | undefined>(
-      "UPDATE crypto_coins SET name = ?1, launched = ?2 WHERE ticker = ?3 RETURNING *",
-      {
-        1: coin.name,
-        2: coin.launched,
-        3: coin.ticker,
-      },
-      (err, row) => {
-        if (err) reject(err);
-        resolve(row);
-      },
-    );
-  });
-
-  return result;
+export const updateItem = (coin: Omit<CryptoCoin, "id">) => {
+  return db.prepare("UPDATE crypto_coins SET name = ?, launched = ? WHERE ticker = ? RETURNING *")
+    .get(coin.name, coin.launched, coin.ticker) as CryptoCoin | undefined;
 };
 
-export const deleteItem = async (ticker: string) => {
-  const result = await new Promise<CryptoCoin | undefined>((resolve, reject) => {
-    db.get<CryptoCoin | undefined>("DELETE FROM crypto_coins WHERE ticker = ? RETURNING *", [ticker], (err, row) => {
-      if (err) reject(err);
-      resolve(row);
-    });
-  });
-
-  return result;
+export const deleteItem = (ticker: string) => {
+  return db.prepare("DELETE FROM crypto_coins WHERE ticker = ? RETURNING *")
+    .get(ticker) as CryptoCoin | undefined;
 };
