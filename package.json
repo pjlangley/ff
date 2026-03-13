@@ -7,6 +7,16 @@
     "node": "^22",
     "npm": "^10"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "onFail": "error"
+    }
+  },
   "scripts": {
     "test": "tsx --env-file-if-exists=./solana_program_keys/solana_program_keys.env --test fragments/*/*.test.ts fragments/apis/**/*.test.ts",
     "lint": "deno lint",

@@ -20,7 +20,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.x
-          cache: 'npm'
 
       - name: install npm dependencies
         run: npm ci
@@ -91,7 +90,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.x
-          cache: 'npm'
 
       - name: install npm dependencies
         run: npm ci
@@ -132,7 +130,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.x
-          cache: 'npm'
 
       - name: install npm dependencies
         run: npm ci
@@ -200,7 +197,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.x
-          cache: 'npm'
 
       - name: install npm dependencies
         run: npm ci
