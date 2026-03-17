@@ -8,12 +8,7 @@ __pycache__/
 *.pyc
 *.pyo
 .mypy_cache
-
-# cargo / rust
-/target
-
-# go
-/.bin
+.ruff_cache
 
 # blockchain
 /solana.id.json

@@ -6,11 +6,12 @@
       "Bash(cat:*)",
       "Bash(ls:*)",
       "Bash(uv sync)",
-      "Bash(uv run python --version)",
-      "Bash(uv run mypy --version)",
-      "Bash(uv run pylint --version)",
-      "Bash(uv run ruff version)",
-      "Bash(node --run test)"
+      "Bash(uv run python:*)",
+      "Bash(uv run mypy:*)",
+      "Bash(uv run pylint:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(node --run:*)",
+      "Bash(git -C /Users/peterjlangley/Develop/ff status --short)"
     ],
     "deny": [
       "Read(./solana.id.json)",

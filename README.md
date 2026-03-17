@@ -6,7 +6,7 @@ For the _core_ fragments, the supported programming languages are:
 
 - ✅ Node.js
 - ✅ Python
-- ✅ Rust
+
 For the _blockchain_ programs, the supported chains and programming languages are:
 
 - ✅ Solana with Rust
@@ -309,146 +309,15 @@ execute the code.
     ff_node --run api:bru:fastapi:docker
   ```
 
-### Rust
-
-#### Local (Rust)
-
-##### Setup
-
-- Install [rustup](https://www.rust-lang.org/tools/install)
-
-> [!NOTE]
-> All `cargo` commands will use the Rust version and components as specified in
-> [`./rust-toolchain.toml`](./rust-toolchain.toml)
->
-> Or, [`./fragments/blockchain/solana/rust-toolchain.toml`](./fragments/blockchain/solana/rust-toolchain.toml) for
-> Solana programs.
-
-##### Run
-
-> [!IMPORTANT]
-> The Bruno commands require the local Node.js setup, see earlier instructions.
-
-- Run unit tests (sequentially):
-  ```
-  cargo test -- --test-threads=1
-  ```
-- Run specific unit test suite for module:
-  ```
-  cargo test solana_counter_interface -- --test-threads=1
-  ```
-- Run unit tests with debugging on (e.g. show `println!` output):
-  ```
-  cargo test -- --test-threads=1 --nocapture
-  ```
-- Run the REST API build:
-  ```
-  cargo build -v --bin api
-  ```
-- Run the linter:
-  ```
-  cargo clippy -- -D warnings
-  ```
-- Run the formatter:
-  ```
-  cargo fmt -v
-  ```
-- Run the format check:
-  ```
-  cargo fmt --check -v
-  ```
-- Run the REST API:
-  ```
-  cargo run --bin api
-  ```
-- Run the Bruno integration tests (ensure the API is already running):
-  ```
-  node --run api:bru:axum
-  ```
-
-#### Docker (Rust)
-
-> [!IMPORTANT]
-> The Bruno commands require the Node.js Docker setup, see earlier instructions.
-
-- Build the image at root of repo (with optional build args):
-  ```
-  docker build \
-    --force-rm \
-    --build-arg RUST_VERSION=1.85.1 \
-    -f docker.rust.Dockerfile \
-    -t ff_rust .
-  ```
-- Run unit tests:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    --entrypoint cargo \
-    ff_rust \
-    test -- --test-threads=1
-  ```
-- Run the REST API build:
-  ```
-  docker run --rm --entrypoint cargo ff_rust build -v --bin api
-  ```
-- Run the linter:
-  ```
-  docker run --rm --entrypoint cargo ff_rust clippy -- -D warnings
-  ```
-- Run the formatter:
-  ```
-  docker run --rm --entrypoint cargo ff_rust fmt -v
-  ```
-- Run the format check:
-  ```
-  docker run --rm --entrypoint cargo ff_rust fmt -v --check
-  ```
-- Run the REST API (dev and compiled):
-  ```
-  docker run --rm \
-    --network ff_default \
-    --name axum \
-    -p 3001:3001 \
-    -e AXUM_HOST=0.0.0.0 \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    --entrypoint cargo \
-    ff_rust \
-    run --bin api
-
-  docker run --rm \
-    --network ff_default \
-    --name axum \
-    -p 3001:3001 \
-    -e AXUM_HOST=0.0.0.0 \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    --entrypoint target/debug/api \
-    ff_rust
-  ```
-- Run the Bruno integration tests (ensure the Axum API is already running via Docker):
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_node --run api:bru:axum:docker
-  ```
-
 ### Solana
 
 #### Local (Solana)
 
-Solana programs are written in Rust, so make sure to follow the [Local (Rust)](#local-rust) setup instructions first.
+Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/tools/install) if you haven't already.
+
+> [!NOTE]
+> All `cargo` commands under `./fragments/blockchain/solana/` will use the Rust version and components as specified in
+> [`./fragments/blockchain/solana/rust-toolchain.toml`](./fragments/blockchain/solana/rust-toolchain.toml)
 
 ##### Setup
 
