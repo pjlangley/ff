@@ -2,11 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(deno fmt:*)",
-      "Bash(goenv exec go test:*)",
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(ls:*)",
-      "Bash(golangci-lint run ./fragments/...)",
       "Bash(uv sync)",
       "Bash(uv run python --version)",
       "Bash(uv run mypy --version)",
