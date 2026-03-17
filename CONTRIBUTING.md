@@ -1,4 +1,4 @@
-# Contributing to Fullstack Fragments
+# Contributing
 
 Thanks for considering a contribution! 😍
 
