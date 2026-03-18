@@ -1,0 +1,41 @@
+name: solana deploy
+description: deploy solana programs to the test validator
+
+runs:
+  using: "composite"
+  steps:
+    - name: show validators
+      shell: bash
+      run: |
+        docker run --rm \
+          --network host \
+          pjlangley/ff_solana:latest \
+          validators \
+          --verbose \
+          --url http://localhost:8899
+
+    - name: deploy solana programs
+      shell: bash
+      run: |
+        docker run --rm \
+          --network host \
+          --entrypoint bash \
+          pjlangley/ff_anchor:latest \
+          -c '
+            set -e
+            solana airdrop --url http://localhost:8899 21
+            anchor deploy \
+              --provider.wallet /root/.config/solana/id.json \
+              --provider.cluster http://localhost:8899 \
+              -- --ws ws://localhost:8900
+          '
+
+    - name: extract solana program keys
+      shell: bash
+      run: |
+        docker run --rm \
+          pjlangley/ff_anchor:latest \
+          keys list > program_keys.txt
+
+        chmod +x ./solana_extract_program_keys.sh
+        ./solana_extract_program_keys.sh program_keys.txt program_keys.env

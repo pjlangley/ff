@@ -32,10 +32,24 @@ jobs:
           --health-timeout 5s
           --health-retries 5
           --health-start-period 5s
+      solana:
+        image: pjlangley/ff_solana:latest
+        ports:
+          - 8899:8899
+          - 1024:1024
+          - 1027:1027
+          - 8900:8900
+        options: >-
+          --entrypoint solana-test-validator
+          --health-cmd "solana cluster-version --url http://127.0.0.1:8899"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 10s
     steps:
       - uses: actions/checkout@v6
 
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/solana_deploy
 
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
@@ -98,10 +112,24 @@ jobs:
           --health-timeout 5s
           --health-retries 5
           --health-start-period 5s
+      solana:
+        image: pjlangley/ff_solana:latest
+        ports:
+          - 8899:8899
+          - 1024:1024
+          - 1027:1027
+          - 8900:8900
+        options: >-
+          --entrypoint solana-test-validator
+          --health-cmd "solana cluster-version --url http://127.0.0.1:8899"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 10s
     steps:
       - uses: actions/checkout@v6
 
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/solana_deploy
 
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
