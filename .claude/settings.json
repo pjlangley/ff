@@ -10,8 +10,7 @@
       "Bash(uv run mypy:*)",
       "Bash(uv run pylint:*)",
       "Bash(uv run ruff:*)",
-      "Bash(node --run:*)",
-      "Bash(git -C /Users/peterjlangley/Develop/ff status --short)"
+      "Bash(node --run:*)"
     ],
     "deny": [
       "Read(./solana.id.json)",
