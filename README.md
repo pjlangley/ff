@@ -1,15 +1,7 @@
 # ff
 
-A collection of educational code samples for comparison.
-
-For the _core_ fragments, the supported programming languages are:
-
-- ✅ Node.js
-- ✅ Python
-
-For the _blockchain_ programs, the supported chains and programming languages are:
-
-- ✅ Solana with Rust
+A collection of educational code samples for comparison. Core fragments are implemented in Node.js and Python.
+Blockchain programs are written in Rust (Solana/Anchor).
 
 Every code sample is mirrored in each language, and each one implements these basic code quality tasks:
 
@@ -19,31 +11,31 @@ Every code sample is mirrored in each language, and each one implements these ba
 - Formatting
 - Type checking
 
-Every sample in every language can be run both locally and via Docker. See _Running the code_ below.
+Every sample in every language can be run both locally and via Docker - see [Running the code](#running-the-code).
 
 ## Code contents
 
-1. Working with environment variables: [`fragments/env_vars`](./fragments/env_vars/)
-1. Working with SQLite: [`fragments/sqlite_db`](./fragments/sqlite_db/)
-1. Working with Redis: [`fragments/redis_db`](./fragments/redis_db/)
-1. Working with PostgreSQL: [`fragments/postgres_db`](./fragments/postgres_db/)
-1. Working with REST APIs: [`fragments/apis`](./fragments/apis/)
-1. Creating Solana RPC clients: [`fragments/solana_rpc`](./fragments/solana_rpc/)
-1. Working with Solana balance: [`fragments/solana_balance`](./fragments/solana_balance/)
-1. Working with Solana airdrops: [`fragments/solana_airdrop`](./fragments/solana_airdrop/)
-1. Working with Solana transactions: [`fragments/solana_transaction`](./fragments/solana_transaction/)
-1. Working with Solana programs: [`fragments/solana_program`](./fragments/solana_program/)
-1. Solana program interfaces:
-   - Counter: [`fragments/solana_program_counter`](./fragments/solana_program_counter/)
-   - Username: [`fragments/solana_program_username`](./fragments/solana_program_username/)
-   - Round: [`fragments/solana_program_round`](./fragments/solana_program_round/)
-
-### Blockchain programs
-
-- Solana: [`fragments/blockchain/solana`](./fragments/blockchain/solana/)
-  - [`programs/counter`](./fragments/blockchain/solana/programs/counter)
-  - [`programs/username`](./fragments/blockchain/solana/programs/username)
-  - [`programs/round`](./fragments/blockchain/solana/programs/round)
+| Fragment                       | Link                                                              | Node.js | Python | Rust |
+| ------------------------------ | ----------------------------------------------------------------- | :-----: | :----: | :--: |
+| **Core**                       |                                                                   |         |        |      |
+| Environment variables          | [`env_vars`](./fragments/env_vars/)                               |   ✅    |   ✅   |      |
+| SQLite                         | [`sqlite_db`](./fragments/sqlite_db/)                             |   ✅    |   ✅   |      |
+| Redis                          | [`redis_db`](./fragments/redis_db/)                               |   ✅    |   ✅   |      |
+| PostgreSQL                     | [`postgres_db`](./fragments/postgres_db/)                         |   ✅    |   ✅   |      |
+| REST APIs                      | [`apis`](./fragments/apis/)                                       |   ✅    |   ✅   |      |
+| **Solana (client-side)**       |                                                                   |         |        |      |
+| RPC clients                    | [`solana_rpc`](./fragments/solana_rpc/)                           |   ✅    |   ✅   |      |
+| Balance                        | [`solana_balance`](./fragments/solana_balance/)                   |   ✅    |   ✅   |      |
+| Airdrops                       | [`solana_airdrop`](./fragments/solana_airdrop/)                   |   ✅    |   ✅   |      |
+| Transactions                   | [`solana_transaction`](./fragments/solana_transaction/)           |   ✅    |   ✅   |      |
+| Program utils                  | [`solana_program`](./fragments/solana_program/)                   |   ✅    |   ✅   |      |
+| Program: Counter               | [`solana_program_counter`](./fragments/solana_program_counter/)   |   ✅    |   ✅   |      |
+| Program: Username              | [`solana_program_username`](./fragments/solana_program_username/) |   ✅    |   ✅   |      |
+| Program: Round                 | [`solana_program_round`](./fragments/solana_program_round/)       |   ✅    |   ✅   |      |
+| **Solana (on-chain programs)** |                                                                   |         |        |      |
+| Counter                        | [`counter`](./fragments/blockchain/solana/programs/counter)       |         |        |  ✅  |
+| Username                       | [`username`](./fragments/blockchain/solana/programs/username)     |         |        |  ✅  |
+| Round                          | [`round`](./fragments/blockchain/solana/programs/round)           |         |        |  ✅  |
 
 ## Running the code
 

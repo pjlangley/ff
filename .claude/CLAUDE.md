@@ -1,6 +1,7 @@
 ## General
 
-- A collection of educational code modules for comparison: Node.js & Python (Rust is used for Solana blockchain programs).
+- A collection of educational code modules for comparison: Node.js & Python (Rust is used for Solana blockchain
+  programs).
 - Local infrastructure is run with Docker - a local Solana validator and some databases.
 - GitHub Actions for CI - QA checks against equivalent infrastructure in the cloud.
 - This project, called `ff`, will continue to narrow its focus on blockchain development (this is what I want to learn
