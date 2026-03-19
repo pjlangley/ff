@@ -18,8 +18,7 @@ async def confirm_recent_signature(signature: Signature, timeout: float = 5.0) -
 
         if status is not None and status.confirmations is not None:
             remaining = deadline - time.time()
-            await wait_for_slot(status.slot, timeout=max(remaining, 0.5))
-            return True
+            return await wait_for_slot(status.slot, timeout=max(remaining, 0.5))
 
         await asyncio.sleep(0.2)
 
