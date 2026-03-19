@@ -5,7 +5,7 @@ from solders.keypair import Keypair
 from solders.instruction import Instruction
 from solders.message import MessageV0
 from solders.transaction import VersionedTransaction
-from fragments.solana_rpc import init_rpc_client
+from fragments.solana_rpc import init_rpc_client, wait_for_slot
 
 
 async def confirm_recent_signature(signature: Signature, timeout: float = 5.0) -> bool:
@@ -17,6 +17,8 @@ async def confirm_recent_signature(signature: Signature, timeout: float = 5.0) -
         status = response.value[0]
 
         if status is not None and status.confirmations is not None:
+            remaining = deadline - time.time()
+            await wait_for_slot(status.slot, timeout=max(remaining, 0.5))
             return True
 
         await asyncio.sleep(0.2)
