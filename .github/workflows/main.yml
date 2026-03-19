@@ -6,9 +6,35 @@ on:
       - main
 
 jobs:
-  ff_node:
+  ff_node_checks:
     runs-on: ubuntu-latest
-    name: node.js
+    name: node.js checks
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: install npm dependencies
+        run: npm ci
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: lint
+        run: node --run lint
+
+      - name: type check
+        run: node --run tsc
+
+      - name: format check
+        run: node --run format:check
+
+  ff_node_tests:
+    runs-on: ubuntu-latest
+    name: node.js tests
     services:
       redis:
         image: redis/redis-stack-server:latest
@@ -61,19 +87,6 @@ jobs:
       - name: install npm dependencies
         run: npm ci
 
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: lint
-        run: node --run lint
-
-      - name: type check
-        run: node --run tsc
-
-      - name: format check
-        run: node --run format:check
-
       - name: unit tests
         run: node --run test
 
@@ -86,9 +99,36 @@ jobs:
       - name: bruno integration tests for fastify api
         run: node --run api:bru:fastify
 
-  ff_python:
+  ff_python_checks:
     runs-on: ubuntu-latest
-    name: python
+    name: python checks
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: 0.10.9
+          enable-cache: true
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: pyproject.toml
+
+      - name: install dependencies
+        run: uv sync --frozen
+
+      - name: lint
+        run: uv run pylint ./fragments
+
+      - name: type check
+        run: uv run mypy
+
+      - name: format check
+        run: uv run ruff format --check ./fragments
+
+  ff_python_tests:
+    runs-on: ubuntu-latest
+    name: python tests
     services:
       redis:
         image: redis/redis-stack-server:latest
@@ -138,7 +178,7 @@ jobs:
         with:
           version: 0.10.9
           enable-cache: true
-      
+
       - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
@@ -146,15 +186,6 @@ jobs:
       - name: install dependencies
         run: uv sync --frozen
 
-      - name: lint
-        run: uv run pylint ./fragments
-
-      - name: type check
-        run: uv run mypy
-
-      - name: format check
-        run: uv run ruff format --check ./fragments 
-      
       - name: unit tests
         run: uv run python -m unittest -v --failfast
 
