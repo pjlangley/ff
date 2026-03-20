@@ -1,22 +1,27 @@
 ARG NODE_VERSION=22
-ARG DENO_VERSION=2.1.6
 
-FROM denoland/deno:bin-${DENO_VERSION} AS deno
-
-FROM node:${NODE_VERSION}-bullseye
-COPY --from=deno /deno /usr/local/bin/deno
+FROM node:${NODE_VERSION}-bookworm-slim AS build
 WORKDIR /usr/src/app
 COPY package*.json .
 COPY tsconfig.json .
 COPY tsconfig.api.json .
 COPY .npmrc .
-COPY deno.json .
-COPY *.md .
-COPY docker_hub/ docker_hub/
 RUN npm ci
 COPY fragments/ ./fragments/
 RUN node --run api:build
-EXPOSE 3000
 
-ENTRYPOINT ["node"]
-CMD ["--run", "api:dist"]
+FROM node:${NODE_VERSION}-bookworm-slim AS prod-deps
+WORKDIR /usr/src/app
+COPY package*.json .
+COPY .npmrc .
+ENV NODE_ENV=production
+RUN npm ci
+
+FROM node:${NODE_VERSION}-bookworm-slim
+RUN adduser --disabled-password --gecos "" ff
+WORKDIR /usr/src/app
+COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/fragments/apis/fastify/dist ./fragments/apis/fastify/dist
+USER ff
+EXPOSE 3000
+CMD ["node", "./fragments/apis/fastify/dist/api.js"]

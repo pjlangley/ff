@@ -11,7 +11,8 @@ Every code sample is mirrored in each language, and each one implements these ba
 - Formatting
 - Type checking
 
-Every sample in every language can be run both locally and via Docker - see [Running the code](#running-the-code).
+Every sample in every language can be run locally - see [Running the code](#running-the-code). Docker images are available
+for running the APIs only.
 
 ## Code contents
 
@@ -39,7 +40,8 @@ Every sample in every language can be run both locally and via Docker - see [Run
 
 ## Running the code
 
-Each programming language supports local environment setup, or you can build and run with Docker instead.
+Each programming language supports local environment setup for development. Docker images are provided for running the
+APIs.
 
 Some core fragments expect services to be running on particular ports, such as Redis. Blockchain fragments also expect
 some services to be running, such as node validators.
@@ -125,46 +127,11 @@ execute the code.
   docker build \
     --force-rm \
     --build-arg NODE_VERSION=22 \
-    --build-arg DENO_VERSION=2.1.6 \
     -f docker.node.Dockerfile \
     -t ff_node .
   ```
-- Run unit tests:
+- Run the REST API:
   ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    ff_node \
-    --run test
-  ```
-- Run the linter:
-  ```
-  docker run --rm ff_node --run lint
-  ```
-- Run the TypeScript check:
-  ```
-  docker run --rm ff_node --run tsc
-  ```
-- Run the format check:
-  ```
-  docker run --rm ff_node --run format:check
-  ```
-- Run the REST API (dev and dist):
-  ```
-  docker run --rm \
-    --network ff_default \
-    --name fastify \
-    -p 3000:3000 \
-    -e FASTIFY_HOST=0.0.0.0 \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    ff_node --run api
-
   docker run --rm \
     --network ff_default \
     --name fastify \
@@ -175,19 +142,6 @@ execute the code.
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_node
-  ```
-- Run the REST API build:
-  ```
-  docker run --rm ff_node --run api:build
-  ```
-- Run the Bruno integration tests (ensure the fastify API is already running via Docker):
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_node --run api:bru:fastify:docker
   ```
 
 ### Python
@@ -240,9 +194,6 @@ execute the code.
 
 #### Docker (Python)
 
-> [!IMPORTANT]
-> The Bruno commands require the Node.js Docker setup, see earlier instructions.
-
 - Build the image at root of repo (with optional build args):
   ```
   docker build \
@@ -250,33 +201,6 @@ execute the code.
     --build-arg PYTHON_VERSION=3.12.4 \
     -f docker.python.Dockerfile \
     -t ff_python .
-  ```
-- Run unit tests:
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
-    ff_python \
-    python -m unittest -v
-  ```
-- Run the type check:
-  ```
-  docker run --rm ff_python mypy
-  ```
-- Run the linter:
-  ```
-  docker run --rm ff_python pylint ./fragments
-  ```
-- Run the formatter:
-  ```
-  docker run --rm ff_python ruff format ./fragments
-  ```
-- Run the format check:
-  ```
-  docker run --rm ff_python ruff format --check ./fragments
   ```
 - Run the REST API:
   ```
@@ -290,15 +214,6 @@ execute the code.
     -e SOLANA_HOST=solana \
     $( [ -f ./solana_program_keys/solana_program_keys.env ] && echo "--env-file ./solana_program_keys/solana_program_keys.env" ) \
     ff_python
-  ```
-- Run the Bruno integration tests (ensure the FastAPI is already running via Docker):
-  ```
-  docker run --rm \
-    --network ff_default \
-    -e POSTGRES_HOST=postgres \
-    -e REDIS_HOST=redis \
-    -e SOLANA_HOST=solana \
-    ff_node --run api:bru:fastapi:docker
   ```
 
 ### Solana

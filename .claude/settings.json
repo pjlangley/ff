@@ -10,7 +10,9 @@
       "Bash(uv run mypy:*)",
       "Bash(uv run pylint:*)",
       "Bash(uv run ruff:*)",
-      "Bash(node --run:*)"
+      "Bash(node --run:*)",
+      "Bash(grep -h:*)",
+      "Bash(grep -r:*)"
     ],
     "deny": [
       "Read(./solana.id.json)",
