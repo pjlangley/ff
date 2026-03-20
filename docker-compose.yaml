@@ -99,3 +99,55 @@ services:
         chmod +x /usr/ff/solana_extract_program_keys.sh
         /usr/ff/solana_extract_program_keys.sh /usr/ff/program_keys.txt /usr/ff/solana_program_keys/solana_program_keys.env
       '
+
+  fastify:
+    build:
+      context: .
+      dockerfile: docker.node.Dockerfile
+    image: ff_node
+    profiles:
+      - api
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      extract_solana_program_keys:
+        condition: service_completed_successfully
+        required: false
+    ports:
+      - 3000:3000
+    environment:
+      FASTIFY_HOST: 0.0.0.0
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      SOLANA_HOST: solana
+    env_file:
+      - path: ./solana_program_keys/solana_program_keys.env
+        required: false
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: docker.python.Dockerfile
+    image: ff_python
+    profiles:
+      - api
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      extract_solana_program_keys:
+        condition: service_completed_successfully
+        required: false
+    ports:
+      - 3003:3003
+    environment:
+      FASTAPI_HOST: 0.0.0.0
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      SOLANA_HOST: solana
+    env_file:
+      - path: ./solana_program_keys/solana_program_keys.env
+        required: false

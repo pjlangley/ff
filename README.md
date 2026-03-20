@@ -65,6 +65,18 @@ If not working on blockchain fragments, you can omit the `blockchain` profile to
 docker compose up
 ```
 
+To run the APIs via Docker Compose, use the `api` profile:
+
+```
+docker compose --profile api up
+```
+
+Or combine with the `blockchain` profile so the APIs have access to the Solana programs:
+
+```
+docker compose --profile api --profile blockchain up
+```
+
 ### Node.js
 
 All the Node.js code is written in TypeScript and uses [`tsx`](https://www.npmjs.com/package/tsx) to transpile and
