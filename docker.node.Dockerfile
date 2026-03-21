@@ -18,6 +18,7 @@ ENV NODE_ENV=production
 RUN npm ci
 
 FROM node:${NODE_VERSION}-bookworm-slim
+ENV NODE_ENV=production
 RUN adduser --disabled-password --gecos "" ff
 WORKDIR /usr/src/app
 COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
