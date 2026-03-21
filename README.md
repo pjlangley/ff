@@ -11,8 +11,8 @@ Every code sample is mirrored in each language, and each one implements these ba
 - Formatting
 - Type checking
 
-Every sample in every language can be run locally - see [Running the code](#running-the-code). Docker images are
-available for running the APIs only.
+Every sample can be run locally - see [Running the code](#running-the-code). Docker images are available for running the
+APIs only.
 
 ## Architecture
 
