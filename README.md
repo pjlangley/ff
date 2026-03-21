@@ -14,6 +14,50 @@ Every code sample is mirrored in each language, and each one implements these ba
 Every sample in every language can be run locally - see [Running the code](#running-the-code). Docker images are
 available for running the APIs only.
 
+## Architecture
+
+```mermaid
+---
+title: Local (Docker Compose) & CI/CD (GH Actions)
+config:
+  look: handDrawn
+---
+graph TD
+    subgraph datastores
+        Redis[("Redis")]
+        Postgres[("PostgreSQL")]
+        SQLite[("SQLite")]
+    end
+
+    subgraph blockchain
+        Solana["Solana validator"]
+        SolanaLogs["Solana logs"]
+        DeployPrograms["Deploy Solana programs"]
+        ExtractKeys["Extract Solana program keys"]
+
+        Solana -->|healthy| SolanaLogs
+        Solana -->|healthy| DeployPrograms
+        Solana -->|healthy| ExtractKeys
+    end
+
+    subgraph APIs
+        Fastify["Fastify (Node.js)"]
+        FastAPI["FastAPI (Python)"]
+    end
+
+    Fastify <--> datastores
+    FastAPI <--> datastores
+
+    ExtractKeys -->|program keys| Fastify
+    ExtractKeys -->|program keys| FastAPI
+
+    Fastify <-->Solana
+    FastAPI <-->Solana
+```
+
+> [!NOTE]
+> The above graph assumes everything is running. See [Running the code](#running-the-code) for other options.
+
 ## Code contents
 
 | Fragment                       | Link                                                              | Node.js | Python | Rust |
