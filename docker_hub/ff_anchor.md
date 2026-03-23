@@ -5,10 +5,10 @@ This image is publicly accessible so that it can be used in the CI/CD pipeline f
 
 Details:
 
-- Installs the [Anchor CLI](https://www.anchor-lang.com/docs/references/cli) and program dependencies, such as Node.js
-- Builds the Solana program(s) found in
+- Installs the [Anchor CLI](https://www.anchor-lang.com/docs/references/cli)
+- Builds the Solana programs found in
   [https://github.com/pjlangley/ff](https://github.com/pjlangley/ff/tree/main/fragments/blockchain/solana)
-- Runs the test suite against the compiled program(s)
+- Runs the QA checks against the code and compiled programs
 - See this [Dockerfile](https://github.com/pjlangley/ff/blob/main/docker.anchor.ci.Dockerfile) for details of what's
   inside
 - Currently, only the **amd64** OS/Arch is supported

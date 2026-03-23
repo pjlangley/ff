@@ -24,7 +24,7 @@ jobs:
       ff_solana: ${{ steps.filter.outputs.ff_solana }}
       ff_solana_docs: ${{ steps.filter.outputs.ff_solana_docs }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -49,25 +49,25 @@ jobs:
     runs-on: ubuntu-latest
     name: ff_solana_builder (amd64)
     env:
-      AGAVE_VERSION: 2.2.6
+      AGAVE_VERSION: 3.1.9
     needs: [changes]
     if: needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana_builder == 'true'
     steps:
       - name: login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: pjlangley
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: get short sha
         id: short_sha
         run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       - name: build and push image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: docker.solana_builder.ci.Dockerfile
           platforms: linux/amd64
@@ -86,9 +86,9 @@ jobs:
     needs: [changes, ff_solana_builder]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana_builder_docs == 'true')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: set description
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: pjlangley
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -102,25 +102,25 @@ jobs:
     env:
       ANCHOR_VERSION: 0.31.1
       SOLANA_BUILDER_VERSION: latest
-      RUST_VERSION: 1.89.0
+      RUST_VERSION: 1.94.0
     needs: [changes, ff_solana_builder]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_anchor == 'true')
     steps:
       - name: login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: pjlangley
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: get short sha
         id: short_sha
         run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       - name: build and push image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: docker.anchor.ci.Dockerfile
           platforms: linux/amd64
@@ -128,7 +128,6 @@ jobs:
           push: true
           build-args: |
             ANCHOR_VERSION=${{ env.ANCHOR_VERSION }}
-            NODE_VERSION=22.14.0
             SOLANA_BUILDER_VERSION=${{ env.SOLANA_BUILDER_VERSION }}
           tags: |
             pjlangley/ff_anchor:${{ env.ANCHOR_VERSION }}-amd64-${{ steps.short_sha.outputs.sha }}
@@ -141,9 +140,9 @@ jobs:
     needs: [changes, ff_anchor]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_anchor_docs == 'true')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: set description
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: pjlangley
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -155,26 +154,26 @@ jobs:
     runs-on: ubuntu-latest
     name: ff_solana (amd64)
     env:
-      AGAVE_VERSION: 2.2.6
+      AGAVE_VERSION: 3.1.9
       SOLANA_BUILDER_VERSION: latest
     needs: [changes, ff_solana_builder]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana == 'true')
     steps: 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: pjlangley
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: get short sha
         id: short_sha
         run: echo "sha=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       - name: build and push image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: docker.solana.ci.Dockerfile
           platforms: linux/amd64
@@ -193,9 +192,9 @@ jobs:
     needs: [changes, ff_solana]
     if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_solana_docs == 'true')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: set description
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: pjlangley
           password: ${{ secrets.DOCKERHUB_TOKEN }}

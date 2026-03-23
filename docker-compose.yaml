@@ -17,6 +17,7 @@ services:
       context: .
       dockerfile: docker.solana.Dockerfile
     image: ff_solana
+    pull_policy: never
     profiles:
       - blockchain
     ports:
@@ -50,9 +51,11 @@ services:
       context: .
       dockerfile: docker.solana.Dockerfile
     image: ff_solana
+    pull_policy: never
     depends_on:
-      solana:
-        condition: service_healthy
+      # avoids logging all the genesis noise
+      deploy_solana_programs:
+        condition: service_completed_successfully
     profiles:
       - blockchain
     network_mode: host
@@ -69,6 +72,7 @@ services:
       context: .
       dockerfile: docker.anchor.Dockerfile
     image: ff_anchor
+    pull_policy: never
     depends_on:
       solana:
         condition: service_healthy
@@ -87,6 +91,7 @@ services:
       context: .
       dockerfile: docker.anchor.Dockerfile
     image: ff_anchor
+    pull_policy: never
     depends_on:
       solana:
         condition: service_healthy
@@ -109,6 +114,7 @@ services:
       context: .
       dockerfile: docker.node.Dockerfile
     image: ff_node
+    pull_policy: never
     profiles:
       - api
     depends_on:
@@ -135,6 +141,7 @@ services:
       context: .
       dockerfile: docker.python.Dockerfile
     image: ff_python
+    pull_policy: never
     profiles:
       - api
     depends_on:

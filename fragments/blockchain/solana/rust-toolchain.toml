@@ -1,7 +1,4 @@
 [toolchain]
-# 1.88.0-nightly fixes the following issues during `anchor build`:
-# https://github.com/solana-foundation/anchor/issues/3662
-# https://github.com/solana-foundation/anchor/issues/3676
-channel = "nightly-2025-04-22"
+channel = "1.94.0"
 components = ["rustfmt", "clippy"]
 profile = "minimal"

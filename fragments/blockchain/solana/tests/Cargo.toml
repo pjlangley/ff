@@ -1,0 +1,28 @@
+[package]
+name = "program-tests"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "counter"
+path = "counter.rs"
+
+[[test]]
+name = "round"
+path = "round.rs"
+
+[[test]]
+name = "username"
+path = "username.rs"
+
+[dependencies]
+anchor-lang = "0.31.1"
+litesvm = "0.7"
+solana-sdk = "2"
+sha2 = "0.10"
+counter = { path = "../programs/counter", features = ["no-entrypoint"] }
+round = { path = "../programs/round", features = ["no-entrypoint"] }
+username = { path = "../programs/username", features = ["no-entrypoint"] }

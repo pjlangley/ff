@@ -26,6 +26,7 @@
 
 - `docker compose --profile blockchain up` - runs the local infrastructure (this is normally up and running when I'm
   working with Claude Code).
+- `docker compose --profile blockchain --profile api up` - runs the local infrastructure including the APIs.
 - `fnm` used for local Node.js, and version is specified in `.node-version`.
 - `node --run test` - runs the Node.js unit tests.
 - `uv` used for local Python; config in `./pyproject.toml`.
@@ -36,7 +37,7 @@
 - `node --run api:bru:fastapi` to run the Bruno integration tests against the running FastAPI API.
 - `solana` and `anchor` CLI commands are available locally.
 - Further `anchor` CLI commands available once you change directory into `./fragments/blockchain/solana/`, e.g.:
-  - `anchor test --skip-deploy --skip-local-validator` runs the (Node.js) unit tests.
+  - `anchor test` (or `cargo test -p program-tests`) runs the Rust unit tests.
   - `anchor build` to build all programs.
 
 ## Conventions
@@ -44,14 +45,13 @@
 - Node.js code is formatted and linted with Deno; config in `./deno.json`.
 - Node.js code is written in TypeScript and uses `tsc` to build (see `./tsconfig.json`) the core fragments.
 - Node.js API is locally run with `tsx` and uses `./tsconfig.api.json`.
-- Node.js formatting, linting and TypeScript check tasks are also applied to the Solana program unit test files in
-  `./fragments/blockchain/solana/tests/`.
 - Local Solana validator settings in `./solana-cli.local.yml` (you do not have permission to read the referenced
   `./solana.id.json` key file though).
 - Python code is type-checked with `mypy`; config in `./pyproject.toml`.
 - Python code is linted with `pylint`; config in `./pyproject.toml`.
 - Python code is formatted with `ruff`; config in `./pyproject.toml`.
 - Solana program Rust code is linted with `clippy` and formatted with `cargo fmt`.
+- Solana program tests can be run with `cargo test -p program-tests` (uses LiteSVM).
 - Core fragments have access to environment variables that specify the locally running Solana program IDs - see
   `./solana_program_keys/solana_program_keys.env`.
 - Production-grade code with a pragmatic understanding that this is for educational purposes. For example, I made a
@@ -62,7 +62,6 @@
 
 ## Modules (aka fragments)
 
-- `./fragments/blockchain/solana/rust-toolchain.toml` for the blockchain program Rust dependencies.
 - Node.js API entry file: `./fragments/api.ts`.
 - Python API entry file: `./fragments/api.py`.
 - Blockchain programs (only Solana atm): `./fragments/blockchain/solana/programs/`.

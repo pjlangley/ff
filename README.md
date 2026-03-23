@@ -286,9 +286,9 @@ Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/
 
 - If not on macOS, check the [official docs](https://solana.com/docs/intro/installation) for any extra steps before
   continuing
-- Install [Solana CLI](https://docs.anza.xyz/cli/install/) version `2.2.6`. For macOS:
+- Install [Solana CLI](https://docs.anza.xyz/cli/install/) version `3.1.9`. For macOS:
   ```
-  sh -c "$(curl -sSfL https://release.anza.xyz/v2.2.6/install)"
+  sh -c "$(curl -sSfL https://release.anza.xyz/v3.1.9/install)"
   ```
 - Ensure you follow the instructions to add the `solana` executable to your `PATH`
 - Run `solana --version` to confirm the installation
@@ -306,25 +306,6 @@ Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/
   - Run `solana --config ./solana-cli.local.yml balance` to confirm airdrop
 
 ##### Run
-
-The following commands apply to the TypeScript file(s):
-
-- Run the linter:
-  ```
-  node --run lint
-  ```
-- Run the TypeScript check:
-  ```
-  node --run tsc
-  ```
-- Run the formatter:
-  ```
-  node --run format:write
-  ```
-- Run the format check:
-  ```
-  node --run format:check
-  ```
 
 > [!IMPORTANT]
 > Before running any of the commands in the next section, ensure you switch to this directory:
@@ -345,7 +326,7 @@ The following commands apply to the TypeScript file(s):
   ```
 - Run unit tests (uses [LiteSVM](https://github.com/LiteSVM/litesvm), not the local test validator):
   ```
-  anchor test --skip-deploy --skip-local-validator
+  cargo test -p program-tests
   ```
 - Run the linter:
   ```
@@ -376,7 +357,7 @@ The following commands apply to the TypeScript file(s):
   ```
   docker build \
     --force-rm \
-    --build-arg AGAVE_VERSION=2.2.6 \
+    --build-arg AGAVE_VERSION=3.1.9 \
     -f docker.solana.Dockerfile \
     --target builder \
     -t ff_solana_builder .
@@ -444,34 +425,14 @@ The following commands apply to the TypeScript file(s):
 
 #### Docker (Anchor)
 
-> [!WARNING]
-> Command `anchor test` in Docker doesn't currently work with Linux arm64:
->
-> ```
-> Error: Cannot find module 'litesvm-linux-arm64-gnu'
-> ```
->
-> There's not an LiteSVM binary published to npm for linux+arm64 at the time of writing. See
-> https://github.com/LiteSVM/litesvm/tree/master/crates/node-litesvm/npm and
-> https://github.com/LiteSVM/litesvm/issues/177
-
 - Build the Anchor image at root of repo with optional build args (depends on the `ff_solana_builder` image):
   ```
   docker build \
     --force-rm \
     --build-arg ANCHOR_VERSION=0.31.1 \
-    --build-arg NODE_VERSION=22.14.0 \
-    --build-arg RUST_VERSION=1.89.0 \
+    --build-arg RUST_VERSION=1.94.0 \
     -f docker.anchor.Dockerfile \
     -t ff_anchor .
-  ```
-- Run the linter:
-  ```
-  docker run --rm --entrypoint cargo ff_anchor clippy -- -D warnings
-  ```
-- Run the format check:
-  ```
-  docker run --rm --entrypoint cargo ff_anchor fmt --check -v
   ```
 - Build programs:
   ```
@@ -485,5 +446,5 @@ The following commands apply to the TypeScript file(s):
   ```
 - Unit tests:
   ```
-  docker run --rm ff_anchor test --skip-build --skip-deploy --skip-local-validator
+  docker run --rm --entrypoint cargo ff_anchor test -p program-tests
   ```

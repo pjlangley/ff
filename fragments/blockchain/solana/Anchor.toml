@@ -14,4 +14,4 @@ cluster = "localnet"
 wallet = "../../../solana.id.json"
 
 [scripts]
-test = "node --run test"
+test = "cargo test -p program-tests"
