@@ -67,6 +67,7 @@ jobs:
           - 8900:8900
         options: >-
           --entrypoint solana-test-validator
+          --shm-size 1gb
           --health-cmd "solana cluster-version --url http://127.0.0.1:8899"
           --health-interval 5s
           --health-timeout 5s
