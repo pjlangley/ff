@@ -13,7 +13,7 @@ Details:
 
 ## Usage
 
-The default executable is `solana`. For example, get the Solana CLI version with:
+The default executable is `solana-test-validator`. For example, get the validator version with:
 
 ```sh
 docker run --rm pjlangley/ff_solana:latest --version

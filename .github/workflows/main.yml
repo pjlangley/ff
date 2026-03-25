@@ -65,9 +65,13 @@ jobs:
           - 1024:1024
           - 1027:1027
           - 8900:8900
+        # --security-opt seccomp=unconfined fixes "assertion failed: io_uring_supported()" error.
+        # Agave v3 now requires io_uring for its accounts database, but GitHub Actions runs
+        # containers with a seccomp profile that blocks io_uring syscalls.
+        # io_uring is a relatively new (Linux 5.1+) high-performance async I/O interface.
+        # Low-risk solution given this is a CI validator in an ephemeral container running "trusted" code.
         options: >-
-          --entrypoint solana-test-validator
-          --shm-size 1gb
+          --security-opt seccomp=unconfined
           --health-cmd "solana cluster-version --url http://127.0.0.1:8899"
           --health-interval 5s
           --health-timeout 5s
@@ -160,8 +164,13 @@ jobs:
           - 1024:1024
           - 1027:1027
           - 8900:8900
+        # --security-opt seccomp=unconfined fixes "assertion failed: io_uring_supported()" error.
+        # Agave v3 now requires io_uring for its accounts database, but GitHub Actions runs
+        # containers with a seccomp profile that blocks io_uring syscalls.
+        # io_uring is a relatively new (Linux 5.1+) high-performance async I/O interface.
+        # Low-risk solution given this is a CI validator in an ephemeral container running "trusted" code.
         options: >-
-          --entrypoint solana-test-validator
+          --security-opt seccomp=unconfined
           --health-cmd "solana cluster-version --url http://127.0.0.1:8899"
           --health-interval 5s
           --health-timeout 5s

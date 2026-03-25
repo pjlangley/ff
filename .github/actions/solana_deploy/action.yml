@@ -9,6 +9,7 @@ runs:
       run: |
         docker run --rm \
           --network host \
+          --entrypoint solana \
           pjlangley/ff_solana:latest \
           validators \
           --verbose \
