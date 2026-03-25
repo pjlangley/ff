@@ -1,18 +1,29 @@
 {
+  "model": "claude-opus-4-6",
+  "effortLevel": "high",
+  "alwaysThinkingEnabled": true,
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "filesystem": {
+      "allowWrite": ["/tmp"]
+    },
+    "excludedCommands": ["docker"],
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": [
+        "*github.com",
+        "*docs.rs",
+        "*raw.githubusercontent.com",
+        "*crates.io"
+      ]
+    }
+  },
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
-      "Bash(deno fmt:*)",
-      "Bash(find:*)",
-      "Bash(cat:*)",
-      "Bash(ls:*)",
-      "Bash(uv sync)",
-      "Bash(uv run python:*)",
-      "Bash(uv run mypy:*)",
-      "Bash(uv run pylint:*)",
-      "Bash(uv run ruff:*)",
-      "Bash(node --run:*)",
-      "Bash(grep -h:*)",
-      "Bash(grep -r:*)"
+      "WebSearch",
+      "WebFetch"
     ],
     "deny": [
       "Read(./solana.id.json)",
