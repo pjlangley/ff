@@ -8,7 +8,6 @@ Details:
 - Installs the [Anchor CLI](https://www.anchor-lang.com/docs/references/cli)
 - Builds the Solana programs found in
   [https://github.com/pjlangley/ff](https://github.com/pjlangley/ff/tree/main/fragments/blockchain/solana)
-- Runs the QA checks against the code and compiled programs
 - See this [Dockerfile](https://github.com/pjlangley/ff/blob/main/docker.anchor.ci.Dockerfile) for details of what's
   inside
 - Currently, only the **amd64** OS/Arch is supported

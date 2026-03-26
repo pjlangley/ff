@@ -1,0 +1,107 @@
+name: blockchain checks
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    name: git changes
+    outputs:
+      solana: ${{ steps.filter.outputs.solana }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            solana:
+              - 'fragments/blockchain/solana/**'
+              - '.github/workflows/blockchain.yml'
+
+  checks:
+    runs-on: ubuntu-latest
+    name: rust checks
+    needs: [changes]
+    if: needs.changes.outputs.solana == 'true'
+    defaults:
+      run:
+        working-directory: fragments/blockchain/solana
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: moonrepo/setup-rust@v1
+        with:
+          channel: 1.94.0
+          components: clippy, rustfmt
+          profile: minimal
+          # `inherit-toolchain` cfg fails as rust-toolchain.toml is not in the root of the repo.
+          # no cfg in moonrepo/setup-rust@v1 to specify alternative path to rust-toolchain.toml, yet.
+
+      - name: format check
+        run: cargo fmt --check -v
+
+      - name: lint
+        run: cargo clippy -- -D warnings
+
+  tests:
+    runs-on: ubuntu-latest
+    name: rust tests
+    needs: [changes]
+    if: needs.changes.outputs.solana == 'true'
+    env:
+      AGAVE_VERSION: 3.1.9
+      ANCHOR_VERSION: 0.31.1
+    defaults:
+      run:
+        working-directory: fragments/blockchain/solana
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: moonrepo/setup-rust@v1
+        with:
+          channel: 1.94.0
+          components: clippy, rustfmt
+          profile: minimal
+          # `inherit-toolchain` cfg fails as rust-toolchain.toml is not in the root of the repo.
+          # no cfg in moonrepo/setup-rust@v1 to specify alternative path to rust-toolchain.toml, yet.
+
+      - name: cache solana cli
+        id: cache-solana
+        uses: actions/cache@v5
+        with:
+          path: ~/.local/share/solana/install
+          key: solana-${{ env.AGAVE_VERSION }}
+
+      - name: install solana cli
+        if: steps.cache-solana.outputs.cache-hit != 'true'
+        run: sh -c "$(curl -sSfL https://release.anza.xyz/v${{ env.AGAVE_VERSION }}/install)"
+
+      - name: add solana to PATH
+        run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: cache anchor cli
+        id: cache-anchor
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/bin/anchor
+          key: anchor-${{ env.ANCHOR_VERSION }}
+
+      - name: install system dependencies for anchor cli installation
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: sudo apt-get update && sudo apt-get install -y pkg-config libudev-dev
+
+      - name: install anchor cli
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: cargo install --git https://github.com/coral-xyz/anchor --tag v${{ env.ANCHOR_VERSION }} anchor-cli
+
+      - name: generate solana keypair
+        run: solana-keygen new --no-bip39-passphrase
+
+      - name: build programs
+        run: anchor build --provider.wallet ~/.config/solana/id.json
+
+      - name: unit tests
+        run: cargo test -p program-tests

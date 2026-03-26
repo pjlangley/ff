@@ -1,20 +1,16 @@
-name: docker hub
+name: docker images
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '*.Dockerfile'
-      - '.github/workflows/docker.yml'
-      - 'docker_hub/*.md'
-      - 'fragments/blockchain/solana/**'
-      - '!fragments/blockchain/solana/tests/**'
+  workflow_run:
+    workflows: [blockchain checks]
+    types: [completed]
+    branches: [main]
 
 jobs:
   changes:
     runs-on: ubuntu-latest
     name: git changes
+    if: github.event.workflow_run.conclusion == 'success'
     outputs:
       workflow_cfg: ${{ steps.filter.outputs.workflow_cfg }}
       ff_solana_builder: ${{ steps.filter.outputs.ff_solana_builder }}
@@ -25,7 +21,7 @@ jobs:
       ff_solana_docs: ${{ steps.filter.outputs.ff_solana_docs }}
     steps:
       - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |

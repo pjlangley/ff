@@ -21,9 +21,5 @@ RUN rm -rf target/ .anchor/
 RUN anchor build --provider.wallet /root/.config/solana/id.json
 RUN anchor keys sync
 RUN anchor build --provider.wallet /root/.config/solana/id.json
-RUN cargo clippy -- -D warnings
-RUN cargo fmt --check -v
-RUN cargo test -p program-tests
-
 ENTRYPOINT ["anchor"]
 CMD ["--help"]
