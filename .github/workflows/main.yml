@@ -1,0 +1,21 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  blockchain_checks:
+    uses: ./.github/workflows/blockchain.yml
+
+  docker_images:
+    needs: [blockchain_checks]
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/docker.yml
+    secrets: inherit
+
+  api_checks:
+    needs: [docker_images]
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/apis.yml

@@ -1,9 +1,6 @@
 name: blockchain checks
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_call
 
 jobs:
   changes:
@@ -37,6 +34,7 @@ jobs:
           channel: 1.94.0
           components: clippy, rustfmt
           profile: minimal
+          target-dirs: fragments/blockchain/solana/target
           # `inherit-toolchain` cfg fails as rust-toolchain.toml is not in the root of the repo.
           # no cfg in moonrepo/setup-rust@v1 to specify alternative path to rust-toolchain.toml, yet.
 
@@ -65,6 +63,7 @@ jobs:
           channel: 1.94.0
           components: clippy, rustfmt
           profile: minimal
+          target-dirs: fragments/blockchain/solana/target
           # `inherit-toolchain` cfg fails as rust-toolchain.toml is not in the root of the repo.
           # no cfg in moonrepo/setup-rust@v1 to specify alternative path to rust-toolchain.toml, yet.
 

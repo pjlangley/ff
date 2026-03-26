@@ -1,16 +1,11 @@
 name: docker images
 
-on:
-  workflow_run:
-    workflows: [blockchain checks]
-    types: [completed]
-    branches: [main]
+on: workflow_call
 
 jobs:
   changes:
     runs-on: ubuntu-latest
     name: git changes
-    if: github.event.workflow_run.conclusion == 'success'
     outputs:
       workflow_cfg: ${{ steps.filter.outputs.workflow_cfg }}
       ff_solana_builder: ${{ steps.filter.outputs.ff_solana_builder }}

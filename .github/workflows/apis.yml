@@ -1,16 +1,11 @@
 name: api checks
 
-on:
-  workflow_run:
-    workflows: [docker images]
-    types: [completed]
-    branches: [main]
+on: workflow_call
 
 jobs:
   ff_node_checks:
     runs-on: ubuntu-latest
     name: node.js checks
-    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v6
 
@@ -37,7 +32,6 @@ jobs:
   ff_node_tests:
     runs-on: ubuntu-latest
     name: node.js tests
-    if: github.event.workflow_run.conclusion == 'success'
     services:
       redis:
         image: redis/redis-stack-server:latest
@@ -110,7 +104,6 @@ jobs:
   ff_python_checks:
     runs-on: ubuntu-latest
     name: python checks
-    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v6
 
@@ -138,7 +131,6 @@ jobs:
   ff_python_tests:
     runs-on: ubuntu-latest
     name: python tests
-    if: github.event.workflow_run.conclusion == 'success'
     services:
       redis:
         image: redis/redis-stack-server:latest
