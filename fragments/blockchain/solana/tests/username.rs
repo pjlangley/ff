@@ -135,8 +135,7 @@ fn updates_a_valid_username() {
 fn multiple_username_updates_tracked_in_recent_history() {
     let mut svm = setup();
     let authority = Keypair::new();
-    svm.airdrop(&authority.pubkey(), 5 * LAMPORTS_PER_SOL)
-        .unwrap();
+    svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (ua_pda, _) = user_account_pda(&authority.pubkey());
 
     let instr = build_initialise_username_instr(&authority.pubkey(), &ua_pda, "username0");
@@ -163,8 +162,7 @@ fn multiple_username_updates_tracked_in_recent_history() {
 fn multiple_username_updates_tracked_in_archived_record_history() {
     let mut svm = setup();
     let authority = Keypair::new();
-    svm.airdrop(&authority.pubkey(), 5 * LAMPORTS_PER_SOL)
-        .unwrap();
+    svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (ua_pda, _) = user_account_pda(&authority.pubkey());
 
     let instr = build_initialise_username_instr(&authority.pubkey(), &ua_pda, "username0");
