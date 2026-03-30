@@ -14,7 +14,7 @@ Details:
 
 ## Usage
 
-The default executable is `anchor`. So for example, you can rebuild the program(s) within the container like so:
+The default executable is `anchor`. So for example, you can rebuild the programs within the container like so:
 
 ```sh
 docker run --rm pjlangley/ff_anchor:latest build
