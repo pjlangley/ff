@@ -11,6 +11,10 @@ name = "counter"
 path = "counter.rs"
 
 [[test]]
+name = "register"
+path = "register.rs"
+
+[[test]]
 name = "round"
 path = "round.rs"
 
@@ -24,5 +28,6 @@ litesvm = "0.7"
 solana-sdk = "2"
 sha2 = "0.10"
 counter = { path = "../programs/counter", features = ["no-entrypoint"] }
+register = { path = "../programs/register", features = ["no-entrypoint"] }
 round = { path = "../programs/round", features = ["no-entrypoint"] }
 username = { path = "../programs/username", features = ["no-entrypoint"] }

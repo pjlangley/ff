@@ -1,0 +1,369 @@
+{
+  "address": "DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K",
+  "metadata": {
+    "name": "register",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "confirm_registration",
+      "discriminator": [
+        80,
+        99,
+        255,
+        154,
+        99,
+        18,
+        84,
+        153
+      ],
+      "accounts": [
+        {
+          "name": "registry_state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "registry_state"
+          ]
+        },
+        {
+          "name": "registration",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "registration.registrant",
+                "account": "Registration"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialise_registry",
+      "discriminator": [
+        52,
+        181,
+        146,
+        124,
+        143,
+        206,
+        77,
+        145
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "registry_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register",
+      "discriminator": [
+        211,
+        124,
+        67,
+        15,
+        211,
+        194,
+        178,
+        240
+      ],
+      "accounts": [
+        {
+          "name": "registrant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "registry_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "registration",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "registrant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Registration",
+      "discriminator": [
+        158,
+        129,
+        230,
+        90,
+        93,
+        95,
+        101,
+        55
+      ]
+    },
+    {
+      "name": "RegistryState",
+      "discriminator": [
+        29,
+        34,
+        224,
+        195,
+        175,
+        183,
+        99,
+        97
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ConfirmedEvent",
+      "discriminator": [
+        224,
+        201,
+        24,
+        122,
+        43,
+        236,
+        159,
+        205
+      ]
+    },
+    {
+      "name": "RegisteredEvent",
+      "discriminator": [
+        75,
+        146,
+        35,
+        119,
+        150,
+        112,
+        15,
+        38
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "RegistrationAlreadyConfirmed",
+      "msg": "The registration has already been confirmed"
+    }
+  ],
+  "types": [
+    {
+      "name": "ConfirmedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "registrant",
+            "type": "pubkey"
+          },
+          {
+            "name": "registration_index",
+            "type": "u64"
+          },
+          {
+            "name": "confirmed_at",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RegisteredEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "registrant",
+            "type": "pubkey"
+          },
+          {
+            "name": "registration_index",
+            "type": "u64"
+          },
+          {
+            "name": "registered_at",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Registration",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "registrant",
+            "type": "pubkey"
+          },
+          {
+            "name": "registration_index",
+            "type": "u64"
+          },
+          {
+            "name": "registered_at",
+            "type": "u64"
+          },
+          {
+            "name": "confirmed_at",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RegistryState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "registration_count",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

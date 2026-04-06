@@ -81,6 +81,7 @@ graph TD
 | Counter                        | [`counter`](./fragments/blockchain/solana/programs/counter)       |         |        |  ✅  |
 | Username                       | [`username`](./fragments/blockchain/solana/programs/username)     |         |        |  ✅  |
 | Round                          | [`round`](./fragments/blockchain/solana/programs/round)           |         |        |  ✅  |
+| Register                       | [`register`](./fragments/blockchain/solana/programs/register)     |         |        |  ✅  |
 
 ## Running the code
 
@@ -442,7 +443,7 @@ Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/
 - Deploy programs (solana test validator must be running, e.g. `docker compose --profile blockchain up`):
   ```
   docker run --rm --network host --entrypoint bash ff_anchor \
-  -c "solana airdrop 5 && anchor deploy --provider.wallet /root/.config/solana/id.json"
+  -c "solana airdrop 21 && anchor deploy --provider.wallet /root/.config/solana/id.json"
   ```
 - Unit tests:
   ```

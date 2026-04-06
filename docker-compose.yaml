@@ -82,7 +82,7 @@ services:
     entrypoint: bash
     command: >
       -c '
-        solana airdrop 5
+        solana airdrop 21
         anchor deploy --provider.wallet /root/.config/solana/id.json
       '
 
