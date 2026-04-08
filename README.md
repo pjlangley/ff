@@ -77,6 +77,7 @@ graph TD
 | Program: Counter               | [`solana_program_counter`](./fragments/solana_program_counter/)   |   ✅    |   ✅   |      |
 | Program: Username              | [`solana_program_username`](./fragments/solana_program_username/) |   ✅    |   ✅   |      |
 | Program: Round                 | [`solana_program_round`](./fragments/solana_program_round/)       |   ✅    |   ✅   |      |
+| Program: Register              | [`solana_program_register`](./fragments/solana_program_register/) |   ✅    |        |      |
 | **Solana (on-chain programs)** |                                                                   |         |        |      |
 | Counter                        | [`counter`](./fragments/blockchain/solana/programs/counter)       |         |        |  ✅  |
 | Username                       | [`username`](./fragments/blockchain/solana/programs/username)     |         |        |  ✅  |
@@ -102,7 +103,8 @@ docker compose --profile blockchain up
 
 > [!NOTE]
 > After `docker compose --profile blockchain up` has run, the Solana program keys are automatically extracted to
-> `./solana_program_keys/solana_program_keys.env`. They are dynamically referenced in unit tests.
+> `./solana_program_keys/solana_program_keys.env`. In addition, the Solana deployer keypair is automatically extracted
+> to `./solana_program_keys/solana_deployer.json`. They are dynamically referenced in unit tests.
 
 If not working on blockchain fragments, you can omit the `blockchain` profile to save on CPU consumption:
 
@@ -139,9 +141,6 @@ execute the code.
 - `dvm use 2.1.6`
 
 ##### Run
-
-> [!NOTE]
-> TypeScript files in `./fragments/blockchain/solana/` will be in scope for some of these commands.
 
 - Run unit tests:
   ```

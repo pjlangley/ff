@@ -1,17 +1,21 @@
-import { Address, getAddressEncoder, getProgramDerivedAddress } from "@solana/kit";
+import { Address, address, getAddressEncoder, getProgramDerivedAddress } from "@solana/kit";
 import { offsetDecoder } from "@solana/codecs-core";
 import counterIdl from "../blockchain/solana/target/idl/counter.json";
 import usernameIdl from "../blockchain/solana/target/idl/username.json";
+import registerIdl from "../blockchain/solana/target/idl/register.json";
 import roundIdl from "../blockchain/solana/target/idl/round.json";
 import { Buffer } from "node:buffer";
 
 const programIdlMap = {
   counter: counterIdl,
+  register: registerIdl,
   round: roundIdl,
   username: usernameIdl,
 };
 
 type ProgramName = keyof typeof programIdlMap;
+
+export const BPF_LOADER_UPGRADEABLE_ID = address("BPFLoaderUpgradeab1e11111111111111111111111");
 
 export const getInstructionDiscriminator = (instructionName: string, programName: ProgramName) => {
   const idl = programIdlMap[programName];

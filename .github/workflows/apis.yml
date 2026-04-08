@@ -82,6 +82,9 @@ jobs:
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
 
+      - name: store solana deployer keypair path
+        run: echo "SOLANA_KEYPAIR_PATH=solana_deployer.json" >> $GITHUB_ENV
+
       - uses: actions/setup-node@v6
         with:
           node-version: 22.x
@@ -180,6 +183,9 @@ jobs:
 
       - name: store solana program keys into environment variables
         run: cat program_keys.env >> $GITHUB_ENV
+
+      - name: store solana deployer keypair path
+        run: echo "SOLANA_KEYPAIR_PATH=solana_deployer.json" >> $GITHUB_ENV
 
       - uses: astral-sh/setup-uv@v7
         with:

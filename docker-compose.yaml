@@ -86,6 +86,25 @@ services:
         anchor deploy --provider.wallet /root/.config/solana/id.json
       '
 
+  extract_solana_deployer_keypair:
+    build:
+      context: .
+      dockerfile: docker.anchor.Dockerfile
+    image: ff_anchor
+    pull_policy: never
+    depends_on:
+      deploy_solana_programs:
+        condition: service_completed_successfully
+    profiles:
+      - blockchain
+    volumes:
+      - ./solana_program_keys:/usr/ff/solana_program_keys
+    entrypoint: bash
+    command: >
+      -c '
+        cp /root/.config/solana/id.json /usr/ff/solana_program_keys/solana_deployer.json
+      '
+
   extract_solana_program_keys:
     build:
       context: .
