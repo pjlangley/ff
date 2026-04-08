@@ -15,7 +15,8 @@
         "*github.com",
         "*docs.rs",
         "*raw.githubusercontent.com",
-        "*crates.io"
+        "*crates.io",
+        "*registry.npmjs.org"
       ]
     }
   },

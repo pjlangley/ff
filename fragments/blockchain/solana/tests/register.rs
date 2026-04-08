@@ -1,7 +1,9 @@
 use anchor_lang::AccountDeserialize;
 use litesvm::LiteSVM;
 use program_tests::{anchor_discriminator, assert_err_logs_contain, send_instr};
+use solana_loader_v3_interface::{get_program_data_address, state::UpgradeableLoaderState};
 use solana_sdk::{
+    account::Account,
     instruction::{AccountMeta, Instruction},
     native_token::LAMPORTS_PER_SOL,
     pubkey::Pubkey,
@@ -18,6 +20,29 @@ fn registration_pda(registrant: &Pubkey) -> (Pubkey, u8) {
     Pubkey::find_program_address(&[b"registration", registrant.as_ref()], &register::ID)
 }
 
+fn program_data_address() -> Pubkey {
+    get_program_data_address(&register::ID)
+}
+
+fn setup_program_data_account(svm: &mut LiteSVM, upgrade_authority: &Pubkey) {
+    let program_data_state = UpgradeableLoaderState::ProgramData {
+        slot: 0,
+        upgrade_authority_address: Some(*upgrade_authority),
+    };
+    let data = bincode::serialize(&program_data_state).unwrap();
+    svm.set_account(
+        program_data_address(),
+        Account {
+            lamports: 1_000_000,
+            data,
+            owner: solana_sdk_ids::bpf_loader_upgradeable::id(),
+            executable: false,
+            rent_epoch: 0,
+        },
+    )
+    .unwrap();
+}
+
 fn build_initialise_registry_instr(authority: &Pubkey, registry_state_pda: &Pubkey) -> Instruction {
     Instruction::new_with_bytes(
         register::ID,
@@ -25,6 +50,7 @@ fn build_initialise_registry_instr(authority: &Pubkey, registry_state_pda: &Pubk
         vec![
             AccountMeta::new(*authority, true),
             AccountMeta::new(*registry_state_pda, false),
+            AccountMeta::new_readonly(program_data_address(), false),
             AccountMeta::new_readonly(SYSTEM_PROGRAM_ID, false),
         ],
     )
@@ -63,10 +89,11 @@ fn build_confirm_registration_instr(
     )
 }
 
-fn setup() -> LiteSVM {
+fn setup(upgrade_authority: &Pubkey) -> LiteSVM {
     let mut svm = LiteSVM::new();
     svm.add_program_from_file(register::ID, "../target/deploy/register.so")
         .expect("Failed to load register program");
+    setup_program_data_account(&mut svm, upgrade_authority);
     svm
 }
 
@@ -86,8 +113,8 @@ fn fetch_registration(svm: &LiteSVM, pda: &Pubkey) -> Option<register::Registrat
 
 #[test]
 fn initialises_the_registry() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (pda, _) = registry_state_pda();
 
@@ -101,8 +128,8 @@ fn initialises_the_registry() {
 
 #[test]
 fn fails_to_initialise_registry_if_already_initialised() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (pda, _) = registry_state_pda();
 
@@ -121,7 +148,8 @@ fn fails_to_initialise_registry_if_already_initialised() {
 
 #[test]
 fn fails_to_fetch_registry_state_if_not_initialised() {
-    let svm = setup();
+    let authority = Keypair::new();
+    let svm = setup(&authority.pubkey());
     let (pda, _) = registry_state_pda();
 
     let state = fetch_registry_state(&svm, &pda);
@@ -132,8 +160,8 @@ fn fails_to_fetch_registry_state_if_not_initialised() {
 
 #[test]
 fn registers_a_user() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -158,8 +186,8 @@ fn registers_a_user() {
 
 #[test]
 fn registers_multiple_users_with_incrementing_index() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -184,8 +212,8 @@ fn registers_multiple_users_with_incrementing_index() {
 
 #[test]
 fn fails_to_register_if_already_registered() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -211,7 +239,8 @@ fn fails_to_register_if_already_registered() {
 
 #[test]
 fn fails_to_register_if_registry_not_initialised() {
-    let mut svm = setup();
+    let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     let user = Keypair::new();
     svm.airdrop(&user.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
@@ -227,8 +256,8 @@ fn fails_to_register_if_registry_not_initialised() {
 
 #[test]
 fn authority_confirms_a_registration() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -254,8 +283,8 @@ fn authority_confirms_a_registration() {
 
 #[test]
 fn fails_to_confirm_if_signer_is_not_authority() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -280,8 +309,8 @@ fn fails_to_confirm_if_signer_is_not_authority() {
 
 #[test]
 fn fails_to_confirm_if_registration_not_found() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -299,8 +328,8 @@ fn fails_to_confirm_if_registration_not_found() {
 
 #[test]
 fn fails_to_confirm_if_already_confirmed() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -329,8 +358,8 @@ fn fails_to_confirm_if_already_confirmed() {
 
 #[test]
 fn fails_to_confirm_if_registry_not_initialised() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -345,8 +374,8 @@ fn fails_to_confirm_if_registry_not_initialised() {
 
 #[test]
 fn confirms_multiple_registrations_in_fifo_order() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -378,8 +407,8 @@ fn confirms_multiple_registrations_in_fifo_order() {
 
 #[test]
 fn confirms_registrations_out_of_fifo_order() {
-    let mut svm = setup();
     let authority = Keypair::new();
+    let mut svm = setup(&authority.pubkey());
     svm.airdrop(&authority.pubkey(), LAMPORTS_PER_SOL).unwrap();
     let (state_pda, _) = registry_state_pda();
 
@@ -407,4 +436,23 @@ fn confirms_registrations_out_of_fifo_order() {
         assert_eq!(registration.registration_index, i as u64);
         assert!(registration.confirmed_at.is_some());
     }
+}
+
+#[test]
+fn fails_to_initialise_registry_if_signer_is_not_upgrade_authority() {
+    let upgrade_authority = Keypair::new();
+    let mut svm = setup(&upgrade_authority.pubkey());
+
+    let non_authority = Keypair::new();
+    svm.airdrop(&non_authority.pubkey(), LAMPORTS_PER_SOL)
+        .unwrap();
+    let (pda, _) = registry_state_pda();
+
+    let instr = build_initialise_registry_instr(&non_authority.pubkey(), &pda);
+    let result = send_instr(&mut svm, instr, &non_authority);
+    assert!(
+        result.is_err(),
+        "initialise by non-upgrade-authority should fail"
+    );
+    assert_err_logs_contain(&result, "Unauthorised");
 }

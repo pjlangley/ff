@@ -24,8 +24,11 @@ path = "username.rs"
 
 [dependencies]
 anchor-lang = "0.31.1"
+bincode = "1"
 litesvm = "0.7"
+solana-loader-v3-interface = "3"
 solana-sdk = "2"
+solana-sdk-ids = "2"
 sha2 = "0.10"
 counter = { path = "../programs/counter", features = ["no-entrypoint"] }
 register = { path = "../programs/register", features = ["no-entrypoint"] }

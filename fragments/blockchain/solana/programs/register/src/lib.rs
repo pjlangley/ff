@@ -2,6 +2,7 @@
 #![allow(unexpected_cfgs)]
 
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::bpf_loader_upgradeable;
 
 declare_id!("DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K");
 
@@ -103,6 +104,16 @@ pub struct InitialiseRegistry<'info> {
     )]
     pub registry_state: Account<'info, RegistryState>,
 
+    #[account(
+        address = Pubkey::find_program_address(
+            &[crate::ID.as_ref()],
+            &bpf_loader_upgradeable::id()
+        ).0,
+        constraint = program_data.upgrade_authority_address == Some(authority.key())
+            @ RegisterError::Unauthorised
+    )]
+    pub program_data: Account<'info, ProgramData>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -167,4 +178,6 @@ pub struct ConfirmedEvent {
 pub enum RegisterError {
     #[msg("The registration has already been confirmed")]
     RegistrationAlreadyConfirmed,
+    #[msg("Signer is not the program upgrade authority")]
+    Unauthorised,
 }

@@ -131,6 +131,9 @@
           }
         },
         {
+          "name": "program_data"
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -280,6 +283,11 @@
       "code": 6000,
       "name": "RegistrationAlreadyConfirmed",
       "msg": "The registration has already been confirmed"
+    },
+    {
+      "code": 6001,
+      "name": "Unauthorised",
+      "msg": "Signer is not the program upgrade authority"
     }
   ],
   "types": [

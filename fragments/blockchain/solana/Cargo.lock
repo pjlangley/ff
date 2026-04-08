@@ -2221,12 +2221,15 @@ name = "program-tests"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
+ "bincode",
  "counter",
  "litesvm",
  "register",
  "round",
  "sha2 0.10.8",
+ "solana-loader-v3-interface 3.0.0",
  "solana-sdk",
+ "solana-sdk-ids",
  "username",
 ]
 
