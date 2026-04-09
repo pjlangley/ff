@@ -29,7 +29,10 @@
     "deny": [
       "Read(./solana.id.json)",
       "Edit(./solana.id.json)",
-      "Write(./solana.id.json)"
+      "Write(./solana.id.json)",
+      "Read(./solana_program_keys/solana_deployer.json)",
+      "Edit(./solana_program_keys/solana_deployer.json)",
+      "Write(./solana_program_keys/solana_deployer.json)"
     ]
   }
 }

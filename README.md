@@ -77,7 +77,7 @@ graph TD
 | Program: Counter               | [`solana_program_counter`](./fragments/solana_program_counter/)   |   ✅    |   ✅   |      |
 | Program: Username              | [`solana_program_username`](./fragments/solana_program_username/) |   ✅    |   ✅   |      |
 | Program: Round                 | [`solana_program_round`](./fragments/solana_program_round/)       |   ✅    |   ✅   |      |
-| Program: Register              | [`solana_program_register`](./fragments/solana_program_register/) |   ✅    |        |      |
+| Program: Register              | [`solana_program_register`](./fragments/solana_program_register/) |   ✅    |   ✅   |      |
 | **Solana (on-chain programs)** |                                                                   |         |        |      |
 | Counter                        | [`counter`](./fragments/blockchain/solana/programs/counter)       |         |        |  ✅  |
 | Username                       | [`username`](./fragments/blockchain/solana/programs/username)     |         |        |  ✅  |
