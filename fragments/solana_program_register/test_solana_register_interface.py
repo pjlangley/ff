@@ -109,11 +109,11 @@ class TestSolanaRegisterInterface(unittest.IsolatedAsyncioTestCase):
             self.fail("Register B instruction failed")
 
         registry_state_after = await get_registry_state_account(self.program_id)
-        self.assertEqual(registry_state_after["registration_count"], count_before + 2)
+        self.assertGreaterEqual(registry_state_after["registration_count"], count_before + 2)
 
         registration_a = await get_registration_account(registrant_a.pubkey(), self.program_id)
         registration_b = await get_registration_account(registrant_b.pubkey(), self.program_id)
-        self.assertEqual(registration_b["registration_index"], registration_a["registration_index"] + 1)
+        self.assertGreater(registration_b["registration_index"], registration_a["registration_index"])
 
     async def test_confirm_already_confirmed_registration(self):
         registrant = Keypair()

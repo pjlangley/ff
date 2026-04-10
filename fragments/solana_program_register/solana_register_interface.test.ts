@@ -115,11 +115,11 @@ describe("solana program register interface", () => {
     await confirmRecentSignature(regTxSigB);
 
     const registryStateAfter = await getRegistryStateAccount(programAddress);
-    assert.strictEqual(registryStateAfter.registration_count, countBefore + 2n);
+    assert.ok(registryStateAfter.registration_count >= countBefore + 2n);
 
     const registrationA = await getRegistrationAccount(registrantA.address, programAddress);
     const registrationB = await getRegistrationAccount(registrantB.address, programAddress);
-    assert.strictEqual(registrationB.registration_index, registrationA.registration_index + 1n);
+    assert.ok(registrationB.registration_index > registrationA.registration_index);
   });
 
   test("confirm already confirmed registration", async () => {

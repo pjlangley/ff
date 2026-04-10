@@ -192,6 +192,7 @@ execute the code.
     --network ff_default \
     --name fastify \
     -p 3000:3000 \
+    -v "$(pwd)/solana_program_keys/solana_deployer.json:/usr/src/app/solana_program_keys/solana_deployer.json:ro" \
     -e FASTIFY_HOST=0.0.0.0 \
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \
@@ -264,6 +265,7 @@ execute the code.
     --network ff_default \
     --name fastapi \
     -p 3003:3003 \
+    -v "$(pwd)/solana_program_keys/solana_deployer.json:/usr/src/app/solana_program_keys/solana_deployer.json:ro" \
     -e FASTAPI_HOST=0.0.0.0 \
     -e POSTGRES_HOST=postgres \
     -e REDIS_HOST=redis \

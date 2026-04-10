@@ -144,8 +144,13 @@ services:
       extract_solana_program_keys:
         condition: service_completed_successfully
         required: false
+      extract_solana_deployer_keypair:
+        condition: service_completed_successfully
+        required: false
     ports:
       - 3000:3000
+    volumes:
+      - ./solana_program_keys/solana_deployer.json:/usr/src/app/solana_program_keys/solana_deployer.json:ro
     environment:
       FASTIFY_HOST: 0.0.0.0
       POSTGRES_HOST: postgres
@@ -171,8 +176,13 @@ services:
       extract_solana_program_keys:
         condition: service_completed_successfully
         required: false
+      extract_solana_deployer_keypair:
+        condition: service_completed_successfully
+        required: false
     ports:
       - 3003:3003
+    volumes:
+      - ./solana_program_keys/solana_deployer.json:/usr/src/app/solana_program_keys/solana_deployer.json:ro
     environment:
       FASTAPI_HOST: 0.0.0.0
       POSTGRES_HOST: postgres

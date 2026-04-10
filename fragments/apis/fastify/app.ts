@@ -6,6 +6,7 @@ import { routes as solanaCounter } from "./blockchain/solana_counter";
 import { routes as solanaUsername } from "./blockchain/solana_username";
 import { routes as solanaRound } from "./blockchain/solana_round";
 import { routes as solanaBalance } from "./blockchain/solana_balance";
+import { routes as solanaRegister } from "./blockchain/solana_register";
 
 export const build = () => {
   const api = fastify({ logger: true });
@@ -16,5 +17,6 @@ export const build = () => {
   api.register(solanaUsername, { prefix: "/solana" });
   api.register(solanaRound, { prefix: "/solana" });
   api.register(solanaBalance, { prefix: "/solana" });
+  api.register(solanaRegister, { prefix: "/solana" });
   return api;
 };
