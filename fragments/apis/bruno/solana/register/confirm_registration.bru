@@ -1,0 +1,23 @@
+meta {
+  name: confirm registration
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{base_url}}/solana/register/{{REGISTRANT_ADDRESS}}/confirm
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {}
+}
+
+tests {
+  test("200 OK - registration confirmed", async function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,24 @@
+meta {
+  name: get registration
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/solana/register/{{REGISTRANT_ADDRESS}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK - registration not yet confirmed", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.registrant).to.equal(bru.getVar("REGISTRANT_ADDRESS"));
+    expect(result.registration_index).to.be.ok;
+    expect(result.registered_at).to.be.ok;
+    expect(result.confirmed_at).to.be.null;
+  });
+}

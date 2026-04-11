@@ -1,0 +1,22 @@
+meta {
+  name: get registry
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/solana/register/registry
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("200 OK - registry state returned", function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.authority).to.equal(bru.getVar("REGISTER_AUTHORITY"));
+    expect(Number(result.registration_count)).to.be.at.least(1);
+  });
+}

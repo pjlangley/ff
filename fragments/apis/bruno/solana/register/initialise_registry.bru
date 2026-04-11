@@ -1,0 +1,26 @@
+meta {
+  name: initialise registry
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/solana/register/initialise
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {}
+}
+
+tests {
+  test("200 OK - registry initialised", async function() {
+    const result = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(result.authority).to.be.ok;
+    bru.setVar('REGISTER_AUTHORITY', result.authority);
+  });
+}
