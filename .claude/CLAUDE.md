@@ -10,6 +10,10 @@
   `./fragments/blockchain/solana/programs/`.
 - Each programming language has its own API to interface with the various modules of code; located in
   `./fragments/apis/`.
+- AWS IaC is managed with Terraform; located in `./fragments/terraform/`. One directory per HCP Terraform workspace
+  (`ff_dev/` uses local execution, `ff_prod/` will use remote execution). Shared modules live in
+  `./fragments/terraform/modules/`. State backend is HCP Terraform; the `cloud {}` block omits `organization` so the
+  config is portable — the org name is supplied via the `TF_CLOUD_ORGANIZATION` env var.
 - Bruno CLI is used for integration testing against each API; located in `./fragments/apis/bruno/`.
 - Unit tests and integration tests run against the infrastructure and deployed Solana programs (see "Common commands"
   section).
@@ -39,6 +43,12 @@
 - Further `anchor` CLI commands available once you change directory into `./fragments/blockchain/solana/`, e.g.:
   - `anchor test` (or `cargo test -p program-tests`) runs the Rust unit tests.
   - `anchor build` to build all programs.
+- `terraform login` - one-time, authenticates against HCP Terraform.
+- `TF_CLOUD_ORGANIZATION` must be set in the environment for any terraform command that contacts HCP (init, plan, apply,
+  etc.) — the `cloud {}` block in code omits `organization` so it can be supplied here.
+- Further `terraform` CLI commands available once you change directory into a workspace root, e.g.
+  `./fragments/terraform/ff_dev/`:
+- `terraform fmt -check -recursive ./fragments/terraform` - format check for all terraform code.
 
 ## Conventions
 
@@ -52,6 +62,15 @@
 - Python code is formatted with `ruff`; config in `./pyproject.toml`.
 - Solana program Rust code is linted with `clippy` and formatted with `cargo fmt`.
 - Solana program tests can be run with `cargo test -p program-tests` (uses LiteSVM).
+- Terraform code is formatted with `terraform fmt` and validated with `terraform validate`.
+- Terraform state is stored remotely in HCP Terraform; each workspace root directory binds to one HCP workspace via the
+  `cloud` block in `main.tf`.
+- `ff_dev` uses local execution; `ff_prod` will use remote execution (configured in the HCP workspace UI, not in code).
+- Terraform AWS provider uses a `default_tags` block so every taggable resource automatically gets `Project` /
+  `Environment` / `ManagedBy` tags. Don't duplicate these tags at the resource level.
+- Resource names should be derived from `local.name_prefix` (`"${var.project}-${var.environment}"`) declared in each
+  root module's `locals.tf`.
+- `.terraform.lock.hcl` files are committed; `.terraform/`, `*.tfstate*`, and `*.tfvars` are ignored.
 - Core fragments have access to environment variables that specify the locally running Solana program IDs - see
   `./solana_program_keys/solana_program_keys.env`.
 - Production-grade code with a pragmatic understanding that this is for educational purposes. For example, I made a
@@ -65,3 +84,5 @@
 - Node.js API entry file: `./fragments/api.ts`.
 - Python API entry file: `./fragments/api.py`.
 - Blockchain programs (only Solana atm): `./fragments/blockchain/solana/programs/`.
+- Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`, later
+  `./fragments/terraform/ff_prod/`. Shared modules: `./fragments/terraform/modules/`.

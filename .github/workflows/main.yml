@@ -9,6 +9,9 @@ jobs:
   blockchain_checks:
     uses: ./.github/workflows/blockchain.yml
 
+  terraform_checks:
+    uses: ./.github/workflows/terraform.yml
+
   docker_images:
     needs: [blockchain_checks]
     if: ${{ !failure() && !cancelled() }}

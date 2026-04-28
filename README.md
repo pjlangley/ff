@@ -83,6 +83,8 @@ graph TD
 | Username                       | [`username`](./fragments/blockchain/solana/programs/username)     |         |        |  ✅  |
 | Round                          | [`round`](./fragments/blockchain/solana/programs/round)           |         |        |  ✅  |
 | Register                       | [`register`](./fragments/blockchain/solana/programs/register)     |         |        |  ✅  |
+| **AWS IaC**                    |                                                                   |         |        |      |
+| Terraform (HCP backend)        | [`terraform`](./fragments/terraform/)                             |         |        |      |
 
 ## Running the code
 
@@ -449,4 +451,68 @@ Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/
 - Unit tests:
   ```
   docker run --rm --entrypoint cargo ff_anchor test -p program-tests
+  ```
+
+### Terraform
+
+Terraform is used to provision AWS infrastructure. State is stored remotely in
+[HCP Terraform](https://app.terraform.io/). Each HCP workspace has its own root module directory under
+[`./fragments/terraform/`](./fragments/terraform/):
+
+- [`ff_dev/`](./fragments/terraform/ff_dev/) — workspace `ff_dev`, local execution.
+- `ff_prod/` — (future) workspace `ff_prod`, remote execution via HCP.
+- `modules/` — (future) shared modules consumed by both environment roots.
+
+> [!NOTE] The `cloud {}` block in each root module deliberately omits the `organization` field so the config is portable
+> — anyone can clone the repo and point it at their own HCP organization by setting the `TF_CLOUD_ORGANIZATION`
+> environment variable.
+
+#### Local (Terraform)
+
+##### Setup
+
+- Install [`tenv`](https://github.com/tofuutils/tenv)
+- `tenv tf install`. This installs and uses the version specified in [`.terraform-version`](./.terraform-version)
+- Create an [HCP Terraform](https://app.terraform.io/) account and also:
+  - An organization of any name with the following:
+    - A project named `pjlangley_ff`
+    - A workspace named `ff_dev` (execution mode: local)
+- Authenticate against HCP Terraform (one-time): `terraform login`
+- Export `TF_CLOUD_ORGANIZATION` with your HCP organization name. Because Terraform references this env var on every
+  command that talks to HCP (init/plan/apply/state/etc.), not just `init`, export it in your shell (or persisting it in
+  your shell rc, e.g. `~/.zshrc`) is more convenient than prefixing every command.
+  ```
+  export TF_CLOUD_ORGANIZATION=your-hcp-org-name
+  ```
+
+##### Run
+
+> [!IMPORTANT]
+> Run the following commands from within the `ff_dev/` workspace directory: `cd ./fragments/terraform/ff_dev/`. And
+> ensure you have exported the `TF_CLOUD_ORGANIZATION` environment variable with your organisation.
+
+- Initialise the workspace:
+  ```
+  tf init
+  ```
+- Validate the configuration:
+  ```
+  tf validate
+  ```
+- Plan / apply:
+  ```
+  tf plan
+  tf apply
+  ```
+
+These following commands should be run from [`./fragments/terraform/`](./fragments/terraform/) as they apply to every
+workspace:
+
+- Run the formatter:
+  ```
+  tf fmt -recursive
+  ```
+- Run the format check:
+  ```
+  tf fmt -check -recursive
   ```

@@ -18,5 +18,12 @@ __pycache__/
 /fragments/blockchain/solana/tests/target
 /solana_program_keys
 
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
 # misc
 .DS_Store

@@ -1,0 +1,48 @@
+name: terraform checks
+
+on: workflow_call
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    name: git changes
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - 'fragments/terraform/**'
+              - '.terraform-version'
+              - '.github/workflows/terraform.yml'
+
+  checks:
+    runs-on: ubuntu-latest
+    name: terraform checks
+    needs: [changes]
+    if: needs.changes.outputs.terraform == 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: read terraform version
+        id: tf_version
+        run: echo "version=$(cat .terraform-version)" >> $GITHUB_OUTPUT
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ steps.tf_version.outputs.version }}
+          terraform_wrapper: false
+
+      - name: format check
+        run: terraform fmt -check -recursive fragments/terraform
+
+      - name: init ff_dev (backend disabled)
+        working-directory: fragments/terraform/ff_dev
+        run: terraform init -backend=false -input=false
+
+      - name: validate ff_dev
+        working-directory: fragments/terraform/ff_dev
+        run: terraform validate
