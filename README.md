@@ -459,19 +459,19 @@ Terraform is used to provision AWS infrastructure. State is stored remotely in
 [HCP Terraform](https://app.terraform.io/). Each HCP workspace has its own root module directory under
 [`./fragments/terraform/`](./fragments/terraform/):
 
-- [`ff_dev/`](./fragments/terraform/ff_dev/) — workspace `ff_dev`, local execution.
-- `ff_prod/` — (future) workspace `ff_prod`, remote execution via HCP.
+- [`ff_dev/`](./fragments/terraform/ff_dev/) - workspace `ff_dev`, local execution.
+- `ff_prod/` - (future) workspace `ff_prod`, remote execution via HCP.
 - [`modules/`](./fragments/terraform/modules/) - shared modules consumed by both environment roots.
 
 > [!NOTE]
-> The `cloud {}` block in each root module deliberately omits the `organization` field so the config is portable —
-> anyone can clone the repo and point it at their own HCP organization by setting the `TF_CLOUD_ORGANIZATION`
+> The `cloud {}` block in each root module deliberately omits the `organization` field so the config is portable -
+> anyone can clone the repo and point it at their own HCP organisation by setting the `TF_CLOUD_ORGANIZATION`
 > environment variable.
 
 #### Local (Terraform)
 
-These instructions only apply to the `ff_dev`. Note that the `ff_prod` workspace is provisioned through CI/CD and is not
-applicable in this section.
+These instructions only apply to the `ff_dev` workspace. Note that the `ff_prod` workspace is provisioned through CI/CD
+and is not applicable in this section.
 
 ##### Setup
 
@@ -480,23 +480,22 @@ applicable in this section.
 - Create an [HCP Terraform](https://app.terraform.io/) account and also:
   - An organisation of any name with the following:
     - A project named `pjlangley_ff`
-    - A workspace named `ff_dev` (execution mode: local)
+    - A workspace named `ff_dev` with settings of _execution mode: local_
 - Authenticate against HCP Terraform (one-time): `terraform login`
-- Export `TF_CLOUD_ORGANIZATION` with your HCP organisation name. Because Terraform references this env var on every
-  command that talks to HCP (init/plan/apply/state/etc.), not just `init`, export it in your shell (or persisting it in
-  your shell rc, e.g. `~/.zshrc`) is more convenient than prefixing every command.
+- Export `TF_CLOUD_ORGANIZATION` with your HCP organisation name. Consider persisting it in your shell rc, e.g.
+  `~/.zshrc`
   ```
-  export TF_CLOUD_ORGANIZATION=your-hcp-org-name
+  export TF_CLOUD_ORGANIZATION=your_hcp_org_name
   ```
-- Install [`aws`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+- Install [`aws`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - In the AWS Console, manually create a scoped-IAM user for Terraform local execution with the following details:
   - Create a customer managed policy as per
     [`tf_local_iam_policy.json`](./fragments/terraform/ff_dev/tf_local_iam_policy.json); substitute `<account_id>` with
-    **your account ID**.
-  - Also attach the managed AWS policy `SignInLocalDevelopmentAccess`.
-  - Enable Console access for the IAM user (we will be authenticating with `aws login`).
-- Login via the CLI with `aws login --profile ff_dev` and complete the login with your IAM user in the browser.
-- Optional: Run `aws configure --profile ff_dev list` for details of the authenticated session.
+    **your account ID**
+  - Also attach the managed AWS policy `SignInLocalDevelopmentAccess`
+  - Enable Console access for the IAM user (we will be authenticating with `aws login`)
+- Login via the CLI with `aws login --profile ff_dev` and complete the login with your IAM user in the browser
+- Optional: Run `aws configure --profile ff_dev list` for details of the authenticated session
 
 ##### Run
 
