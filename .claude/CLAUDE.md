@@ -68,7 +68,7 @@
 - `ff_dev` uses local execution; `ff_prod` will use remote execution (configured in the HCP workspace UI, not in code).
 - Terraform AWS provider uses a `default_tags` block so every taggable resource automatically gets `Project` /
   `Environment` / `ManagedBy` tags. Don't duplicate these tags at the resource level.
-- Resource names should be derived from `local.name_prefix` (`"${var.project}-${var.environment}"`) declared in each
+- Resource names should be derived from `local.name_prefix` (`"${var.project}_${var.environment}"`) declared in each
   root module's `locals.tf`.
 - `.terraform.lock.hcl` files are committed; `.terraform/`, `*.tfstate*`, and `*.tfvars` are ignored.
 - Core fragments have access to environment variables that specify the locally running Solana program IDs - see

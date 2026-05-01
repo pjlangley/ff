@@ -1,3 +1,3 @@
 locals {
-  name_prefix = "${var.project}-${var.environment}"
+  name_prefix = "${var.project}_${var.environment}"
 }

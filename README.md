@@ -461,35 +461,49 @@ Terraform is used to provision AWS infrastructure. State is stored remotely in
 
 - [`ff_dev/`](./fragments/terraform/ff_dev/) — workspace `ff_dev`, local execution.
 - `ff_prod/` — (future) workspace `ff_prod`, remote execution via HCP.
-- `modules/` — (future) shared modules consumed by both environment roots.
+- [`modules/`](./fragments/terraform/modules/) - shared modules consumed by both environment roots.
 
-> [!NOTE] The `cloud {}` block in each root module deliberately omits the `organization` field so the config is portable
-> — anyone can clone the repo and point it at their own HCP organization by setting the `TF_CLOUD_ORGANIZATION`
+> [!NOTE]
+> The `cloud {}` block in each root module deliberately omits the `organization` field so the config is portable —
+> anyone can clone the repo and point it at their own HCP organization by setting the `TF_CLOUD_ORGANIZATION`
 > environment variable.
 
 #### Local (Terraform)
+
+These instructions only apply to the `ff_dev`. Note that the `ff_prod` workspace is provisioned through CI/CD and is not
+applicable in this section.
 
 ##### Setup
 
 - Install [`tenv`](https://github.com/tofuutils/tenv)
 - `tenv tf install`. This installs and uses the version specified in [`.terraform-version`](./.terraform-version)
 - Create an [HCP Terraform](https://app.terraform.io/) account and also:
-  - An organization of any name with the following:
+  - An organisation of any name with the following:
     - A project named `pjlangley_ff`
     - A workspace named `ff_dev` (execution mode: local)
 - Authenticate against HCP Terraform (one-time): `terraform login`
-- Export `TF_CLOUD_ORGANIZATION` with your HCP organization name. Because Terraform references this env var on every
+- Export `TF_CLOUD_ORGANIZATION` with your HCP organisation name. Because Terraform references this env var on every
   command that talks to HCP (init/plan/apply/state/etc.), not just `init`, export it in your shell (or persisting it in
   your shell rc, e.g. `~/.zshrc`) is more convenient than prefixing every command.
   ```
   export TF_CLOUD_ORGANIZATION=your-hcp-org-name
   ```
+- Install [`aws`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+- In the AWS Console, manually create a scoped-IAM user for Terraform local execution with the following details:
+  - Create a customer managed policy as per
+    [`tf_local_iam_policy.json`](./fragments/terraform/ff_dev/tf_local_iam_policy.json); substitute `<account_id>` with
+    **your account ID**.
+  - Also attach the managed AWS policy `SignInLocalDevelopmentAccess`.
+  - Enable Console access for the IAM user (we will be authenticating with `aws login`).
+- Login via the CLI with `aws login --profile ff_dev` and complete the login with your IAM user in the browser.
+- Optional: Run `aws configure --profile ff_dev list` for details of the authenticated session.
 
 ##### Run
 
 > [!IMPORTANT]
-> Run the following commands from within the `ff_dev/` workspace directory: `cd ./fragments/terraform/ff_dev/`. And
-> ensure you have exported the `TF_CLOUD_ORGANIZATION` environment variable with your organisation.
+> Run the following commands from within the [`ff_dev/`](./fragments/terraform/ff_dev/) workspace directory. And ensure
+> you have exported the `TF_CLOUD_ORGANIZATION` environment variable with your organisation. If running `plan` or
+> `apply` ensure you're logged into Terraform and AWS (see earlier [Terraform section](#terraform) for details).
 
 - Initialise the workspace:
   ```
@@ -503,6 +517,10 @@ Terraform is used to provision AWS infrastructure. State is stored remotely in
   ```
   tf plan
   tf apply
+  ```
+- Show state output:
+  ```
+  tf output
   ```
 
 These following commands should be run from [`./fragments/terraform/`](./fragments/terraform/) as they apply to every
