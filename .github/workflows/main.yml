@@ -12,6 +12,12 @@ jobs:
   terraform_checks:
     uses: ./.github/workflows/terraform.yml
 
+  terraform_deploy:
+    needs: [terraform_checks]
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/terraform_deploy.yml
+    secrets: inherit
+
   docker_images:
     needs: [blockchain_checks]
     if: ${{ !failure() && !cancelled() }}

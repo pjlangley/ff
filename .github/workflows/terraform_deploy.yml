@@ -1,0 +1,71 @@
+name: terraform deploy (ff_prod)
+
+on: workflow_call
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    name: git changes
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - 'fragments/terraform/ff_prod/**'
+              - 'fragments/terraform/modules/**'
+              - '.terraform-version'
+              - '.github/workflows/terraform_deploy.yml'
+
+  plan:
+    runs-on: ubuntu-latest
+    name: terraform plan
+    needs: [changes]
+    if: needs.changes.outputs.terraform == 'true'
+    outputs:
+      run_id: ${{ steps.create_run.outputs.run_id }}
+      run_status: ${{ steps.create_run.outputs.run_status }}
+    env:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      TF_CLOUD_ORGANIZATION: pjlangley
+      TF_WORKSPACE: ff_prod
+    steps:
+      - uses: actions/checkout@v6
+
+      - id: upload
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.2
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: fragments/terraform
+
+      - id: create_run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.2
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
+
+      - id: plan_output
+        uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.3.2
+        with:
+          plan: ${{ steps.create_run.outputs.plan_id }}
+
+      - name: hcp run link
+        run: echo "Review plan in HCP → ${{ steps.create_run.outputs.run_link }}" >> $GITHUB_STEP_SUMMARY
+
+  apply:
+    runs-on: ubuntu-latest
+    name: terraform apply
+    needs: [plan]
+    if: needs.plan.outputs.run_status == 'planned'
+    environment: ff_prod
+    env:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      TF_CLOUD_ORGANIZATION: pjlangley
+    steps:
+      - uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.2
+        with:
+          run: ${{ needs.plan.outputs.run_id }}
+          comment: "Approved via GH Actions environment ff_prod by ${{ github.actor }}"
