@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SqsReadScoped",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl",
+        "sqs:ListQueueTags"
+      ],
+      "Resource": "arn:aws:sqs:eu-west-2:<account_id>:ff_prod_*"
+    },
+    {
+      "Sid": "SqsListAndIdentity",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ListQueues",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

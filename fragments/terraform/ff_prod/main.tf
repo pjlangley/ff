@@ -10,15 +10,14 @@ terraform {
 
   cloud {
     workspaces {
-      name    = "ff_dev"
+      name    = "ff_prod"
       project = "pjlangley_ff"
     }
   }
 }
 
 provider "aws" {
-  region  = var.aws_region
-  profile = "ff_dev"
+  region = var.aws_region
 
   default_tags {
     tags = {

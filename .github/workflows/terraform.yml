@@ -46,3 +46,11 @@ jobs:
       - name: validate ff_dev
         working-directory: fragments/terraform/ff_dev
         run: terraform validate
+
+      - name: init ff_prod (backend disabled)
+        working-directory: fragments/terraform/ff_prod
+        run: terraform init -backend=false -input=false
+
+      - name: validate ff_prod
+        working-directory: fragments/terraform/ff_prod
+        run: terraform validate

@@ -11,7 +11,7 @@
 - Each programming language has its own API to interface with the various modules of code; located in
   `./fragments/apis/`.
 - AWS IaC is managed with Terraform; located in `./fragments/terraform/`. One directory per HCP Terraform workspace
-  (`ff_dev/` uses local execution, `ff_prod/` will use remote execution). Shared modules live in
+  (`ff_dev/` uses local execution, `ff_prod/` uses remote execution). Shared modules live in
   `./fragments/terraform/modules/`. State backend is HCP Terraform; the `cloud {}` block omits `organization` so the
   config is portable — the org name is supplied via the `TF_CLOUD_ORGANIZATION` env var.
 - Bruno CLI is used for integration testing against each API; located in `./fragments/apis/bruno/`.
@@ -65,7 +65,7 @@
 - Terraform code is formatted with `terraform fmt` and validated with `terraform validate`.
 - Terraform state is stored remotely in HCP Terraform; each workspace root directory binds to one HCP workspace via the
   `cloud` block in `main.tf`.
-- `ff_dev` uses local execution; `ff_prod` will use remote execution (configured in the HCP workspace UI, not in code).
+- `ff_dev` uses local execution; `ff_prod` uses remote execution (configured in the HCP workspace UI, not in code).
 - Terraform AWS provider uses a `default_tags` block so every taggable resource automatically gets `Project` /
   `Environment` / `ManagedBy` tags. Don't duplicate these tags at the resource level.
 - Resource names should be derived from `local.name_prefix` (`"${var.project}_${var.environment}"`) declared in each
@@ -84,5 +84,5 @@
 - Node.js API entry file: `./fragments/api.ts`.
 - Python API entry file: `./fragments/api.py`.
 - Blockchain programs (only Solana atm): `./fragments/blockchain/solana/programs/`.
-- Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`, later
+- Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`,
   `./fragments/terraform/ff_prod/`. Shared modules: `./fragments/terraform/modules/`.
