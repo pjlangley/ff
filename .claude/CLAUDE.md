@@ -84,5 +84,5 @@
 - Node.js API entry file: `./fragments/api.ts`.
 - Python API entry file: `./fragments/api.py`.
 - Blockchain programs (only Solana atm): `./fragments/blockchain/solana/programs/`.
-- Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`,
-  `./fragments/terraform/ff_prod/`. Shared modules: `./fragments/terraform/modules/`.
+- Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`, `./fragments/terraform/ff_prod/`.
+  Shared modules: `./fragments/terraform/modules/`.
