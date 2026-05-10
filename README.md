@@ -593,7 +593,7 @@ The two main parts to this set up are as follows:
 - Execution mode: _remote_
 - API-driven workflow
 - Terraform Working Directory: `ff_prod`. The [`terraform_deploy.yml`](.github/workflows/terraform_deploy.yml) GH Action
-  is set up to upload [`./fragments/terraform/`](./fragments/terraform/) as the `directory`.
+  workflow is set up to upload [`./fragments/terraform/`](./fragments/terraform/) as the `directory`.
 - Create the following workspace variables:
   - `TFC_AWS_PLAN_ROLE_ARN=<ARN_from_AWS_plan_role>`
   - `TFC_AWS_APPLY_ROLE_ARN=<ARN_from_AWS_apply_role>`
