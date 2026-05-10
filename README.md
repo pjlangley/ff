@@ -460,7 +460,7 @@ Terraform is used to provision AWS infrastructure. State is stored remotely in
 [`./fragments/terraform/`](./fragments/terraform/):
 
 - [`ff_dev/`](./fragments/terraform/ff_dev/) - workspace `ff_dev`, local execution.
-- `ff_prod/` - (future) workspace `ff_prod`, remote execution via HCP.
+- [`ff_prod/`](./fragments/terraform/ff_prod/) - workspace `ff_prod`, remote execution via HCP.
 - [`modules/`](./fragments/terraform/modules/) - shared modules consumed by both environment roots.
 
 > [!NOTE]
@@ -504,9 +504,10 @@ and is not applicable in this section.
 > you have exported the `TF_CLOUD_ORGANIZATION` environment variable with your organisation. If running `plan` or
 > `apply` ensure you're logged into Terraform and AWS (see earlier [Terraform section](#terraform) for details).
 
-- Initialise the workspace:
+- Initialise the workspace (with the latest module & provider versions):
   ```
   tf init
+  tf init -upgrade
   ```
 - Validate the configuration:
   ```
@@ -533,3 +534,78 @@ workspace:
   ```
   tf fmt -check -recursive
   ```
+
+#### Remote (Terraform)
+
+This section only applies to the `ff_prod` workspace that is provisioned through CI/CD. This is a record of how it was
+originally setup using one-time manual steps.
+
+##### Setup
+
+The two main parts to this set up are as follows:
+
+1. HCP↔AWS (via OIDC)
+1. GH↔HCP (via HCP API using their official GH Action)
+
+**AWS**
+
+1. Manually create an IAM Identity Provider in AWS with OIDC:
+
+- Provider URL: `https://app.terraform.io`
+- Audience: `aws.workload.identity`
+- Tags: `Project=ff,Environment=prod`
+
+2. Manually create an IAM Role with a customer managed trust policy for Terraform `plan`:
+
+- Name: `ff_prod_tf_plan`
+- [`tf_remote_iam_plan_role.json`](./fragments/terraform/ff_prod/tf_remote_iam_plan_role.json)
+- Substitute `<account_id>` with **your account ID**
+- Tags: `Project=ff,Environment=prod`
+
+3. Manually create a customer managed IAM policy with read-only permissions for Terraform `plan`:
+
+- Name: `ff_prod_tf_plan`
+- [`tf_remote_iam_plan_policy.json`](./fragments/terraform/ff_prod/tf_remote_iam_plan_policy.json)
+- Substitute `<account_id>` with **your account ID**
+- Tags: `Project=ff,Environment=prod`
+- Attach this policy to the IAM Role `ff_prod_tf_plan`
+
+4. Manually create an IAM Role with a customer managed trust policy for Terraform `apply`:
+
+- Name: `ff_prod_tf_apply`
+- [`tf_remote_iam_apply_role.json`](./fragments/terraform/ff_prod/tf_remote_iam_apply_role.json)
+- Substitute `<account_id>` with **your account ID**
+- Tags: `Project=ff,Environment=prod`
+
+5. Manually create a customer managed IAM policy for Terraform `apply`:
+
+- Name: `ff_prod_tf_apply`
+- [`tf_remote_iam_apply_policy.json`](./fragments/terraform/ff_prod/tf_remote_iam_apply_policy.json)
+- Substitute `<account_id>` with **your account ID**
+- Tags: `Project=ff,Environment=prod`
+- Attach this policy to the IAM Role `ff_prod_tf_apply`
+
+**HCP**
+
+1. With the same [HCP Terraform](https://app.terraform.io/) account, organisation and project used for the `ff_dev`
+   workspace, create a new workspace named `ff_prod`:
+
+- Execution mode: _remote_
+- API-driven workflow
+- Terraform Working Directory: `ff_prod`. The [`terraform_deploy.yml`](.github/workflows/terraform_deploy.yml) GH Action
+  is set up to upload [`./fragments/terraform/`](./fragments/terraform/) as the `directory`.
+- Create the following workspace variables:
+  - `TFC_AWS_PLAN_ROLE_ARN=<ARN_from_AWS_plan_role>`
+  - `TFC_AWS_APPLY_ROLE_ARN=<ARN_from_AWS_apply_role>`
+  - `TFC_AWS_PROVIDER_AUTH=true`
+
+2. Create a team API token, named `ff_prod_ci`, that can be used by members of your organisation. This will be
+   referenced in a GH Action Secret.
+
+**GitHub**
+
+1. Create a GH Action Secret, `TF_API_TOKEN`, using the HCP team API token as the value.
+1. Create a `ff_prod` GH environment:
+
+- Required reviewer(s), e.g. `pjlangley`
+- Restricted to an appropriate branch, e.g. `main`
