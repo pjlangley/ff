@@ -468,10 +468,51 @@ Terraform is used to provision AWS infrastructure. State is stored remotely in
 > anyone can clone the repo and point it at their own HCP organisation by setting the `TF_CLOUD_ORGANIZATION`
 > environment variable.
 
+Three things vary independently across HCP Terraform setups: where state lives, where the `terraform` binary runs, and
+what triggers a run. HCP is used for state in both workspaces but differs on the other two areas:
+
+| Workspace | State | Execution     | Trigger                                     |
+| --------- | ----- | ------------- | ------------------------------------------- |
+| `ff_dev`  | HCP   | Laptop        | CLI (`tf plan` / `tf apply`)                |
+| `ff_prod` | HCP   | HCP runner VM | API (GH Actions via `tfc-workflows-github`) |
+
 #### Local (Terraform)
 
-These instructions only apply to the `ff_dev` workspace. Note that the `ff_prod` workspace is provisioned through CI/CD
-and is not applicable in this section.
+This section only applies to the `ff_dev` workspace. Note that the `ff_prod` workspace is provisioned through CI/CD and
+is not applicable in this section.
+
+In local execution mode the `terraform` binary runs on the local machine. It downloads providers locally, reads the AWS
+credentials cached by `aws login`, and calls AWS APIs directly. HCP stores remote state and provides a UI for inspecting
+state and run history. `ff_dev` uses a static IAM user with `aws login`, not OIDC.
+
+```mermaid
+---
+title: ff_dev - local execution
+config:
+  look: handDrawn
+---
+graph TD
+    subgraph Laptop
+        CLI["terraform CLI"]
+        Providers["AWS provider plugin"]
+        AWSCreds[("~/.aws/credentials<br/>(aws login)")]
+        CLI --> Providers
+        Providers --> AWSCreds
+    end
+
+    subgraph HCP["HCP Terraform"]
+        State[("Remote state")]
+        RunMeta["Run metadata + UI"]
+    end
+
+    subgraph AWS
+        AWSAPI(("AWS APIs"))
+    end
+
+    CLI <-->|read / write state| State
+    CLI -.->|sparse run record| RunMeta
+    Providers -->|signed requests| AWSAPI
+```
 
 ##### Setup
 
@@ -537,15 +578,48 @@ workspace:
 
 #### Remote (Terraform)
 
-This section only applies to the `ff_prod` workspace that is provisioned through CI/CD. This is a record of how it was
-originally setup using one-time manual steps.
+This section only applies to the `ff_prod` workspace that is provisioned through CI/CD.
+
+In remote execution mode the `terraform` binary runs on an HCP-managed runner VM, not on the laptop or the GH Actions
+runner. The GH Actions workflow uploads `./fragments/terraform/` as a configuration version and triggers a run via the
+HCP API. HCP then spins up a runner, injects the workspace variables, exchanges a JWT for short-lived AWS credentials,
+runs `plan` or `apply`, and streams logs back to both the HCP UI and the GH Actions log.
+
+AWS trusts the runner because of the IAM role's trust policy conditions on `app.terraform.io:aud=aws.workload.identity`
+and `workspace:ff_prod:run_phase:plan|apply`, and the credentials only exist for the lifetime of the run.
+
+```mermaid
+---
+title: ff_prod - remote execution via HCP runner
+config:
+  look: handDrawn
+---
+sequenceDiagram
+    participant GHA as GH Actions
+    participant API as HCP API
+    participant Runner as HCP Runner VM
+    participant Role as STS / IAM Role<br/>(ff_prod_tf_plan / apply)
+    participant AWS as AWS APIs
+
+    GHA->>API: upload ./fragments/terraform/<br/>(tfc-workflows-github)
+    GHA->>API: trigger plan / apply run
+    API->>Runner: spin up + inject workspace vars<br/>(role ARNs, etc)
+    Runner->>Role: AssumeRoleWithWebIdentity<br/>(JWT with aud and sub claims)
+    Role-->>Runner: short-lived creds
+    Runner->>AWS: signed API calls (as Role)
+    AWS-->>Runner: responses
+    Runner->>API: write state
+    API-->>GHA: streamed logs + result
+```
 
 ##### Setup
 
+This is a record of how it was originally setup using one-time manual steps.
+
 The two main parts to this set up are as follows:
 
-1. HCP↔AWS (via OIDC)
-1. GH↔HCP (via HCP API using their official GH Action)
+1. HCP↔AWS (using OIDC provider)
+1. GH↔HCP (API via GH Actions using `tfc-workflows-github`)
 
 **AWS**
 
