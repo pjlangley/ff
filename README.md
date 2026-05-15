@@ -86,6 +86,15 @@ graph TD
 | **AWS IaC**                    |                                                                   |         |        |      |
 | Terraform (HCP backend)        | [`terraform`](./fragments/terraform/)                             |         |        |      |
 
+## Decision records
+
+Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-style markdown files in
+[`fragments/adrs/`](./fragments/adrs/). New records are created via the [`/new-adr`](./.claude/skills/new-adr/) skill.
+
+| ADR                                                                                                | Date       | Status   |
+| -------------------------------------------------------------------------------------------------- | ---------- | -------- |
+| [001: Use HCP Terraform as the state backend](./fragments/adrs/001_hcp_terraform_state_backend.md) | 2026-04-23 | Accepted |
+
 ## Running the code
 
 Each programming language supports local environment setup for development. Docker images are provided for running the

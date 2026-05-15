@@ -14,6 +14,10 @@
   (`ff_dev/` uses local execution, `ff_prod/` uses remote execution). Shared modules live in
   `./fragments/terraform/modules/`. State backend is HCP Terraform; the `cloud {}` block omits `organization` so the
   config is portable — the org name is supplied via the `TF_CLOUD_ORGANIZATION` env var.
+- Architectural decisions are recorded as MADR-style markdown ADRs in `./fragments/adrs/`. ADRs are immutable once
+  accepted - supersede with a new record rather than editing an existing one. Spin up new records with the `/new-adr`
+  skill (`.claude/skills/new-adr/`), which assigns the next zero-padded, never-reused `NNN` and updates the README
+  index.
 - Bruno CLI is used for integration testing against each API; located in `./fragments/apis/bruno/`.
 - Unit tests and integration tests run against the infrastructure and deployed Solana programs (see "Common commands"
   section).
@@ -86,3 +90,4 @@
 - Blockchain programs (only Solana atm): `./fragments/blockchain/solana/programs/`.
 - Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`, `./fragments/terraform/ff_prod/`.
   Shared modules: `./fragments/terraform/modules/`.
+- ADRs / decision records: `./fragments/adrs/`.
