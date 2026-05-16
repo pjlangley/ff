@@ -24,8 +24,8 @@ option, and a brief context — then proceed.
    `### Consequences` and `## More Information` unless the user explicitly asks to omit them — both are optional but
    usually present.
 5. **Update the README index.** Append a new row to the `| ADR | Date | Status |` table under `## Decision records` in
-   `README.md`, linking to the new file.
-6. **Format.** Run `deno fmt fragments/adrs/<new-file>.md README.md`.
+   the **repo-root** `README.md` (i.e. `./README.md`), linking to the new file.
+6. **Format.** Run `deno fmt fragments/adrs/<new-file>.md ./README.md`.
 7. **Report back** with the new file path and a one-line note that the README index was updated.
 
 ## Canonical ADR structure

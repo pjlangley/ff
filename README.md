@@ -91,10 +91,11 @@ graph TD
 Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-style markdown files in
 [`fragments/adrs/`](./fragments/adrs/). New records are created via the [`/new-adr`](./.claude/skills/new-adr/) skill.
 
-| ADR                                                                                                               | Date       | Status   |
-| ----------------------------------------------------------------------------------------------------------------- | ---------- | -------- |
-| [001: Use HCP Terraform as the state backend](./fragments/adrs/001_hcp_terraform_state_backend.md)                | 2026-04-23 | Accepted |
-| [002: Terraform directory and workspace layout](./fragments/adrs/002_terraform_directory_and_workspace_layout.md) | 2026-04-28 | Accepted |
+| ADR                                                                                                                      | Date       | Status   |
+| ------------------------------------------------------------------------------------------------------------------------ | ---------- | -------- |
+| [001: Use HCP Terraform as the state backend](./fragments/adrs/001_hcp_terraform_state_backend.md)                       | 2026-04-23 | Accepted |
+| [002: Terraform directory and workspace layout](./fragments/adrs/002_terraform_directory_and_workspace_layout.md)        | 2026-04-28 | Accepted |
+| [003: Use `aws login` for AWS auth in the ff_dev workspace](./fragments/adrs/003_aws_login_auth_for_ff_dev_workspace.md) | 2026-04-29 | Accepted |
 
 ## Running the code
 
