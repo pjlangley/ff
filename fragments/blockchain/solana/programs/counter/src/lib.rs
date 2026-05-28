@@ -3,7 +3,7 @@
 
 use anchor_lang::prelude::*;
 
-declare_id!("HdxpgGmRXeUpXE2vVZZCy2a69Ypozs8YLt3LXPHRUkG6");
+declare_id!("36G3esYFH4fAcvjeAjkn98HZyhwWosmJAyAX9xNTiGfC");
 
 const ACCOUNT_DISCRIMINATOR_SPACE: usize = 8;
 
