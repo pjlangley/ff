@@ -32,7 +32,10 @@
       "Write(./solana.id.json)",
       "Read(./solana_program_keys/solana_deployer.json)",
       "Edit(./solana_program_keys/solana_deployer.json)",
-      "Write(./solana_program_keys/solana_deployer.json)"
+      "Write(./solana_program_keys/solana_deployer.json)",
+      "Read(**/*-keypair.json)",
+      "Edit(**/*-keypair.json)",
+      "Write(**/*-keypair.json)"
     ]
   }
 }

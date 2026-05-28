@@ -17,6 +17,7 @@ __pycache__/
 !/fragments/blockchain/solana/target/idl
 /fragments/blockchain/solana/tests/target
 /solana_program_keys
+**/*-keypair.json
 
 # terraform
 .terraform/

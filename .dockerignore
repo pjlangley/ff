@@ -3,3 +3,6 @@ fragments/blockchain/solana/target/*
 fragments/blockchain/solana/.anchor/
 fragments/blockchain/solana/tests/target
 /solana.id.json
+/solana_program_keys
+**/*-keypair.json
+**/*.id.json
