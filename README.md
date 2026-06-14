@@ -476,6 +476,45 @@ The main steps are as follows:
 1. Build and deploy the program, including the IDL
 1. Program initialisation (e.g. authority assignment), if applicable
 
+```mermaid
+---
+title: Devnet program bootstrap (register)
+config:
+  look: handDrawn
+---
+graph TD
+    subgraph P1["1. Prerequisites"]
+        Helius["Sign up to Helius (RPC)"]
+        Keygen["Create deployer keypair"]
+        Fund["Fund via faucet"]
+        Cfg["solana-cli.devnet.yml<br/>(+ Helius API key)"]
+        Helius --> Keygen --> Fund --> Cfg
+    end
+
+    subgraph P2["2. Build &amp; prepare"]
+        Build["anchor build --program-name register"]
+        Artifacts["Confirm artifacts"]
+        Build --> Artifacts
+    end
+
+    subgraph P3["3. Deploy program + IDL"]
+        Deploy["solana program deploy"]
+        Idl["anchor idl init"]
+        Deploy --> Idl
+    end
+
+    subgraph P4["4. Initialise"]
+        Env["scripts/devnet.env<br/>(+ Helius API key)"]
+        Boot["Run bootstrap_register_devnet.ts<br/>(initialise_registry)"]
+        Pda["Derive &amp; verify registry_state PDA"]
+        Env --> Boot --> Pda
+    end
+
+    Cfg --> Build
+    Artifacts --> Deploy
+    Idl --> Env
+```
+
 > [!IMPORTANT]
 > Ensure you switch to this directory: `cd ./fragments/blockchain/solana/`
 
