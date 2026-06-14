@@ -2,6 +2,10 @@ import { createSolanaRpc, createSolanaRpcSubscriptions } from "@solana/kit";
 import { getEnvVar } from "../env_vars/env_vars_utils";
 
 export const initRpcClient = () => {
+  const url = getEnvVar("SOLANA_RPC_URL");
+  if (url) {
+    return createSolanaRpc(url);
+  }
   const host = getEnvVar("SOLANA_HOST") || "127.0.0.1";
   return createSolanaRpc(`http://${host}:8899`);
 };

@@ -1,5 +1,5 @@
 {
-  "model": "claude-opus-4-7",
+  "model": "claude-opus-4-8",
   "effortLevel": "high",
   "alwaysThinkingEnabled": true,
   "sandbox": {
@@ -35,7 +35,16 @@
       "Write(./solana_program_keys/solana_deployer.json)",
       "Read(**/*-keypair.json)",
       "Edit(**/*-keypair.json)",
-      "Write(**/*-keypair.json)"
+      "Write(**/*-keypair.json)",
+      "Read(./fragments/blockchain/solana/scripts/devnet.env)",
+      "Edit(./fragments/blockchain/solana/scripts/devnet.env)",
+      "Write(./fragments/blockchain/solana/scripts/devnet.env)",
+      "Read(./fragments/blockchain/solana/devnet_deployer.id.json)",
+      "Edit(./fragments/blockchain/solana/devnet_deployer.id.json)",
+      "Write(./fragments/blockchain/solana/devnet_deployer.id.json)",
+      "Read(./fragments/blockchain/solana/solana-cli.devnet.yml)",
+      "Edit(./fragments/blockchain/solana/solana-cli.devnet.yml)",
+      "Write(./fragments/blockchain/solana/solana-cli.devnet.yml)"
     ]
   }
 }

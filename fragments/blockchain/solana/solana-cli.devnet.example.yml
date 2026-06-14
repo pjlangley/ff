@@ -1,0 +1,4 @@
+json_rpc_url: https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>
+websocket_url: wss://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>
+keypair_path: ./devnet_deployer.id.json
+commitment: confirmed

@@ -18,6 +18,9 @@ __pycache__/
 /fragments/blockchain/solana/tests/target
 /solana_program_keys
 **/*-keypair.json
+/fragments/blockchain/solana/devnet_deployer.id.json
+/fragments/blockchain/solana/solana-cli.devnet.yml
+/fragments/blockchain/solana/scripts/devnet.env
 
 # terraform
 .terraform/

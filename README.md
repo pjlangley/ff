@@ -465,6 +465,137 @@ Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/
   docker run --rm --entrypoint cargo ff_anchor test -p program-tests
   ```
 
+#### Devnet
+
+The program bootstrap to `devnet` is done manually. This record outlines the steps taken for the
+[`register`](./fragments/blockchain/solana/programs/register/) program.
+
+The main steps are as follows:
+
+1. Create and fund a deployer account
+1. Build and deploy the program, including the IDL
+1. Program initialisation (e.g. authority assignment), if applicable
+
+> [!IMPORTANT]
+> Ensure you switch to this directory: `cd ./fragments/blockchain/solana/`
+
+**Prerequisites:**
+
+1. Sign up to [Helius](https://www.helius.dev/); this provides a more reliable RPC experience
+1. Create a deployer account: `solana-keygen new -o ./devnet_deployer.id.json`
+1. Securely store a backup of the keypair and passphrase
+1. Fund the account:
+   - https://faucet.solana.com - this was the most reliable way at the time; connect with your GH account
+   - Confirm the airdrop, e.g.:
+     ```
+     solana balance 2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi --url devnet
+     ```
+1. Create `./fragments/blockchain/solana/solana-cli.devnet.yml` by duplicating
+   [`solana-cli.devnet.example.yml`](./fragments/blockchain/solana/solana-cli.devnet.example.yml), then add your Helius
+   API key
+
+**Program and deployment preparation:**
+
+1. Build the program: `anchor build --program-name register`
+1. Confirm the core output parts:
+   ```
+   ./target/deploy/register.so
+   ./target/deploy/register-keypair.json
+   ./target/idl/register.json
+   ```
+1. Confirm the program doesn't already exist on devnet:
+   ```
+   solana --config ./solana-cli.devnet.yml program show DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+   Error: Unable to find the account DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+   ```
+
+**Program and IDL deployment:**
+
+1. Deploy the program:
+   ```
+   solana --config ./solana-cli.devnet.yml program deploy \
+     --verbose \
+     --program-id ./target/deploy/register-keypair.json \
+     --with-compute-unit-price 1 \
+     target/deploy/register.so
+   ```
+1. Deploy the IDL:
+   ```
+   anchor idl init DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K \
+     --filepath ./target/idl/register.json \
+     --provider.cluster 'https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>' \
+     --provider.wallet ./devnet_deployer.id.json
+   ```
+1. Verify the program was deployed:
+   ```
+   solana --config ./solana-cli.devnet.yml program show DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+
+   Program Id: DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+   Owner: BPFLoaderUpgradeab1e11111111111111111111111
+   ProgramData Address: Btq7xWvCj6YqYQPmQLpNHuwvFdXEv5VPzF9DGW4ag9nB
+   Authority: 2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi
+   Last Deployed In Slot: 465724469
+   Data Length: 294136 (0x47cf8) bytes
+   Balance: 2.04839064 SOL
+   ```
+1. Verify the IDL was deployed:
+   ```
+   anchor idl fetch DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K \
+     --provider.cluster 'https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>'
+   ```
+1. Verify the assigned authority:
+   ```
+   anchor idl authority DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K \
+     --provider.cluster 'https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>'
+   ```
+
+> [!NOTE]
+> The program ID is the stable, public address used to invoke your program. It's executable and owned by the BPF
+> Upgradeable Loader. However, it doesn't actually hold the bytecode; it's just a pointer to it. The program data
+> address is a PDA derived from the program ID and `BPFLoaderUpgradeable`; it holds the actual compiled BPF bytecode and
+> metadata.
+
+**Program initialisation:**
+
+The `register` program needs a one-time `initialise_registry` call to bootstrap its singleton `registry_state` PDA. This
+is signed by the program's **upgrade authority** (the deployer keypair) - the on-chain constraint requires it. Whichever
+account signs becomes the registry `authority` (admin) permanently, and is thereafter the only account that can confirm
+registrations.
+
+> [!IMPORTANT]
+> Prerequisites: the program is deployed, the IDL is uploaded, and the deployer account is funded.
+
+It is driven by [`bootstrap_register_devnet.ts`](./fragments/blockchain/solana/scripts/bootstrap_register_devnet.ts) - a
+one-shot script.
+
+1. Create `./fragments/blockchain/solana/scripts/devnet.env` by duplicating
+   [`devnet.example.env`](./fragments/blockchain/solana/scripts/devnet.example.env), then add your Helius API key.
+1. Run the bootstrap script:
+   ```
+   npx tsx --env-file ./scripts/devnet.env ./scripts/bootstrap_register_devnet.ts
+   ```
+   Sample output:
+   ```
+   Authority (deployer): 2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi
+   Program: DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+   ✅ initialise_registry sent: 5Abbnvit93Lhqyh8UkpDm...
+   ...
+   ```
+1. Get the `registry_state` PDA, derived from the
+   [program ID and seed `"registry_state"`](https://github.com/pjlangley/ff/blob/aa40c52324bc07e83348cc74d68565f2daab3aea/fragments/solana_program_register/solana_register_interface.ts#L149-L155).
+   In this case it's `DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY`
+1. Verify the registry state account was created:
+   ```
+   anchor account register.RegistryState DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY \
+   --provider.cluster 'https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>'
+   {
+     "authority": "2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi",
+     "registration_count": 0
+   }
+   ```
+1. You can also view this on the
+   [Solana explorer](https://explorer.solana.com/address/DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY/anchor-account?cluster=devnet)
+
 ### Terraform
 
 Terraform is used to provision AWS infrastructure. State is stored remotely in
