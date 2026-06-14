@@ -9,7 +9,7 @@ ENV RUST_VERSION=${RUST_VERSION}
 
 WORKDIR /anchor
 RUN rustup install ${RUST_VERSION} && rustup default ${RUST_VERSION}
-RUN cargo install --git https://github.com/coral-xyz/anchor --tag v${ANCHOR_VERSION} anchor-cli
+RUN cargo install --git https://github.com/coral-xyz/anchor --tag v${ANCHOR_VERSION} anchor-cli --locked
 
 RUN solana-keygen new --no-bip39-passphrase
 
