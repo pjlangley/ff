@@ -492,7 +492,7 @@ graph TD
     end
 
     subgraph P2["2. Build &amp; prepare"]
-        Build["anchor build --program-name register"]
+        Build["anchor build ..."]
         Artifacts["Confirm artifacts"]
         Build --> Artifacts
     end
@@ -644,6 +644,59 @@ The workflow only runs when the [`register`](./fragments/blockchain/solana/progr
 files change. It is gated by the `ff_solana_devnet` GitHub environment (main branch only, manual approval), then it
 builds the program, runs `anchor upgrade`, and runs `anchor idl upgrade`. A balance preflight checks the upgrade
 authority balance meets the criteria, otherwise it fails.
+
+```mermaid
+---
+title: Devnet program upgrade (register)
+config:
+  look: handDrawn
+---
+graph TD
+    Push["Push to main<br/>(main.yml)"]
+
+    subgraph G1["1. Change detection"]
+        Changes["changes job<br/>(paths-filter)"]
+        RegChanged{"register files<br/>changed?"}
+        Skip["Skip deploy"]
+        Changes --> RegChanged
+        RegChanged -->|no| Skip
+    end
+
+    subgraph G2["2. Approval gate"]
+        Env["ff_solana_devnet environment<br/>(main only, manual approval)"]
+    end
+
+    subgraph G3["3. Setup"]
+        ProgId["Resolve program ID from IDL"]
+        Tools["Install Rust, Solana, Anchor CLIs"]
+        Key["Write upgrade authority keypair"]
+        ProgId --> Tools --> Key
+    end
+
+    subgraph G4["4. Preflight checks"]
+        Verify{"Program exists<br/>on devnet?"}
+        NotFound["Fail: initial deploy is manual"]
+        Balance{"Balance &gt;= 3 SOL?"}
+        Fund["Fail: top up via faucet &amp; re-run"]
+        Verify -->|no| NotFound
+        Verify -->|yes| Balance
+        Balance -->|no| Fund
+    end
+
+    subgraph G5["5. Build &amp; upgrade"]
+        Build["anchor build ..."]
+        Upgrade["anchor upgrade (program)"]
+        Idl["anchor idl upgrade"]
+        Summary["Deployment summary"]
+        Build --> Upgrade --> Idl --> Summary
+    end
+
+    Push --> Changes
+    RegChanged -->|yes| Env
+    Env --> ProgId
+    Key --> Verify
+    Balance -->|yes| Build
+```
 
 The `ff_solana_devnet` environment requires two secrets:
 
