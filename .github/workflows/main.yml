@@ -18,6 +18,12 @@ jobs:
     uses: ./.github/workflows/terraform_deploy.yml
     secrets: inherit
 
+  solana_devnet_deploy:
+    needs: [blockchain_checks]
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/solana_deploy.yml
+    secrets: inherit
+
   docker_images:
     needs: [blockchain_checks]
     if: ${{ !failure() && !cancelled() }}

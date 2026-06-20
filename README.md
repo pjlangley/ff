@@ -635,6 +635,22 @@ one-shot script.
 1. You can also view this on the
    [Solana explorer](https://explorer.solana.com/address/DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY/anchor-account?cluster=devnet)
 
+#### Devnet upgrades (CI/CD)
+
+Subsequent **program and IDL upgrades** to devnet are automated by
+[`solana_deploy.yml`](./.github/workflows/solana_deploy.yml).
+
+The workflow only runs when the [`register`](./fragments/blockchain/solana/programs/register/) program or its related
+files change. It is gated by the `ff_solana_devnet` GitHub environment (main branch only, manual approval), then it
+builds the program, runs `anchor upgrade`, and runs `anchor idl upgrade`. A balance preflight checks the upgrade
+authority balance meets the criteria, otherwise it fails.
+
+The `ff_solana_devnet` environment requires two secrets:
+
+- `SOLANA_DEVNET_UPGRADE_AUTHORITY` - the full contents of the deployer keypair (`devnet_deployer.id.json`), which is
+  the program's upgrade authority.
+- `HELIUS_API_KEY` - the Helius API key only; the RPC URL is constructed in the workflow.
+
 ### Terraform
 
 Terraform is used to provision AWS infrastructure. State is stored remotely in

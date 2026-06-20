@@ -1,0 +1,169 @@
+name: solana deploy (devnet)
+
+on: workflow_call
+
+concurrency:
+  group: solana-devnet-deploy
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    name: git changes
+    outputs:
+      common: ${{ steps.filter.outputs.common }}
+      register: ${{ steps.filter.outputs.register }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            common: &common
+              - 'fragments/blockchain/solana/Cargo.toml'
+              - 'fragments/blockchain/solana/Cargo.lock'
+              - 'fragments/blockchain/solana/Anchor.toml'
+              - 'fragments/blockchain/solana/rust-toolchain.toml'
+              - '.github/workflows/solana_deploy.yml'
+            register:
+              - *common
+              - 'fragments/blockchain/solana/programs/register/**'
+              - 'fragments/blockchain/solana/target/idl/register.json'
+
+  # Assumes only the **register** program is being deployed for now
+  deploy:
+    runs-on: ubuntu-latest
+    name: devnet deploy
+    needs: [changes]
+    if: needs.changes.outputs.register == 'true'
+    # Manual-approval gate (required reviewer + main-branch restriction) and scoped secrets
+    environment: ff_solana_devnet
+    env:
+      AGAVE_VERSION: 3.1.9
+      ANCHOR_VERSION: 0.31.1
+      DEPLOY_MIN_SOL: "3"
+      RPC_URL: https://devnet.helius-rpc.com/?api-key=${{ secrets.HELIUS_API_KEY }}
+    defaults:
+      run:
+        working-directory: fragments/blockchain/solana
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: resolve program ID from IDL
+        id: program
+        run: echo "program_id=$(jq -r .address "target/idl/register.json")" >> "$GITHUB_OUTPUT"
+
+      - uses: moonrepo/setup-rust@v1
+        with:
+          channel: 1.94.0
+          components: clippy, rustfmt
+          profile: minimal
+          target-dirs: fragments/blockchain/solana/target
+          # `inherit-toolchain` cfg fails as rust-toolchain.toml is not in the root of the repo.
+          # no cfg in moonrepo/setup-rust@v1 to specify alternative path to rust-toolchain.toml, yet.
+
+      - name: cache solana cli
+        id: cache-solana
+        uses: actions/cache@v5
+        with:
+          path: ~/.local/share/solana/install
+          key: solana-${{ env.AGAVE_VERSION }}
+
+      - name: install solana cli
+        if: steps.cache-solana.outputs.cache-hit != 'true'
+        run: sh -c "$(curl -sSfL https://release.anza.xyz/v${{ env.AGAVE_VERSION }}/install)"
+
+      - name: add solana to PATH
+        run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: cache anchor cli
+        id: cache-anchor
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/bin/anchor
+          key: anchor-${{ env.ANCHOR_VERSION }}
+
+      - name: install system dependencies for anchor cli installation
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: sudo apt-get update && sudo apt-get install -y pkg-config libudev-dev
+
+      - name: install anchor cli
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: cargo install --git https://github.com/coral-xyz/anchor --tag v${{ env.ANCHOR_VERSION }} anchor-cli --locked
+
+      - name: write upgrade authority keypair
+        env:
+          UPGRADE_AUTHORITY: ${{ secrets.SOLANA_DEVNET_UPGRADE_AUTHORITY }}
+        run: printf '%s' "$UPGRADE_AUTHORITY" > devnet_authority.json
+
+      - name: verify existing deployment
+        env:
+          PROGRAM_ID: ${{ steps.program.outputs.program_id }}
+        run: |
+          set -euo pipefail
+
+          # This job performs upgrades only; the initial deploy is done manually
+          if ! solana program show "$PROGRAM_ID" --url "$RPC_URL" --keypair ./devnet_authority.json; then
+            echo "Program $PROGRAM_ID not found on devnet"
+            exit 1
+          fi
+
+      - name: balance preflight
+        run: |
+          set -euo pipefail
+
+          ADDR=$(solana address --keypair ./devnet_authority.json)
+          BAL_LAMPORTS=$(solana balance "$ADDR" --url "$RPC_URL" --lamports | awk '{print $1}')
+          MIN_LAMPORTS=$(( DEPLOY_MIN_SOL * 1000000000 ))
+
+          if [ "$BAL_LAMPORTS" -ge "$MIN_LAMPORTS" ]; then
+            echo "Balance OK: $BAL_LAMPORTS lamports (>= $DEPLOY_MIN_SOL SOL)"
+            exit 0
+          fi
+
+          {
+            echo "### ⛽ Insufficient balance"
+            echo "Balance \`$BAL_LAMPORTS lamports\` is below the required \`$DEPLOY_MIN_SOL SOL\`."
+            echo "Top up the upgrade authority then re-run this job:"
+            echo "- Address: \`$ADDR\`"
+            echo "- Faucet: https://faucet.solana.com"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Balance $BAL_LAMPORTS lamports is below $DEPLOY_MIN_SOL SOL. Top up $ADDR via https://faucet.solana.com and re-run."
+          exit 1
+
+      - name: build program
+        run: anchor build --program-name register
+
+      - name: upgrade program
+        env:
+          PROGRAM_ID: ${{ steps.program.outputs.program_id }}
+        run: |
+          anchor upgrade target/deploy/register.so \
+            --program-id "$PROGRAM_ID" \
+            --provider.cluster "$RPC_URL" \
+            --provider.wallet devnet_authority.json
+
+      - name: upgrade IDL
+        env:
+          PROGRAM_ID: ${{ steps.program.outputs.program_id }}
+        # On devnet we always upgrade the IDL for simplicity; it's idempotent and cheap.
+        # On mainnet it should depend on a diff of the on-chain IDL.
+        run: |
+          anchor idl upgrade "$PROGRAM_ID" \
+            --filepath target/idl/register.json \
+            --provider.cluster "$RPC_URL" \
+            --provider.wallet devnet_authority.json
+
+      - name: deployment summary
+        env:
+          PROGRAM_ID: ${{ steps.program.outputs.program_id }}
+        run: |
+          {
+            echo "### ✅ register devnet deploy"
+            echo "- Program: \`$PROGRAM_ID\`"
+            echo "- Explorer: https://explorer.solana.com/address/$PROGRAM_ID?cluster=devnet"
+            echo ""
+            echo '```'
+            solana program show "$PROGRAM_ID" --url "$RPC_URL" --keypair ./devnet_authority.json || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

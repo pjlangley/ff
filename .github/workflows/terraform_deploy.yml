@@ -60,6 +60,7 @@ jobs:
     name: terraform apply
     needs: [plan]
     if: needs.plan.outputs.run_status == 'planned'
+    # Manual-approval gate (required reviewer + main-branch restriction) and scoped secrets
     environment: ff_prod
     env:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
