@@ -97,6 +97,7 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [002: Terraform directory and workspace layout](./fragments/adrs/002_terraform_directory_and_workspace_layout.md)           | 2026-04-28 | Accepted |
 | [003: Use `aws login` for AWS auth in the ff_dev workspace](./fragments/adrs/003_aws_login_auth_for_ff_dev_workspace.md)    | 2026-04-29 | Accepted |
 | [004: Use OIDC + HCP runner for AWS auth in the ff_prod workspace](./fragments/adrs/004_oidc_auth_for_ff_prod_workspace.md) | 2026-05-09 | Accepted |
+| [005: Use Helius as the Solana RPC provider for devnet](./fragments/adrs/005_helius_rpc_provider_for_devnet.md)             | 2026-06-24 | Accepted |
 
 ## Running the code
 
