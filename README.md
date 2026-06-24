@@ -100,6 +100,7 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [005: Use Helius as the Solana RPC provider for devnet](./fragments/adrs/005_helius_rpc_provider_for_devnet.md)             | 2026-06-24 | Accepted |
 | [006: Deploy Solana programs to devnet (not testnet)](./fragments/adrs/006_deploy_solana_programs_to_devnet.md)             | 2026-06-24 | Accepted |
 | [007: Use upgradeable (upgrade-in-place) Solana programs](./fragments/adrs/007_upgradeable_solana_programs.md)              | 2026-06-24 | Accepted |
+| [008: Store devnet deployer keypair as a GH Actions secret](./fragments/adrs/008_devnet_deployer_keypair_storage.md)        | 2026-06-24 | Accepted |
 
 ## Running the code
 
