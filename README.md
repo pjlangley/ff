@@ -127,11 +127,12 @@ specs/
       NN_task_slug.md
 ```
 
-`spec-ideate` composes the vendored [`grilling`](./.claude/skills/grilling/) skill to interrogate the idea before
-writing requirements. `spec-build` drives each task on the `main` branch one at a time, leaving changes unstaged for
-review before the next task. It composes the [`build`](./.claude/skills/build/) skill — the authoritative home for the
-repo's build/QA commands and coding conventions — which is also loaded on its own for everyday, non-spec code changes.
-See the [specs index](./specs/README.md) for the current features.
+`spec-ideate` composes the vendored [`grilling`](./.claude/skills/grilling/) skill from
+[Matt Pocock](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling) to interrogate the idea
+before writing requirements. `spec-build` drives each task on the `main` branch one at a time, leaving changes unstaged
+for review before the next task. It composes the [`build`](./.claude/skills/build/) skill — the authoritative home for
+the repo's build/QA commands and coding conventions — which is also loaded on its own for everyday, non-spec code
+changes. See the [specs index](./specs/README.md) for all features delivered via this spec-driven workflow.
 
 ## Running the code
 
