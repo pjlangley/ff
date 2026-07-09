@@ -103,6 +103,36 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [008: Store devnet deployer keypair as a GH Actions secret](./fragments/adrs/008_devnet_deployer_keypair_storage.md)        | 2026-06-24 | Accepted |
 | [009: Manually bootstrap initial devnet deploy and init](./fragments/adrs/009_manual_bootstrap_initial_devnet_deploy.md)    | 2026-06-24 | Accepted |
 
+## Spec-driven workflow
+
+Features are planned and delivered with a lightweight, custom spec-driven workflow rather than a heavier tool like
+[OpenSpec](https://github.com/Fission-AI/OpenSpec) or [Spec-kit](https://github.com/github/spec-kit). It runs as three
+[skills](./.claude/skills/), used in order:
+
+| Step | Skill                                          | Produces                                                          |
+| ---- | ---------------------------------------------- | ----------------------------------------------------------------- |
+| 1    | [`spec-ideate`](./.claude/skills/spec-ideate/) | `requirements.md` — the product ask (grills the idea first)       |
+| 2    | [`spec-tasks`](./.claude/skills/spec-tasks/)   | one deliverable `NN_task_slug.md` per task, ordered by dependency |
+| 3    | [`spec-build`](./.claude/skills/spec-build/)   | the implementation, delivering and verifying one task at a time   |
+
+Specs live under [`specs/`](./specs/), one numbered directory per feature (zero-padded, never reused — same convention
+as the ADRs):
+
+```
+specs/
+  NNN_feature_slug/
+    requirements.md
+    tasks/
+      README.md          # ordered task checklist
+      NN_task_slug.md
+```
+
+`spec-ideate` composes the vendored [`grilling`](./.claude/skills/grilling/) skill to interrogate the idea before
+writing requirements. `spec-build` drives each task on the `main` branch one at a time, leaving changes unstaged for
+review before the next task. It composes the [`build`](./.claude/skills/build/) skill — the authoritative home for the
+repo's build/QA commands and coding conventions — which is also loaded on its own for everyday, non-spec code changes.
+See the [specs index](./specs/README.md) for the current features.
+
 ## Running the code
 
 Each programming language supports local environment setup for development. Docker images are provided for running the

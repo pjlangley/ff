@@ -19,9 +19,9 @@
   skill (`.claude/skills/new-adr/`), which assigns the next zero-padded, never-reused `NNN` and updates the README
   index.
 - Bruno CLI is used for integration testing against each API; located in `./fragments/apis/bruno/`.
-- Unit tests and integration tests run against the infrastructure and deployed Solana programs (see "Common commands"
-  section).
-- Integration tests (with Bruno) require the relevant API to be running (see "Common commands" section).
+- Unit tests and integration tests run against the infrastructure and deployed Solana programs (see the `spec-build`
+  skill for commands).
+- Integration tests (with Bruno) require the relevant API to be running (see the `spec-build` skill for commands).
 - I'm a software craftsman by trade and my software experience and skills are mostly in TypeScript and Node.js, so
   that's how I tend to frame my understanding and comparisions with Python and any other programming language.
 - I want to reposition myself as a platform engineer who designs, creates and maintains cloud-based infrastructure in
@@ -30,58 +30,16 @@
 - As a side quest, I want to learn more about programming on blockchains and how to develop and interact with them
   through code interfaces and UI interfaces (including wallets). I'm planning to focus on the Solana blockchain for now.
 
-## Common Commands
+## Implementation & QA
 
-- `docker compose --profile blockchain up` - runs the local infrastructure (this is normally up and running when I'm
-  working with Claude Code).
-- `docker compose --profile blockchain --profile api up` - runs the local infrastructure including the APIs.
-- `fnm` used for local Node.js, and version is specified in `.node-version`.
-- `node --run test` - runs the Node.js unit tests.
-- `uv` used for local Python; config in `./pyproject.toml`.
-- `uv run python -m unittest -v` runs the Python unit tests.
-- `node --run api` to run the local Node.js API.
-- `node --run api:bru:fastify` to run the Bruno integration tests against the running Fastify API.
-- `uv run python -m fragments.api` to run the local Python API.
-- `node --run api:bru:fastapi` to run the Bruno integration tests against the running FastAPI API.
-- `solana` and `anchor` CLI commands are available locally.
-- Further `anchor` CLI commands available once you change directory into `./fragments/blockchain/solana/`, e.g.:
-  - `anchor test` (or `cargo test -p program-tests`) runs the Rust unit tests.
-  - `anchor build` to build all programs.
-- `terraform login` - one-time, authenticates against HCP Terraform.
-- `TF_CLOUD_ORGANIZATION` must be set in the environment for any terraform command that contacts HCP (init, plan, apply,
-  etc.) — the `cloud {}` block in code omits `organization` so it can be supplied here.
-- Further `terraform` CLI commands available once you change directory into a workspace root, e.g.
-  `./fragments/terraform/ff_dev/`:
-- `terraform fmt -check -recursive ./fragments/terraform` - format check for all terraform code.
-
-## Conventions
-
-- Node.js code is formatted and linted with Deno; config in `./deno.json`.
-- Node.js code is written in TypeScript and uses `tsc` to build (see `./tsconfig.json`) the core fragments.
-- Node.js API is locally run with `tsx` and uses `./tsconfig.api.json`.
-- Local Solana validator settings in `./solana-cli.local.yml` (you do not have permission to read the referenced
-  `./solana.id.json` key file though).
-- Python code is type-checked with `mypy`; config in `./pyproject.toml`.
-- Python code is linted with `pylint`; config in `./pyproject.toml`.
-- Python code is formatted with `ruff`; config in `./pyproject.toml`.
-- Solana program Rust code is linted with `clippy` and formatted with `cargo fmt`.
-- Solana program tests can be run with `cargo test -p program-tests` (uses LiteSVM).
-- Terraform code is formatted with `terraform fmt` and validated with `terraform validate`.
-- Terraform state is stored remotely in HCP Terraform; each workspace root directory binds to one HCP workspace via the
-  `cloud` block in `main.tf`.
-- `ff_dev` uses local execution; `ff_prod` uses remote execution (configured in the HCP workspace UI, not in code).
-- Terraform AWS provider uses a `default_tags` block so every taggable resource automatically gets `Project` /
-  `Environment` / `ManagedBy` tags. Don't duplicate these tags at the resource level.
-- Resource names should be derived from `local.name_prefix` (`"${var.project}_${var.environment}"`) declared in each
-  root module's `locals.tf`.
-- `.terraform.lock.hcl` files are committed; `.terraform/`, `*.tfstate*`, and `*.tfvars` are ignored.
-- Core fragments have access to environment variables that specify the locally running Solana program IDs - see
-  `./solana_program_keys/solana_program_keys.env`.
-- Production-grade code with a pragmatic understanding that this is for educational purposes. For example, I made a
-  trade-off by using ephemeral in-memory keypairs in the API interfaces that operate on the Solana programs, i.e. in
-  `./fragments/apis/fastify/blockchain/solana_username.ts`. Potentially come back to this if I end up with a CD workflow
-  in AWS (e.g. use a secrets manager in the cloud instead)
-- Prefer snake case for file and directory names.
+- **Before writing, building, upgrading, or QA-ing any code, load the `build` skill** (`.claude/skills/build/`). It is
+  the authoritative home for this repo's common commands (test / lint / format / build / run) and coding conventions
+  across Node.js, Python, Rust/Anchor, Terraform and Bruno.
+- New features follow the custom spec-driven workflow — three skills in `.claude/skills/`:
+  - `spec-ideate` → capture the product ask as `specs/NNN_feature_slug/requirements.md` (grills the idea first).
+  - `spec-tasks` → split the requirements into deliverable per-task files under `specs/NNN_feature_slug/tasks/`.
+  - `spec-build` → implement the tasks one at a time, verifying each independently (composes the `build` skill).
+- Specs live under `./specs/` (one numbered directory per feature); see [`specs/README.md`](../specs/README.md).
 
 ## Modules (aka fragments)
 
@@ -91,3 +49,4 @@
 - Terraform workspace roots (one per HCP workspace): `./fragments/terraform/ff_dev/`, `./fragments/terraform/ff_prod/`.
   Shared modules: `./fragments/terraform/modules/`.
 - ADRs / decision records: `./fragments/adrs/`.
+- Feature specs: `./specs/` (spec-driven workflow).
