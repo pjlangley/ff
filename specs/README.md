@@ -17,6 +17,6 @@ zero-padded and never reused (same convention as the ADRs).
 
 ## Index
 
-| Feature    | Created | Status |
-| ---------- | ------- | ------ |
-| _none yet_ |         |        |
+| Feature                                                                                                      | Created    | Status |
+| ------------------------------------------------------------------------------------------------------------ | ---------- | ------ |
+| [001: Solana register event sync pipeline (Kubernetes)](./001_solana_register_sync_pipeline/requirements.md) | 2026-07-09 | Draft  |
