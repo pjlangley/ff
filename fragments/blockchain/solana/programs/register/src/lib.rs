@@ -4,7 +4,10 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::bpf_loader_upgradeable;
 
+#[cfg(not(feature = "prod"))]
 declare_id!("DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K");
+#[cfg(feature = "prod")]
+declare_id!("61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR");
 
 const ACCOUNT_DISCRIMINATOR_SPACE: usize = 8;
 

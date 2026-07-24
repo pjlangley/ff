@@ -22,8 +22,8 @@ documented so it can be repeated.
   alongside each other.
 
 The ceremony itself (run manually, not in CI, per ADR 009): `anchor build --program-name register -- --features prod` →
-`solana program deploy --program-id ./register_prod-keypair.json` → `anchor idl init` → run the parameterised bootstrap
-script to call `initialise_registry`.
+`solana program deploy --program-id ./target/deploy/register-prod-keypair.json` → `anchor idl init` → run the
+parameterised bootstrap script to call `initialise_registry`.
 
 **No separate prod IDL is committed.** The prod build overwrites `target/idl/register.json` in place, changing only its
 `.address` (the instructions, discriminators and account layouts are identical to the dev IDL — it's the same source).

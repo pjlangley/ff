@@ -1,6 +1,6 @@
 # 01 — Feature-flagged `declare_id!` for a prod register instance
 
-**Status:** Todo | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+**Status:** Done | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
 
 ## Goal
 
@@ -24,10 +24,12 @@ deployed in this task.
   declare_id!("<new prod id>");
   ```
 
-- Generate the prod program keypair with `solana-keygen new -o fragments/blockchain/solana/register_prod-keypair.json`.
-  It is already gitignored by the `**/*-keypair.json` rule. Back it up outside the repo — though note it is only needed
-  for the **initial** deploy (it fixes the program address); subsequent upgrades are authorised by the deployer keypair,
-  so losing it after task 02 is survivable.
+- Generate the prod program keypair with `solana-keygen new`, stored at
+  `fragments/blockchain/solana/target/deploy/register-prod-keypair.json` so it sits alongside the other anchor deploy
+  keypairs. It is already gitignored by the `**/*-keypair.json` rule. Back it up outside the repo — though note it is
+  only needed for the **initial** deploy (it fixes the program address); subsequent upgrades are authorised by the
+  deployer keypair, so losing it after task 02 is survivable. (It lives under `target/deploy/`, which `anchor clean` /
+  `cargo clean` wipes — the external backup is the durable copy.)
 - New ADR via `/new-adr`: two on-chain instances of one program via feature-flagged `declare_id!`, sharing a single
   upgrade authority.
 
