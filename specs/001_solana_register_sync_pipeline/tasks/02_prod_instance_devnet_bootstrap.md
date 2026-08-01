@@ -1,6 +1,6 @@
 # 02 — Bootstrap the prod register instance on devnet
 
-**Status:** Todo | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+**Status:** Done | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
 
 ## Goal
 
@@ -36,7 +36,7 @@ per-env config. So after the ceremony, **restore the committed IDL to the dev on
 
 ## Verification (QA)
 
-- Node.js unit tests, `tsc`, `deno lint`, `deno fmt` — see the `build` skill.
+- Node.js quality checks, `tsc`, `deno lint`, `deno fmt` — see the `build` skill.
 - `solana program show <prod id>` reports the deployer as upgrade authority.
 - `anchor account register.RegistryState <prod registry_state pda> --provider.cluster <helius url>` shows
   `authority = <deployer>` and `registration_count = 0`.

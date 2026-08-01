@@ -507,6 +507,18 @@ Solana programs are written in Rust. Install [rustup](https://www.rust-lang.org/
 The program bootstrap to `devnet` is done manually. This record outlines the steps taken for the
 [`register`](./fragments/blockchain/solana/programs/register/) program.
 
+The `register` program runs as **two independent instances on devnet**, one per environment, selected at build time by
+the feature-flagged `declare_id!` (see [ADR 010](./fragments/adrs/010_two_onchain_register_instances.md)). Each has its
+own `registry_state` PDA and state; the deployer keypair is the shared upgrade authority for both.
+
+| Instance | Build                                  | Program id                                     | `registry_state` PDA                           |
+| -------- | -------------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| dev      | `anchor build --program-name register` | `DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K` | `DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY` |
+| prod     | `anchor build ... -- --features prod`  | `61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR` | `82qLHFd3h3djiD2cz9vNMKsS5FNyZiKNhYXp48PFAtXV` |
+
+The ceremony below is documented for the **dev** instance; the [prod instance bootstrap](#devnet-prod-instance) mirrors
+it with the prod feature and id.
+
 The main steps are as follows:
 
 1. Create and fund a deployer account
@@ -645,7 +657,8 @@ It is driven by [`bootstrap_register_devnet.ts`](./fragments/blockchain/solana/s
 one-shot script.
 
 1. Create `./fragments/blockchain/solana/scripts/devnet.env` by duplicating
-   [`devnet.example.env`](./fragments/blockchain/solana/scripts/devnet.example.env), then add your Helius API key.
+   [`devnet.example.env`](./fragments/blockchain/solana/scripts/devnet.example.env), then add your Helius API key and
+   set `REGISTER_PROGRAM_ID` to the dev program id (`DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K`).
 1. Run the bootstrap script:
    ```
    npx tsx --env-file ./scripts/devnet.env ./scripts/bootstrap_register_devnet.ts
@@ -671,6 +684,95 @@ one-shot script.
    ```
 1. You can also view this on the
    [Solana explorer](https://explorer.solana.com/address/DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY/anchor-account?cluster=devnet)
+
+#### Devnet (prod instance)
+
+The prod `register` instance is a second, fully independent deployment on devnet under its own program id and its own
+`registry_state` PDA. It's brought up with the **same manual ceremony** as the dev instance above, differing only in the
+`--features prod` build, the prod program keypair, and the prod program id. The shared prerequisites (Helius RPC, the
+funded `devnet_deployer.id.json`, and `solana-cli.devnet.yml`) are identical - the deployer keypair remains the shared
+upgrade authority for both instances.
+
+> [!IMPORTANT]
+> Ensure you switch to this directory: `cd ./fragments/blockchain/solana/`
+
+**Prerequisites (prod-specific):**
+
+1. Generate the prod program keypair once - it fixes the prod program address:
+   ```
+   solana-keygen new -o ./target/deploy/register-prod-keypair.json
+   ```
+   Securely store a backup of the keypair and passphrase.
+
+**Program and deployment preparation:**
+
+1. Build the program with the prod feature:
+   ```
+   anchor build --program-name register -- --features prod
+   ```
+1. Confirm the emitted IDL now carries the prod address in `./target/idl/register.json`
+1. Confirm the program doesn't already exist on devnet:
+   ```
+   solana --config ./solana-cli.devnet.yml program show 61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR
+   Error: Unable to find the account 61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR
+   ```
+
+**Program and IDL deployment:**
+
+1. Deploy the program - note the **prod keypair** as `--program-id`:
+   ```
+   solana --config ./solana-cli.devnet.yml program deploy \
+     --verbose \
+     --program-id ./target/deploy/register-prod-keypair.json \
+     --with-compute-unit-price 1 \
+     target/deploy/register.so
+   ```
+1. Deploy the IDL:
+   ```
+   anchor idl init 61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR \
+     --filepath ./target/idl/register.json \
+     --provider.cluster 'https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>' \
+     --provider.wallet ./devnet_deployer.id.json
+   ```
+1. Verify the program was deployed and the deployer is its upgrade authority:
+   ```
+   solana --config ./solana-cli.devnet.yml program show 61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR
+   ```
+
+> [!IMPORTANT]
+> The `--features prod` build **overwrites `target/idl/register.json` in place** with the prod `.address`. Do not commit
+> that change: no separate prod IDL is committed (the two IDLs are structurally identical and differ only by address).
+
+**Program initialisation:**
+
+The same one-shot [`bootstrap_register_devnet.ts`](./fragments/blockchain/solana/scripts/bootstrap_register_devnet.ts)
+script is reused, pointed at the prod instance via the required `REGISTER_PROGRAM_ID` env var (see
+[`devnet.example.env`](./fragments/blockchain/solana/scripts/devnet.example.env)). The signing deployer becomes the prod
+registry `authority` permanently.
+
+1. In `./scripts/devnet.env`, set `REGISTER_PROGRAM_ID` to the prod id (`61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR`),
+   keeping the same Helius API key as the dev run.
+1. Run the bootstrap script:
+   ```
+   npx tsx --env-file ./scripts/devnet.env ./scripts/bootstrap_register_devnet.ts
+   ```
+   Sample output:
+   ```
+   Authority (deployer): 2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi
+   Program: 61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR
+   ✅ initialise_registry sent: ...
+   ```
+1. Verify the prod `registry_state` account was created (a different PDA from the dev instance):
+   ```
+   anchor account register.RegistryState 82qLHFd3h3djiD2cz9vNMKsS5FNyZiKNhYXp48PFAtXV \
+   --provider.cluster 'https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>'
+   {
+     "authority": "2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi",
+     "registration_count": 0
+   }
+   ```
+1. **After the ceremony:** restore the committed dev IDL (see the note above) so `git status` is clean for
+   `./target/idl/register.json`.
 
 #### Devnet upgrades (CI/CD)
 
