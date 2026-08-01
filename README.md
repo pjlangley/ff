@@ -511,10 +511,13 @@ The `register` program runs as **two independent instances on devnet**, one per 
 the feature-flagged `declare_id!` (see [ADR 010](./fragments/adrs/010_two_onchain_register_instances.md)). Each has its
 own `registry_state` PDA and state; the deployer keypair is the shared upgrade authority for both.
 
-| Instance | Build                                  | Program id                                     | `registry_state` PDA                           |
-| -------- | -------------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
-| dev      | `anchor build --program-name register` | `DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K` | `DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY` |
-| prod     | `anchor build ... -- --features prod`  | `61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR` | `82qLHFd3h3djiD2cz9vNMKsS5FNyZiKNhYXp48PFAtXV` |
+The two instances are selected at build time: the **dev** instance builds with `anchor build --program-name register`, the
+**prod** instance adds `-- --features prod` (full ceremony below).
+
+| Instance | Program id                                     | `registry_state` PDA                           |
+| -------- | ---------------------------------------------- | ---------------------------------------------- |
+| dev      | `DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K` | `DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY` |
+| prod     | `61FGhEA7embzcojRPRf62ZCdLEcBP8fDeaafUFQxe7HR` | `82qLHFd3h3djiD2cz9vNMKsS5FNyZiKNhYXp48PFAtXV` |
 
 The ceremony below is documented for the **dev** instance; the [prod instance bootstrap](#devnet-prod-instance) mirrors
 it with the prod feature and id.
