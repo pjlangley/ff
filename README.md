@@ -511,8 +511,8 @@ The `register` program runs as **two independent instances on devnet**, one per 
 the feature-flagged `declare_id!` (see [ADR 010](./fragments/adrs/010_two_onchain_register_instances.md)). Each has its
 own `registry_state` PDA and state; the deployer keypair is the shared upgrade authority for both.
 
-The two instances are selected at build time: the **dev** instance builds with `anchor build --program-name register`, the
-**prod** instance adds `-- --features prod` (full ceremony below).
+The two instances are selected at build time: the **dev** instance builds with `anchor build --program-name register`,
+the **prod** instance adds `-- --features prod` (full ceremony below).
 
 | Instance | Program id                                     | `registry_state` PDA                           |
 | -------- | ---------------------------------------------- | ---------------------------------------------- |
