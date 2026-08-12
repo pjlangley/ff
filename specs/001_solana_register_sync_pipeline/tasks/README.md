@@ -7,7 +7,7 @@ a time and ticks them off here.
 
 - [x] 01 — [Feature-flagged `declare_id!` for a prod register instance](./01_register_prod_feature_flag.md)
 - [x] 02 — [Bootstrap the prod register instance on devnet](./02_prod_instance_devnet_bootstrap.md)
-- [ ] 03 — [`solana_deploy.yml` dev/prod matrix](./03_solana_deploy_dev_prod_matrix.md)
+- [x] 03 — [`solana_deploy.yml` dev/prod matrix](./03_solana_deploy_dev_prod_matrix.md)
 
 ## AWS substrate
 

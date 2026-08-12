@@ -33,25 +33,32 @@ jobs:
   # Assumes only the **register** program is being deployed for now
   deploy:
     runs-on: ubuntu-latest
-    name: devnet deploy
+    name: devnet deploy (${{ matrix.environment }})
     needs: [changes]
     if: needs.changes.outputs.register == 'true'
     # Manual-approval gate (required reviewer + main-branch restriction) and scoped secrets
     environment: ff_solana_devnet
+    strategy:
+      # Both instances are upgraded from the same deployer keypair and balance.
+      # Serialising avoids concurrent buffer writes and balance races
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - environment: dev
+            build_args: ""
+          - environment: prod
+            build_args: "-- --features prod"
     env:
       AGAVE_VERSION: 3.1.9
       ANCHOR_VERSION: 0.31.1
-      DEPLOY_MIN_SOL: "3"
+      DEPLOY_MIN_SOL: "6"
       RPC_URL: https://devnet.helius-rpc.com/?api-key=${{ secrets.HELIUS_API_KEY }}
     defaults:
       run:
         working-directory: fragments/blockchain/solana
     steps:
       - uses: actions/checkout@v6
-
-      - name: resolve program ID from IDL
-        id: program
-        run: echo "program_id=$(jq -r .address "target/idl/register.json")" >> "$GITHUB_OUTPUT"
 
       - uses: moonrepo/setup-rust@v1
         with:
@@ -96,18 +103,6 @@ jobs:
           UPGRADE_AUTHORITY: ${{ secrets.SOLANA_DEVNET_UPGRADE_AUTHORITY }}
         run: printf '%s' "$UPGRADE_AUTHORITY" > devnet_authority.json
 
-      - name: verify existing deployment
-        env:
-          PROGRAM_ID: ${{ steps.program.outputs.program_id }}
-        run: |
-          set -euo pipefail
-
-          # This job performs upgrades only; the initial deploy is done manually
-          if ! solana program show "$PROGRAM_ID" --url "$RPC_URL" --keypair ./devnet_authority.json; then
-            echo "Program $PROGRAM_ID not found on devnet"
-            exit 1
-          fi
-
       - name: balance preflight
         run: |
           set -euo pipefail
@@ -132,7 +127,23 @@ jobs:
           exit 1
 
       - name: build program
-        run: anchor build --program-name register
+        run: anchor build --program-name register ${{ matrix.build_args }}
+
+      - name: resolve program ID from IDL
+        id: program
+        run: echo "program_id=$(jq -r .address "target/idl/register.json")" >> "$GITHUB_OUTPUT"
+
+      - name: verify existing deployment
+        env:
+          PROGRAM_ID: ${{ steps.program.outputs.program_id }}
+        run: |
+          set -euo pipefail
+
+          # This job performs upgrades only; the initial deploy is done manually
+          if ! solana program show "$PROGRAM_ID" --url "$RPC_URL" --keypair ./devnet_authority.json; then
+            echo "Program $PROGRAM_ID not found on devnet"
+            exit 1
+          fi
 
       - name: upgrade program
         env:
@@ -159,7 +170,7 @@ jobs:
           PROGRAM_ID: ${{ steps.program.outputs.program_id }}
         run: |
           {
-            echo "### ✅ register devnet deploy"
+            echo "### ✅ register devnet deploy (${{ matrix.environment }})"
             echo "- Program: \`$PROGRAM_ID\`"
             echo "- Explorer: https://explorer.solana.com/address/$PROGRAM_ID?cluster=devnet"
             echo ""
