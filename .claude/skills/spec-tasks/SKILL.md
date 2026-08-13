@@ -63,6 +63,9 @@ Invoke when the user wants to break down / split / plan the tasks for an existin
 - Reference QA commands by name and defer to the `build` skill for their canonical form — don't duplicate the command
   list here.
 - Keep tasks small enough to review as a self-contained diff.
+- When a bullet's rationale asserts current behaviour — this repo's or a third-party tool's — look it up rather than
+  writing it from memory (`grilling`'s rule: facts are yours to find, decisions are the user's). `spec-build` preflights
+  these premises before implementing, and a wrong one costs a round trip.
 
 ## Out of scope
 
