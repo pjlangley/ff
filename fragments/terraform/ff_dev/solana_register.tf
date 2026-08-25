@@ -12,6 +12,13 @@ module "solana_register_registrants_confirmed_queue" {
   name_prefix = local.name_prefix
 }
 
+module "solana_register_registrations_table" {
+  source = "../modules/solana_registrations_table"
+
+  name        = "solana_register_registrations"
+  name_prefix = local.name_prefix
+}
+
 # --- outputs
 
 output "solana_register_registrants_queue_arn" {
@@ -52,4 +59,14 @@ output "solana_register_registrants_confirmed_dlq_arn" {
 output "solana_register_registrants_confirmed_dlq_url" {
   description = "URL of the solana_register_registrants_confirmed dead-letter queue"
   value       = module.solana_register_registrants_confirmed_queue.dlq_url
+}
+
+output "solana_register_registrations_table_name" {
+  description = "Name of the solana_register_registrations DynamoDB table"
+  value       = module.solana_register_registrations_table.table_name
+}
+
+output "solana_register_registrations_table_arn" {
+  description = "ARN of the solana_register_registrations DynamoDB table"
+  value       = module.solana_register_registrations_table.table_arn
 }

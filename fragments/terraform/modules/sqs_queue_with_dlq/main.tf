@@ -1,9 +1,11 @@
 resource "aws_sqs_queue" "dlq" {
-  name = "${var.name_prefix}_${var.name}_dlq"
+  name                      = "${var.name_prefix}_${var.name}_dlq"
+  message_retention_seconds = var.message_retention_seconds
 }
 
 resource "aws_sqs_queue" "main" {
-  name = "${var.name_prefix}_${var.name}"
+  name                      = "${var.name_prefix}_${var.name}"
+  message_retention_seconds = var.message_retention_seconds
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.dlq.arn

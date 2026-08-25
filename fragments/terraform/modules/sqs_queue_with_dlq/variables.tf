@@ -13,3 +13,9 @@ variable "max_receive_count" {
   type        = number
   default     = 5
 }
+
+variable "message_retention_seconds" {
+  description = "Seconds SQS retains a message on both the source queue and the DLQ; defaults to the 14-day maximum"
+  type        = number
+  default     = 1209600
+}

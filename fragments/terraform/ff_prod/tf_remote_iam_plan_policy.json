@@ -12,6 +12,17 @@
       "Resource": "arn:aws:sqs:eu-west-2:<account_id>:ff_prod_*"
     },
     {
+      "Sid": "DynamoDbReadScoped",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:DescribeTable",
+        "dynamodb:DescribeContinuousBackups",
+        "dynamodb:DescribeTimeToLive",
+        "dynamodb:ListTagsOfResource"
+      ],
+      "Resource": "arn:aws:dynamodb:eu-west-2:<account_id>:table/ff_prod_*"
+    },
+    {
       "Sid": "SqsListAndIdentity",
       "Effect": "Allow",
       "Action": [
