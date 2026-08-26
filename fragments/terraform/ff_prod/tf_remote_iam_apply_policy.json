@@ -35,6 +35,30 @@
       "Resource": "arn:aws:dynamodb:eu-west-2:<account_id>:table/ff_prod_*"
     },
     {
+      "Sid": "EventBridgeLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "events:CreateEventBus",
+        "events:DeleteEventBus",
+        "events:DescribeEventBus",
+        "events:PutRule",
+        "events:DeleteRule",
+        "events:DescribeRule",
+        "events:EnableRule",
+        "events:DisableRule",
+        "events:PutTargets",
+        "events:RemoveTargets",
+        "events:ListTargetsByRule",
+        "events:TagResource",
+        "events:UntagResource",
+        "events:ListTagsForResource"
+      ],
+      "Resource": [
+        "arn:aws:events:eu-west-2:<account_id>:event-bus/ff_prod_*",
+        "arn:aws:events:eu-west-2:<account_id>:rule/ff_prod_*"
+      ]
+    },
+    {
       "Sid": "SqsListAndIdentity",
       "Effect": "Allow",
       "Action": [

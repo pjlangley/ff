@@ -104,6 +104,7 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [009: Manually bootstrap initial devnet deploy and init](./fragments/adrs/009_manual_bootstrap_initial_devnet_deploy.md)    | 2026-06-24 | Accepted |
 | [010: Two on-chain Solana register instances via feature flag](./fragments/adrs/010_two_onchain_register_instances.md)      | 2026-07-23 | Accepted |
 | [011: DynamoDB as the central datastore](./fragments/adrs/011_dynamodb_central_datastore.md)                                | 2026-08-13 | Accepted |
+| [012: EventBridge-centred event architecture](./fragments/adrs/012_eventbridge_event_architecture.md)                       | 2026-08-25 | Accepted |
 
 ## Spec-driven workflow
 

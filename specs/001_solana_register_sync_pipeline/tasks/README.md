@@ -12,7 +12,7 @@ a time and ticks them off here.
 ## AWS substrate
 
 - [x] 04 — [DynamoDB registrations table and 14-day queue retention](./04_terraform_dynamodb_and_queue_retention.md)
-- [ ] 05 — [EventBridge custom bus and rules to the existing queues](./05_terraform_eventbridge_bus_and_rules.md)
+- [x] 05 — [EventBridge custom bus and rules to the existing queues](./05_terraform_eventbridge_bus_and_rules.md)
 - [ ] 06 — [Secrets Manager secrets and scoped IAM identities](./06_terraform_secrets_and_iam_identities.md)
 
 ## Ingestion (chain → queue)

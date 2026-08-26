@@ -35,6 +35,40 @@
       "Resource": "arn:aws:dynamodb:eu-west-2:<account_id>:table/ff_dev_*"
     },
     {
+      "Sid": "EventBridgeLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "events:CreateEventBus",
+        "events:DeleteEventBus",
+        "events:DescribeEventBus",
+        "events:PutRule",
+        "events:DeleteRule",
+        "events:DescribeRule",
+        "events:EnableRule",
+        "events:DisableRule",
+        "events:PutTargets",
+        "events:RemoveTargets",
+        "events:ListTargetsByRule",
+        "events:TagResource",
+        "events:UntagResource",
+        "events:ListTagsForResource",
+        "events:PutEvents"
+      ],
+      "Resource": [
+        "arn:aws:events:eu-west-2:<account_id>:event-bus/ff_dev_*",
+        "arn:aws:events:eu-west-2:<account_id>:rule/ff_dev_*"
+      ]
+    },
+    {
+      "Sid": "SqsMessageAccessScoped",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage"
+      ],
+      "Resource": "arn:aws:sqs:eu-west-2:<account_id>:ff_dev_*"
+    },
+    {
       "Sid": "SqsListAndIdentity",
       "Effect": "Allow",
       "Action": [
