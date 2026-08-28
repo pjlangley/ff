@@ -959,6 +959,11 @@ graph TD
   tf output
   ```
 
+> [!IMPORTANT]
+> The first `tf apply` creates the Secrets Manager secrets as empty containers. Their values are set by hand - see
+> [Secrets (manual)](#secrets-manual). The local cluster access key is also set by hand - see
+> [Local cluster access key (manual)](#local-cluster-access-key-manual).
+
 These following commands should be run from [`./fragments/terraform/`](./fragments/terraform/) as they apply to every
 workspace:
 
@@ -1078,3 +1083,45 @@ The two main parts to this set up are as follows:
 
 - Required reviewer(s), e.g. `pjlangley`
 - Restricted to an appropriate branch, e.g. `main`
+
+#### Secrets (manual)
+
+This section applies to **both** workspaces.
+
+Terraform creates the AWS Secrets Manager **containers** only - deliberately, since `aws_secretsmanager_secret_version`
+would store the plaintext in Terraform state. Each value is set once, by hand, in the AWS Console - the same posture
+already used for the IAM policies in the two sections above.
+
+| Workspace | Secret                                     | Value                                                      |
+| --------- | ------------------------------------------ | ---------------------------------------------------------- |
+| `ff_dev`  | `ff_dev_solana_register_deployer_keypair`  | full contents of `devnet_deployer.id.json`                 |
+| `ff_dev`  | `ff_dev_solana_register_helius_rpc_url`    | `https://devnet.helius-rpc.com/?api-key=<YOUR_HELIUS_KEY>` |
+| `ff_prod` | `ff_prod_solana_register_deployer_keypair` | as above - the deployer is the shared upgrade authority    |
+| `ff_prod` | `ff_prod_solana_register_helius_rpc_url`   | as above                                                   |
+
+> [!IMPORTANT]
+> Use the **Plaintext** tab, **not** _Key/value_. The deployer keypair must stay a bare JSON array of bytes; _Key/value_
+> wraps it in an object that the consumers and the Lambda poller cannot parse.
+
+Do this after `tf apply` for `ff_dev`, and after the first `ff_prod` run has created the containers.
+
+#### Local cluster access key (manual)
+
+This section applies to `ff_dev` only - `ff_prod` is reached exclusively from inside AWS, via the EC2 instance profile.
+
+Terraform creates the IAM **user** the local cluster's consumers authenticate as
+(`ff_dev_solana_register_local_runtime`) and attaches its scoped policy, but deliberately does not create its access
+key - `aws_iam_access_key` would write the secret access key into Terraform state. The same principle as the secrets
+above: Terraform creates identities and containers, and handles no credential material.
+
+After `tf apply`:
+
+1. In the IAM console, open the user `ff_dev_solana_register_local_runtime`
+1. _Security credentials_ → _Create access key_ → choose _Application running outside AWS_
+1. Securely store the access key ID and secret access key - the secret is shown **once**
+1. Supply them to the local cluster as a Kubernetes Secret. Never commit them
+
+> [!IMPORTANT] `terraform destroy` will fail with a `DeleteConflict` while the hand-made access key still exists,
+> because the user resource does not set `force_destroy`. Delete the access key in the console first, then destroy.
+
+To rotate, create the new key before deleting the old one, update the Kubernetes Secret, then delete the old key.

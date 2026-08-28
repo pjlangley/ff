@@ -13,7 +13,7 @@ a time and ticks them off here.
 
 - [x] 04 — [DynamoDB registrations table and 14-day queue retention](./04_terraform_dynamodb_and_queue_retention.md)
 - [x] 05 — [EventBridge custom bus and rules to the existing queues](./05_terraform_eventbridge_bus_and_rules.md)
-- [ ] 06 — [Secrets Manager secrets and scoped IAM identities](./06_terraform_secrets_and_iam_identities.md)
+- [x] 06 — [Secrets Manager secrets and scoped IAM identities](./06_terraform_secrets_and_iam_identities.md)
 
 ## Ingestion (chain → queue)
 
@@ -48,8 +48,11 @@ a time and ticks them off here.
   (task 08). `ff_node` and `ff_python` are published as multi-arch manifest lists (`amd64` + `arm64`, task 13), which
   also removes emulation from the local Apple Silicon Docker loop. The older `ff_solana` / `ff_anchor` /
   `ff_solana_builder` images stay `amd64`-only; that constraint predates this feature and was not revisited.
-- **ADRs:** written alongside the task that makes each decision, not batched retrospectively. Seven in total — the five
-  named in the requirements, plus one for Docker Hub over ECR (task 13) and one for k3s over EKS (task 15).
+- **ADRs:** written alongside the task that makes each decision, not batched retrospectively. Eight in total — the five
+  named in the requirements, plus one for Docker Hub over ECR (task 13), one for k3s over EKS (task 15), and one **added
+  during task 06's build** for how the in-cluster consumer runtime authenticates to AWS (task 14) — static scoped keys
+  in KIND, an instance profile on EC2. Workload identity is a distinct question from the operator-laptop identity ADR
+  003 settles, so it gets its own record rather than amending that one.
 
 ## ADR map
 
@@ -60,5 +63,6 @@ a time and ticks them off here.
 | EventBridge-centred event architecture                                     | 05   |
 | Docker Hub over ECR for image distribution                                 | 13   |
 | Local KIND cluster against real cloud resources                            | 14   |
+| AWS identity for the in-cluster consumer runtime                           | 14   |
 | k3s on EC2 over EKS                                                        | 15   |
 | Scheduled overnight pause (`Europe/London`) as cost control                | 17   |

@@ -59,6 +59,20 @@
       ]
     },
     {
+      "Sid": "SecretsManagerLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:CreateSecret",
+        "secretsmanager:DeleteSecret",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:TagResource",
+        "secretsmanager:UntagResource"
+      ],
+      "Resource": "arn:aws:secretsmanager:eu-west-2:<account_id>:secret:ff_prod_*"
+    },
+    {
       "Sid": "SqsListAndIdentity",
       "Effect": "Allow",
       "Action": [

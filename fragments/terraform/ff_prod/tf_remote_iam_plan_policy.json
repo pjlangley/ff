@@ -37,6 +37,15 @@
       ]
     },
     {
+      "Sid": "SecretsManagerReadScoped",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetResourcePolicy"
+      ],
+      "Resource": "arn:aws:secretsmanager:eu-west-2:<account_id>:secret:ff_prod_*"
+    },
+    {
       "Sid": "SqsListAndIdentity",
       "Effect": "Allow",
       "Action": [

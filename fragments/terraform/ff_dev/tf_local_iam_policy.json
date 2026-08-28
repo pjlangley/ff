@@ -60,6 +60,37 @@
       ]
     },
     {
+      "Sid": "SecretsManagerLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:CreateSecret",
+        "secretsmanager:DeleteSecret",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:TagResource",
+        "secretsmanager:UntagResource"
+      ],
+      "Resource": "arn:aws:secretsmanager:eu-west-2:<account_id>:secret:ff_dev_*"
+    },
+    {
+      "Sid": "IamUserLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateUser",
+        "iam:DeleteUser",
+        "iam:GetUser",
+        "iam:TagUser",
+        "iam:UntagUser",
+        "iam:ListUserTags",
+        "iam:PutUserPolicy",
+        "iam:GetUserPolicy",
+        "iam:DeleteUserPolicy",
+        "iam:ListUserPolicies"
+      ],
+      "Resource": "arn:aws:iam::<account_id>:user/ff_dev_*"
+    },
+    {
       "Sid": "SqsMessageAccessScoped",
       "Effect": "Allow",
       "Action": [
