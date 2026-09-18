@@ -23,6 +23,9 @@ its own; the tests run against the local validator, as every other fragment's do
   exported (`REGISTRATION_INDEX_OFFSET`, `REGISTRATION_ACCOUNT_SIZE`, `registrationDecoder`, `RegistrationAccount`).
   Step 3 fetches the account by raw-byte filter rather than by PDA, so it needs both the offsets and the decoder;
   duplicating either in the poller would let the two drift from the Rust struct. No existing behaviour changed.
+  Subsequently the by-index read itself (`getRegistrationAccountByIndex` and `registrationIndexFilters`) was promoted
+  into the interface too, mirrored in Python, and exposed on both APIs as `GET /solana/register/index/:index`; the
+  poller consumes that shared read rather than owning it.
 
 Three things the task file left open, **settled during build**:
 

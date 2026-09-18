@@ -7,10 +7,14 @@ import {
   fetchEncodedAccount,
   getAddressDecoder,
   getAddressEncoder,
+  getBase58Decoder,
   getOptionDecoder,
+  type GetProgramAccountsDatasizeFilter,
+  type GetProgramAccountsMemcmpFilter,
   getProgramDerivedAddress,
   getStructDecoder,
   getU64Decoder,
+  getU64Encoder,
   KeyPairSigner,
   offsetDecoder,
   Option,
@@ -138,6 +142,35 @@ export const getRegistrationAccount = async (registrantAddress: Address, program
   return decoded;
 };
 
+/**
+ * Looks a `Registration` account up by the index the program assigned it, rather than by registrant.
+ *
+ * The index is not part of the PDA seeds, so there is no address to derive; instead the program's
+ * accounts are scanned server-side with `registrationIndexFilters`. Unlike the PDA getters, absence is
+ * an ordinary outcome of a filtered scan, so it is reported as `undefined` rather than thrown.
+ */
+export const getRegistrationAccountByIndex = async (
+  index: bigint,
+  programAddress: Address,
+): Promise<RegistrationAccount | undefined> => {
+  const client = initRpcClient();
+  const accounts = await client
+    .getProgramAccounts(programAddress, {
+      commitment: "confirmed",
+      encoding: "base64",
+      filters: registrationIndexFilters(index),
+    })
+    .send({ abortSignal: AbortSignal.timeout(5000) });
+
+  const account = accounts.at(0);
+
+  if (!account) {
+    return undefined;
+  }
+
+  return registrationDecoder.decode(Buffer.from(account.account.data[0], "base64"));
+};
+
 const getProgramDataAddress = async (programAddress: Address): Promise<Address> => {
   const [pda] = await getProgramDerivedAddress({
     programAddress: BPF_LOADER_UPGRADEABLE_ID,
@@ -173,11 +206,30 @@ const registryStateDecoder: Decoder<{
 //   48..56  registered_at        u64 (little-endian)
 //   56..65  confirmed_at         Option<u64> (1 discriminant byte + 8 payload, per Anchor's InitSpace)
 //
-// Both constants live here, beside the decoder, so a caller filtering on the raw bytes server-side
-// (the poller's `getProgramAccounts` + `memcmp` lookup by index) cannot drift from the layout the
-// decoder assumes.
+// Both constants live here, beside the decoder, so the raw-byte filter below (`getProgramAccounts` +
+// `memcmp` lookup by index) cannot drift from the layout the decoder assumes.
 export const REGISTRATION_INDEX_OFFSET = 40;
 export const REGISTRATION_ACCOUNT_SIZE = 65;
+
+/**
+ * Server-side filters that isolate the single `Registration` account at `index`.
+ *
+ * `memcmp` compares raw account bytes, so the index is encoded exactly as the account stores it —
+ * a little-endian u64 at offset 40 — and then base58-encoded because that is the wire format the
+ * filter takes. The `dataSize` filter keeps the scan off every other account the program owns.
+ */
+export const registrationIndexFilters = (
+  index: bigint,
+): [GetProgramAccountsDatasizeFilter, GetProgramAccountsMemcmpFilter] => [
+  { dataSize: BigInt(REGISTRATION_ACCOUNT_SIZE) },
+  {
+    memcmp: {
+      offset: BigInt(REGISTRATION_INDEX_OFFSET),
+      bytes: getBase58Decoder().decode(getU64Encoder().encode(index)),
+      encoding: "base58",
+    },
+  },
+];
 
 export const registrationDecoder: Decoder<{
   registrant: Address;

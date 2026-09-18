@@ -14,14 +14,7 @@ import {
   type UpdateCommandInput,
 } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
-import {
-  Address,
-  address,
-  createKeyPairSignerFromBytes,
-  generateKeyPairSigner,
-  getBase58Encoder,
-  KeyPairSigner,
-} from "@solana/kit";
+import { Address, address, createKeyPairSignerFromBytes, generateKeyPairSigner, KeyPairSigner } from "@solana/kit";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getEnvVar } from "../env_vars/env_vars_utils";
 import { sendAndConfirmAirdrop } from "../solana_airdrop/solana_airdrop_utils";
@@ -31,8 +24,6 @@ import {
   getRegistryStateAccount,
   initialiseRegistry,
   register,
-  REGISTRATION_ACCOUNT_SIZE,
-  REGISTRATION_INDEX_OFFSET,
 } from "../solana_program_register/solana_register_interface";
 import {
   createAwsClients,
@@ -40,7 +31,6 @@ import {
   type PollerConfig,
   pollOnce,
   REGISTRATION_DETECTED_DETAIL_TYPE,
-  registrationIndexFilters,
 } from "./poller";
 
 // The two condition expressions the poller relies on for correctness. Pinned here so that changing
@@ -319,29 +309,5 @@ describe("solana register sync poller", () => {
       publishedEvents().map((event) => JSON.parse(event.Detail ?? "{}").registration_index),
       Array.from({ length: backlog }, (_, i) => Number(subject.index) + i),
     );
-  });
-});
-
-describe("solana register sync registration index filter", () => {
-  test("targets the registration_index field of the on-chain Registration layout", () => {
-    const [dataSizeFilter, memcmpFilter] = registrationIndexFilters(258n);
-
-    assert.strictEqual(dataSizeFilter.dataSize, BigInt(REGISTRATION_ACCOUNT_SIZE));
-    assert.strictEqual(memcmpFilter.memcmp.offset, BigInt(REGISTRATION_INDEX_OFFSET));
-    assert.strictEqual(memcmpFilter.memcmp.offset, 40n);
-    assert.strictEqual(memcmpFilter.memcmp.encoding, "base58");
-
-    // `memcmp` compares raw account bytes, so what matters is the byte layout the filter decodes to:
-    // 258 as a little-endian u64 is 0x02 0x01 followed by six zero bytes. Written out by hand rather
-    // than re-encoded here, so a big-endian slip in `poller.ts` cannot be mirrored by the assertion.
-    assert.deepStrictEqual(
-      new Uint8Array(getBase58Encoder().encode(memcmpFilter.memcmp.bytes)),
-      new Uint8Array([2, 1, 0, 0, 0, 0, 0, 0]),
-    );
-
-    // Base58 reads those bytes back as one big-endian integer (144,396,663,052,566,528), so the wire
-    // string bears no resemblance to 258. Pinned to catch a change of alphabet, which the byte
-    // assertion above would not: `getBase58Encoder` would decode any alphabet the encoder used.
-    assert.strictEqual(memcmpFilter.memcmp.bytes, "LSYWV7p8gw");
   });
 });

@@ -6,15 +6,20 @@ import { sendAndConfirmAirdrop } from "../solana_airdrop/solana_airdrop_utils";
 import {
   confirmRegistration,
   getRegistrationAccount,
+  getRegistrationAccountByIndex,
   getRegistryStateAccount,
   initialiseRegistry,
   register,
+  REGISTRATION_ACCOUNT_SIZE,
+  REGISTRATION_INDEX_OFFSET,
+  registrationIndexFilters,
 } from "./solana_register_interface";
 import {
   Address,
   address,
   createKeyPairSignerFromBytes,
   generateKeyPairSigner,
+  getBase58Encoder,
   isNone,
   isSome,
   KeyPairSigner,
@@ -83,6 +88,11 @@ describe("solana program register interface", () => {
     assert.strictEqual(registration.registrant, registrant.address);
     assert.ok(registration.registered_at > 0n);
     assert.ok(isNone(registration.confirmed_at));
+
+    // The same account reached by index rather than by PDA — proves the memcmp filter against an
+    // account the program itself serialised.
+    const byIndex = await getRegistrationAccountByIndex(registration.registration_index, programAddress);
+    assert.deepStrictEqual(byIndex, registration);
   });
 
   test("confirm registration", async () => {
@@ -149,5 +159,34 @@ describe("solana program register interface", () => {
     }, {
       message: /^Account .* does not exist/,
     });
+  });
+
+  test("get registration account by an index nothing has reached", async () => {
+    const registration = await getRegistrationAccountByIndex(2n ** 63n, programAddress);
+    assert.strictEqual(registration, undefined);
+  });
+});
+
+describe("solana program register registration index filter", () => {
+  test("targets the registration_index field of the on-chain Registration layout", () => {
+    const [dataSizeFilter, memcmpFilter] = registrationIndexFilters(258n);
+
+    assert.strictEqual(dataSizeFilter.dataSize, BigInt(REGISTRATION_ACCOUNT_SIZE));
+    assert.strictEqual(memcmpFilter.memcmp.offset, BigInt(REGISTRATION_INDEX_OFFSET));
+    assert.strictEqual(memcmpFilter.memcmp.offset, 40n);
+    assert.strictEqual(memcmpFilter.memcmp.encoding, "base58");
+
+    // `memcmp` compares raw account bytes, so what matters is the byte layout the filter decodes to:
+    // 258 as a little-endian u64 is 0x02 0x01 followed by six zero bytes. Written out by hand rather
+    // than re-encoded here, so a big-endian slip in the filter cannot be mirrored by the assertion.
+    assert.deepStrictEqual(
+      new Uint8Array(getBase58Encoder().encode(memcmpFilter.memcmp.bytes)),
+      new Uint8Array([2, 1, 0, 0, 0, 0, 0, 0]),
+    );
+
+    // Base58 reads those bytes back as one big-endian integer (144,396,663,052,566,528), so the wire
+    // string bears no resemblance to 258. Pinned to catch a change of alphabet, which the byte
+    // assertion above would not: `getBase58Encoder` would decode any alphabet the encoder used.
+    assert.strictEqual(memcmpFilter.memcmp.bytes, "LSYWV7p8gw");
   });
 });

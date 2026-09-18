@@ -2,24 +2,13 @@ import { ConditionalCheckFailedException, DynamoDBClient } from "@aws-sdk/client
 import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
-import {
-  Address,
-  address,
-  getBase58Decoder,
-  type GetProgramAccountsDatasizeFilter,
-  type GetProgramAccountsMemcmpFilter,
-  getU64Encoder,
-} from "@solana/kit";
-import { Buffer } from "node:buffer";
+import { Address, address } from "@solana/kit";
 import { env } from "node:process";
 import { getEnvVar } from "../env_vars/env_vars_utils";
-import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
 import {
+  getRegistrationAccountByIndex,
   getRegistryStateAccount,
-  REGISTRATION_ACCOUNT_SIZE,
-  REGISTRATION_INDEX_OFFSET,
   type RegistrationAccount,
-  registrationDecoder,
 } from "../solana_program_register/solana_register_interface";
 
 export const REGISTRATION_DETECTED_DETAIL_TYPE = "RegistrationDetected";
@@ -65,26 +54,6 @@ export interface PollResult {
 const watermarkKey = (programId: string) => `WATERMARK#${programId}`;
 const registrantKey = (registrant: Address) => `REGISTRANT#${registrant}`;
 
-/**
- * Server-side filters that isolate the single `Registration` account at `index`.
- *
- * `memcmp` compares raw account bytes, so the index is encoded exactly as the account stores it —
- * a little-endian u64 at offset 40 — and then base58-encoded because that is the wire format the
- * filter takes. The `dataSize` filter keeps the scan off every other account the program owns.
- */
-export const registrationIndexFilters = (
-  index: bigint,
-): [GetProgramAccountsDatasizeFilter, GetProgramAccountsMemcmpFilter] => [
-  { dataSize: BigInt(REGISTRATION_ACCOUNT_SIZE) },
-  {
-    memcmp: {
-      offset: BigInt(REGISTRATION_INDEX_OFFSET),
-      bytes: getBase58Decoder().decode(getU64Encoder().encode(index)),
-      encoding: "base58",
-    },
-  },
-];
-
 const readWatermark = async (config: PollerConfig, clients: PollerClients): Promise<bigint> => {
   const result = await clients.documentClient.send(
     new GetCommand({
@@ -98,34 +67,6 @@ const readWatermark = async (config: PollerConfig, clients: PollerClients): Prom
   const count = result.Item?.registration_count;
 
   return count === undefined ? 0n : BigInt(count as number);
-};
-
-const fetchRegistrationAtIndex = async (
-  config: PollerConfig,
-  index: bigint,
-): Promise<DetectedRegistration | undefined> => {
-  const client = initRpcClient();
-  const accounts = await client
-    .getProgramAccounts(address(config.programId), {
-      commitment: "confirmed",
-      encoding: "base64",
-      filters: registrationIndexFilters(index),
-    })
-    .send({ abortSignal: AbortSignal.timeout(5000) });
-
-  const account = accounts.at(0);
-
-  if (!account) {
-    return undefined;
-  }
-
-  const decoded = registrationDecoder.decode(Buffer.from(account.account.data[0], "base64"));
-
-  return {
-    registrant: decoded.registrant,
-    registration_index: decoded.registration_index,
-    registered_at: decoded.registered_at,
-  };
 };
 
 /** Returns false when the registrant already has a record — this is the dedup. */
@@ -229,15 +170,16 @@ const advanceWatermark = async (
  * drains one-per-invocation over subsequent invocations — there is no batching and no backfill.
  */
 export const pollOnce = async (config: PollerConfig, clients: PollerClients): Promise<PollResult> => {
+  const programAddress = address(config.programId);
   const watermark = await readWatermark(config, clients);
-  const registryState = await getRegistryStateAccount(address(config.programId));
+  const registryState = await getRegistryStateAccount(programAddress);
   const registrationCount = registryState.registration_count;
 
   if (registrationCount <= watermark) {
     return { outcome: "no_new_registrations", watermark, registrationCount };
   }
 
-  const registration = await fetchRegistrationAtIndex(config, watermark);
+  const registration = await getRegistrationAccountByIndex(watermark, programAddress);
 
   if (!registration) {
     // `register` bumps the count and creates the account in one instruction, so this can only mean the

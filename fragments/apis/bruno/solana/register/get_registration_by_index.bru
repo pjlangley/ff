@@ -1,11 +1,11 @@
 meta {
-  name: get registration
+  name: get registration by index
   type: http
-  seq: 4
+  seq: 5
 }
 
 get {
-  url: {{base_url}}/solana/register/{{REGISTRANT_ADDRESS}}
+  url: {{base_url}}/solana/register/index/{{REGISTRATION_INDEX}}
 }
 
 headers {
@@ -13,13 +13,12 @@ headers {
 }
 
 tests {
-  test("200 OK - registration not yet confirmed", function() {
+  test("200 OK - registration found by index", function() {
     const result = res.getBody();
     expect(res.getStatus()).to.equal(200);
     expect(result.registrant).to.equal(bru.getVar("REGISTRANT_ADDRESS"));
-    expect(result.registration_index).to.be.ok;
+    expect(result.registration_index).to.equal(bru.getVar("REGISTRATION_INDEX"));
     expect(result.registered_at).to.be.ok;
     expect(result.confirmed_at).to.be.null;
-    bru.setVar('REGISTRATION_INDEX', result.registration_index);
   });
 }

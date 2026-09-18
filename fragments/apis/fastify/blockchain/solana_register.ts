@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import {
   confirmRegistration,
   getRegistrationAccount,
+  getRegistrationAccountByIndex,
   getRegistryStateAccount,
   initialiseRegistry,
   register,
@@ -153,6 +154,46 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
     }
   });
 
+  fastify.get<{
+    Params: { index: string };
+    Reply: {
+      200: {
+        registrant: string;
+        registration_index: string;
+        registered_at: string;
+        confirmed_at: string | null;
+      };
+      400: { error: string };
+      404: void;
+      500: { error: string };
+    };
+  }>("/register/index/:index", async (request, reply) => {
+    try {
+      const index = parseRegistrationIndex(request.params.index);
+
+      if (index === undefined) {
+        return reply.code(400).send({ error: "index must be a non-negative integer" });
+      }
+
+      const programAddress = getProgramAddress();
+      const account = await getRegistrationAccountByIndex(index, programAddress);
+
+      if (!account) {
+        return reply.code(404).send();
+      }
+
+      return reply.code(200).send({
+        registrant: account.registrant,
+        registration_index: account.registration_index.toString(),
+        registered_at: account.registered_at.toString(),
+        confirmed_at: isSome(account.confirmed_at) && unwrapOption(account.confirmed_at)?.toString() || null,
+      });
+    } catch (error) {
+      request.log.error(error, "Error fetching registration account by index");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
   fastify.patch<{
     Params: { address: string };
     Reply: {
@@ -186,6 +227,19 @@ export const routes = (fastify: FastifyInstance, _: FastifyPluginOptions) => {
       return reply.code(500).send({ error: "Internal Server Error" });
     }
   });
+};
+
+// The on-chain index is a u64; anything that cannot be one is a client error, not a chain miss.
+const parseRegistrationIndex = (raw: string): bigint | undefined => {
+  if (!/^\d+$/.test(raw)) {
+    return undefined;
+  }
+
+  const index = BigInt(raw);
+
+  // The regex has ruled out negatives; this rules out anything above u64::MAX (2^64 - 1), which the
+  // u64 encoder in the filter would otherwise reject as a range error and surface as a 500.
+  return index <= 2n ** 64n - 1n ? index : undefined;
 };
 
 const getProgramAddress = (): Address => {

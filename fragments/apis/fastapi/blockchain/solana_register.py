@@ -1,5 +1,7 @@
 import logging
+import re
 from functools import lru_cache
+from typing import Optional
 from fastapi import APIRouter, HTTPException
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
@@ -12,6 +14,7 @@ from fragments.solana_program_register import (
     confirm_registration,
     get_registry_state_account,
     get_registration_account,
+    get_registration_account_by_index,
 )
 from fragments.solana_airdrop import send_and_confirm_airdrop
 from fragments.solana_transaction import confirm_recent_signature
@@ -41,6 +44,18 @@ def get_program_address() -> Pubkey:
     if program_id is None:
         raise ValueError("environment variable register_PROGRAM_ID is not set")
     return Pubkey.from_string(program_id)
+
+
+# The on-chain index is a u64; anything that cannot be one is a client error, not a chain miss.
+def parse_registration_index(raw: str) -> Optional[int]:
+    if re.fullmatch(r"[0-9]+", raw) is None:
+        return None
+
+    index = int(raw)
+
+    # The regex has ruled out negatives; this rules out anything above u64::MAX (2^64 - 1), which
+    # `int.to_bytes(8, ...)` in the filter would otherwise reject as an OverflowError and surface as a 500.
+    return index if index <= 2**64 - 1 else None
 
 
 @solana_register_router.post("/initialise", status_code=200)
@@ -130,6 +145,34 @@ async def get_registration_route(address: str):
         raise
     except Exception as e:
         logger.error("Error fetching registration account: %s", e)
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
+
+
+@solana_register_router.get("/index/{index}", status_code=200)
+async def get_registration_by_index_route(index: str):
+    # Taken as `str` rather than `int`: FastAPI's own coercion would answer 422 with its own body and
+    # accept negatives, so the two APIs would disagree on what a malformed index looks like.
+    try:
+        registration_index = parse_registration_index(index)
+        if registration_index is None:
+            raise HTTPException(status_code=400, detail="index must be a non-negative integer")
+
+        program_address = get_program_address()
+        account = await get_registration_account_by_index(registration_index, program_address)
+
+        if account is None:
+            raise HTTPException(status_code=404)
+
+        return {
+            "registrant": str(account["registrant"]),
+            "registration_index": str(account["registration_index"]),
+            "registered_at": str(account["registered_at"]),
+            "confirmed_at": str(account["confirmed_at"]) if account["confirmed_at"] is not None else None,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error fetching registration account by index: %s", e)
         raise HTTPException(status_code=500, detail="Internal Server Error") from e
 
 

@@ -1,9 +1,11 @@
 from typing import TypedDict, Optional
+import base58
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from solders.signature import Signature
 from solders.instruction import Instruction, AccountMeta
 from solana.constants import SYSTEM_PROGRAM_ID, BPF_LOADER_PROGRAM_ID
+from solana.rpc.types import MemcmpOpts
 from construct import Struct, Int64ul, Bytes, Flag, If
 from fragments.solana_program import get_instruction_discriminator, get_program_derived_address
 from fragments.solana_rpc import init_rpc_client
@@ -34,6 +36,36 @@ registration_schema = Struct(
     "confirmed_at_present" / Flag,
     "confirmed_at" / If(lambda ctx: ctx.confirmed_at_present, Int64ul),
 )
+
+# Byte layout of a `Registration` account, mirroring the Rust struct in `programs/register/src/lib.rs`:
+#
+#   0..8    anchor account discriminator
+#   8..40   registrant           Pubkey
+#   40..48  registration_index   u64 (little-endian)
+#   48..56  registered_at        u64 (little-endian)
+#   56..65  confirmed_at         Option<u64> (1 discriminant byte + 8 payload, per Anchor's InitSpace)
+#
+# Both constants live here, beside the schema, so the raw-byte filter below (`get_program_accounts` +
+# `memcmp` lookup by index) cannot drift from the layout the schema assumes.
+REGISTRATION_INDEX_OFFSET = 40
+REGISTRATION_ACCOUNT_SIZE = 65
+
+
+def registration_index_filters(index: int) -> list[int | MemcmpOpts]:
+    """Server-side filters that isolate the single `Registration` account at `index`.
+
+    `memcmp` compares raw account bytes, so the index is encoded exactly as the account stores it —
+    a little-endian u64 at offset 40 — and then base58-encoded because that is the wire format the
+    filter takes. The bare int is a `dataSize` filter, keeping the scan off every other account the
+    program owns.
+    """
+    return [
+        REGISTRATION_ACCOUNT_SIZE,
+        MemcmpOpts(
+            offset=REGISTRATION_INDEX_OFFSET,
+            bytes=base58.b58encode(index.to_bytes(8, "little")).decode(),
+        ),
+    ]
 
 
 def get_registry_state_pda(program_address: Pubkey) -> Pubkey:
@@ -135,6 +167,34 @@ async def get_registration_account(registrant_address: Pubkey, program_address: 
         raise ValueError(f"Account {registration_pda} does not exist")
 
     raw_bytes = bytes(account_info.data)[8:]
+    parsed = registration_schema.parse(raw_bytes)
+
+    return RegistrationAccount(
+        registrant=Pubkey.from_bytes(parsed.registrant),
+        registration_index=parsed.registration_index,
+        registered_at=parsed.registered_at,
+        confirmed_at=parsed.confirmed_at,
+    )
+
+
+async def get_registration_account_by_index(index: int, program_address: Pubkey) -> Optional[RegistrationAccount]:
+    """Look a `Registration` account up by the index the program assigned it, rather than by registrant.
+
+    The index is not part of the PDA seeds, so there is no address to derive; instead the program's
+    accounts are scanned server-side with `registration_index_filters`. Unlike the PDA getters, absence
+    is an ordinary outcome of a filtered scan, so it is reported as `None` rather than raised.
+    """
+    client = init_rpc_client()
+    response = await client.get_program_accounts(
+        program_address,
+        encoding="base64",
+        filters=registration_index_filters(index),
+    )
+
+    if not response.value:
+        return None
+
+    raw_bytes = bytes(response.value[0].account.data)[8:]
     parsed = registration_schema.parse(raw_bytes)
 
     return RegistrationAccount(

@@ -75,6 +75,35 @@ describe("Solana register API", () => {
     assert.ok(getRes.registration_index);
     assert.ok(getRes.registered_at);
     assert.strictEqual(getRes.confirmed_at, null);
+
+    // The same registration reached by index rather than by address.
+    const byIndexResponse = await api.inject({
+      method: "GET",
+      url: `/solana/register/index/${getRes.registration_index}`,
+    });
+
+    assert.strictEqual(byIndexResponse.statusCode, 200);
+    assert.deepStrictEqual(byIndexResponse.json(), getRes);
+  });
+
+  test("GET /solana/register/index/:index - returns 404 for an index nothing has reached", async () => {
+    const response = await api.inject({
+      method: "GET",
+      url: "/solana/register/index/9223372036854775808",
+    });
+
+    assert.strictEqual(response.statusCode, 404);
+  });
+
+  test("GET /solana/register/index/:index - returns 400 for a malformed index", async () => {
+    for (const index of ["abc", "-1", "1.5", "18446744073709551616"]) {
+      const response = await api.inject({
+        method: "GET",
+        url: `/solana/register/index/${index}`,
+      });
+
+      assert.strictEqual(response.statusCode, 400, `expected 400 for index ${index}`);
+    }
   });
 
   test("PATCH /solana/register/:address/confirm - confirms a registration", async () => {

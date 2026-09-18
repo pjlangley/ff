@@ -60,6 +60,21 @@ class TestSolanaRegisterRoutes(unittest.TestCase):
         self.assertIsNotNone(get_body["registered_at"])
         self.assertIsNone(get_body["confirmed_at"])
 
+        # The same registration reached by index rather than by address.
+        by_index_response = self.client.get(f"/solana/register/index/{get_body['registration_index']}")
+        self.assertEqual(by_index_response.status_code, 200)
+        self.assertEqual(by_index_response.json(), get_body)
+
+    def test_get_registration_by_index_returns_404_for_unreached_index(self):
+        response = self.client.get("/solana/register/index/9223372036854775808")
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_registration_by_index_returns_400_for_malformed_index(self):
+        for index in ["abc", "-1", "1.5", "18446744073709551616"]:
+            with self.subTest(index=index):
+                response = self.client.get(f"/solana/register/index/{index}")
+                self.assertEqual(response.status_code, 400)
+
     def test_confirm_registration(self):
         self.client.post("/solana/register/initialise")
 

@@ -1,11 +1,13 @@
 import os
 import unittest
 from pathlib import Path
+import base58
 from dotenv import load_dotenv
 from solders.pubkey import Pubkey
 from solders.keypair import Keypair
 from solana.constants import LAMPORTS_PER_SOL
 from solana.rpc.core import RPCException
+from solana.rpc.types import MemcmpOpts
 from fragments.env_vars import get_env_var
 from fragments.solana_airdrop import send_and_confirm_airdrop
 from fragments.solana_program_register import (
@@ -14,6 +16,10 @@ from fragments.solana_program_register import (
     confirm_registration,
     get_registry_state_account,
     get_registration_account,
+    get_registration_account_by_index,
+    registration_index_filters,
+    REGISTRATION_INDEX_OFFSET,
+    REGISTRATION_ACCOUNT_SIZE,
 )
 from fragments.solana_transaction import confirm_recent_signature
 
@@ -71,6 +77,11 @@ class TestSolanaRegisterInterface(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(registration["registrant"], registrant.pubkey())
         self.assertGreater(registration["registered_at"], 0)
         self.assertIsNone(registration["confirmed_at"])
+
+        # The same account reached by index rather than by PDA — proves the memcmp filter against an
+        # account the program itself serialised.
+        by_index = await get_registration_account_by_index(registration["registration_index"], self.program_id)
+        self.assertEqual(by_index, registration)
 
     async def test_confirm_registration(self):
         registrant = Keypair()
@@ -143,3 +154,29 @@ class TestSolanaRegisterInterface(unittest.IsolatedAsyncioTestCase):
 
         error_str = str(cm.exception)
         self.assertRegex(error_str, r"Account .* does not exist")
+
+    async def test_get_registration_account_by_unreached_index(self):
+        registration = await get_registration_account_by_index(2**63, self.program_id)
+        self.assertIsNone(registration)
+
+
+class TestRegistrationIndexFilters(unittest.TestCase):
+    def test_targets_the_registration_index_field_of_the_on_chain_layout(self):
+        data_size_filter, memcmp_filter = registration_index_filters(258)
+
+        self.assertEqual(data_size_filter, REGISTRATION_ACCOUNT_SIZE)
+        self.assertEqual(data_size_filter, 65)
+        self.assertIsInstance(memcmp_filter, MemcmpOpts)
+        assert isinstance(memcmp_filter, MemcmpOpts)  # narrows the type for mypy
+        self.assertEqual(memcmp_filter.offset, REGISTRATION_INDEX_OFFSET)
+        self.assertEqual(memcmp_filter.offset, 40)
+
+        # `memcmp` compares raw account bytes, so what matters is the byte layout the filter decodes to:
+        # 258 as a little-endian u64 is 0x02 0x01 followed by six zero bytes. Written out by hand rather
+        # than re-encoded here, so a big-endian slip in the filter cannot be mirrored by the assertion.
+        self.assertEqual(base58.b58decode(memcmp_filter.bytes), bytes([2, 1, 0, 0, 0, 0, 0, 0]))
+
+        # Base58 reads those bytes back as one big-endian integer (144,396,663,052,566,528), so the wire
+        # string bears no resemblance to 258. Pinned to catch a change of alphabet, which the byte
+        # assertion above would not.
+        self.assertEqual(memcmp_filter.bytes, "LSYWV7p8gw")
