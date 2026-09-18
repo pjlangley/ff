@@ -9,7 +9,8 @@
 - Blockchain programs are built with Solana & Rust with the help of the Anchor framework; located in
   `./fragments/blockchain/solana/programs/`.
 - Each programming language has its own API to interface with the various modules of code; located in
-  `./fragments/apis/`.
+  `./fragments/apis/`. Every capability a fragment exposes is surfaced on both APIs with a Bruno request (the `build`
+  skill's API surface convention).
 - AWS IaC is managed with Terraform; located in `./fragments/terraform/`. One directory per HCP Terraform workspace
   (`ff_dev/` uses local execution, `ff_prod/` uses remote execution). Shared modules live in
   `./fragments/terraform/modules/`. State backend is HCP Terraform; the `cloud {}` block omits `organization` so the

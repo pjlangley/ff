@@ -67,6 +67,25 @@ spec feature's task list (in which case use `spec-build`, which composes this sk
   in AWS (e.g. use a secrets manager in the cloud instead)
 - Prefer snake case for file and directory names.
 
+## API surface
+
+- **Every capability a fragment exposes is surfaced on both APIs.** The rule is about the capability, not where it
+  lives: whenever a fragment gains something a caller could reasonably want to do — a read, a write, a query, an action
+  against whatever the fragment integrates with — it gets a route on Fastify (`./fragments/apis/fastify/`, registered in
+  `app.ts`) **and** on FastAPI (`./fragments/apis/fastapi/`, `app.py`), with the same path, status codes and JSON shape
+  — bigints stringified, malformed input answered `400` by both rather than one framework's native `422` (see the
+  comment on `get_registration_by_index_route` in `./fragments/apis/fastapi/blockchain/solana_register.py`). Each new
+  route gets cases in the co-located route test file (e.g. `solana_register.test.ts` / `test_solana_register.py`) and a
+  Bruno request under `./fragments/apis/bruno/` that runs against both environments (`environments/fastify.bru`,
+  `environments/fastapi.bru`). Today that covers the `solana_*_interface` fragments and the datastore modules; a new
+  kind of fragment is covered by the same rule.
+- **What to expose vs not.** If it is reusable beyond the feature that introduced it — expose it. Feature-specific
+  orchestration and runtime wiring — a Lambda handler, a consumer loop, `readConfig` / `createAwsClients` in
+  `./fragments/solana_register_sync/poller.ts` — is a deployment surface, not a capability; don't expose it. When a
+  capability first appears _inside_ orchestration code (as the by-index read did in the poller), promote it into the
+  fragment it belongs to, mirror it in the other language, and expose it: `GET /solana/register/index/:index`
+  (`getRegistrationAccountByIndex` / `get_registration_account_by_index`) is the exemplar.
+
 ## Testing conventions
 
 Decided in [ADR 013](../../../fragments/adrs/013_blockchain_tests_against_local_validator.md); the short version:
@@ -90,4 +109,5 @@ Decided in [ADR 013](../../../fragments/adrs/013_blockchain_tests_against_local_
 ## See also
 
 - `spec-build` — drives spec-driven, per-task delivery and composes this skill for the commands and conventions above.
+- `spec-tasks` — plans the API surface above into each task at task-split time, so routes are not retrofitted later.
 - The spec-driven workflow: `spec-ideate` → `spec-tasks` → `spec-build`.

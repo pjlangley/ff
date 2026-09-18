@@ -19,14 +19,19 @@ Invoke when the user wants to break down / split / plan the tasks for an existin
    which one.
 2. **Decompose into vertical slices.** Each task must be **deliverable on its own**: committable, QA-able, and
    verifiable independently, mapping back to the acceptance criteria. Avoid tasks that only make sense together.
-3. **Order by dependency.** Sequence tasks so each can be completed and verified before the next. Number them `01_`,
+3. **Plan the API surface.** For every task that gives a fragment a new capability — anything a caller could reasonably
+   want to do through the APIs, whatever kind of fragment it lands in — decide whether it is reusable beyond this
+   feature per the `build` skill's API surface convention. If it is, the Fastify route, the FastAPI route, their route
+   tests and the Bruno request belong in **that task's** `Changes` and `Verification (QA)` — not in a later catch-up
+   task. If it is orchestration, say so in the task file so the decision is visible at build time.
+4. **Order by dependency.** Sequence tasks so each can be completed and verified before the next. Number them `01_`,
    `02_`, … (zero-padded two digits).
-4. **Write one file per task** at `specs/NNN_feature_slug/tasks/NN_task_slug.md` using the canonical structure below.
+5. **Write one file per task** at `specs/NNN_feature_slug/tasks/NN_task_slug.md` using the canonical structure below.
    `task_slug` is snake_case.
-5. **Maintain the checklist.** Create/update `specs/NNN_feature_slug/tasks/README.md` — an ordered checklist of the
+6. **Maintain the checklist.** Create/update `specs/NNN_feature_slug/tasks/README.md` — an ordered checklist of the
    tasks (`- [ ] 01 — {title}`) that `spec-build` ticks off as it goes.
-6. **Update the index.** Set the feature's row in `specs/README.md` to `Status: Planned`.
-7. **Format.** Run `deno fmt` on the new/changed files, then report and suggest running `spec-build`.
+7. **Update the index.** Set the feature's row in `specs/README.md` to `Status: Planned`.
+8. **Format.** Run `deno fmt` on the new/changed files, then report and suggest running `spec-build`.
 
 ## Canonical task file structure
 
@@ -46,11 +51,13 @@ Invoke when the user wants to break down / split / plan the tasks for an existin
 ## Changes
 
 - {files / modules / fragments to touch, at a high level}
+- {API surface: the Fastify + FastAPI routes and Bruno request exposing any new fragment capability — or "none —
+  <why>", e.g. the change is orchestration only}
 
 ## Verification (QA)
 
-- {which commands from the build skill to run — e.g. `node --run test`, `uv run mypy`, `cargo clippy`, the relevant
-  Bruno suite}
+- {which commands from the build skill to run — e.g. `node --run test`, `uv run mypy`, `cargo clippy`; whenever the API
+  surface bullet above is not "none", the co-located route tests and the relevant Bruno suite by name}
 - {which integrations the tests exercise for real and which are doubled, per the build skill's testing conventions: the
   chain is real against the local validator, AWS SDK clients are mocked}
 
@@ -68,6 +75,10 @@ Invoke when the user wants to break down / split / plan the tasks for an existin
 - Never plan a task around mocking the chain. The `build` skill's testing conventions (ADR 013) have blockchain RPC and
   the `solana_*_interface` fragments exercised against the local validator; only AWS SDK clients are doubled. A QA
   section that says otherwise is a material preflight finding in `spec-build`.
+- Surface new fragment capabilities on both APIs (the `build` skill's API surface convention). Spec 001's task 07 wrote
+  the by-index registration read privately inside the poller, and the interface function plus routes were retrofitted
+  afterwards; planning the exposure into the task avoids that round trip. A requirements file saying "no public API" is
+  about the feature's own surface — it does not exempt capabilities the feature adds to fragments.
 - When a bullet's rationale asserts current behaviour — this repo's or a third-party tool's — look it up rather than
   writing it from memory (`grilling`'s rule: facts are yours to find, decisions are the user's). `spec-build` preflights
   these premises before implementing, and a wrong one costs a round trip.
