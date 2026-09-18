@@ -30,7 +30,10 @@ EventBridge rule and queue, not by competing on this one.
 
 ## Verification (QA)
 
-- Node.js unit tests, `tsc`, `deno lint`, `deno fmt`.
+- Node.js unit tests, `tsc`, `deno lint`, `deno fmt` — see the `build` skill. Requires the local stack
+  (`docker compose --profile blockchain up`).
+- **Chain is real, AWS is mocked.** AWS clients (SQS, DynamoDB) are `aws-sdk-client-mock` doubles; the `Registration`
+  PDA is read from the local validator, as in task 07 — see the `build` skill's testing conventions (ADR 013).
 - Test cases: matching record and PDA → `audited`; a `registration_index` mismatch → throws, no status change; a PDA
   with `confirmed_at` unset → throws; a missing DynamoDB record → throws.
 - Locally against `ff_dev`: a real registration flows through to `audited`.

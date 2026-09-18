@@ -32,6 +32,9 @@ writing any code**, test the premises the task file asserts:
   likely to be noticed, because the code alone cannot falsify it.
 - **Preconditions.** Every task in `Depends on` is `Status: Done`, the named paths exist, and no earlier task has
   already delivered part of the scope.
+- **Test doubles.** The `Verification (QA)` section must agree with the `build` skill's testing conventions: the chain
+  is exercised against the local validator, only AWS SDK clients are mocked. A task that proposes mocking an RPC client
+  or a `solana_*_interface` fragment is a **material** finding — do not build it that way.
 
 Apply the `grilling` skill's dividing line: **facts** are yours to look up, **decisions** are the user's. The preflight
 tests falsifiable premises only.
@@ -53,7 +56,9 @@ Deliver **one task at a time** and let the user verify each independently:
 2. **Preflight it against the code** (see above). Stop here if it turns up a material flaw.
 3. Work directly on `main` — no feature branch (solo portfolio repo).
 4. Implement **only that task's scope**, following the `build` skill's commands and conventions.
-5. Run the task's QA (tests / lint / format / typecheck for the languages touched — see the `build` skill).
+5. Run the task's QA (tests / lint / format / typecheck for the languages touched — see the `build` skill). Tests that
+   need the local validator cannot run from the agent sandbox: run the static checks, then hand the test command to the
+   user and say so in the handback rather than reporting the tests as passing.
 6. Tick the task off in `tasks/README.md` and set its `Status: Done`. If the preflight changed the plan, amend the task
    file in the same change to record what was done instead and why.
 7. **Stop and hand back with the changes left unstaged**, listing any non-blocking preflight findings alongside the

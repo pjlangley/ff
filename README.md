@@ -105,6 +105,7 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [010: Two on-chain Solana register instances via feature flag](./fragments/adrs/010_two_onchain_register_instances.md)      | 2026-07-23 | Accepted |
 | [011: DynamoDB as the central datastore](./fragments/adrs/011_dynamodb_central_datastore.md)                                | 2026-08-13 | Accepted |
 | [012: EventBridge-centred event architecture](./fragments/adrs/012_eventbridge_event_architecture.md)                       | 2026-08-25 | Accepted |
+| [013: Blockchain & AWS SDK client testing approach](./fragments/adrs/013_blockchain_tests_against_local_validator.md)       | 2026-09-18 | Accepted |
 
 ## Spec-driven workflow
 
@@ -158,6 +159,9 @@ docker compose --profile blockchain up
 > After `docker compose --profile blockchain up` has run, the Solana program keys are automatically extracted to
 > `./solana_program_keys/solana_program_keys.env`. In addition, the Solana deployer keypair is automatically extracted
 > to `./solana_program_keys/solana_deployer.json`. They are dynamically referenced in unit tests.
+>
+> The Node.js and Python blockchain tests run against this validator rather than mocking it — see
+> [ADR 013](./fragments/adrs/013_blockchain_tests_against_local_validator.md).
 
 If not working on blockchain fragments, you can omit the `blockchain` profile to save on CPU consumption:
 

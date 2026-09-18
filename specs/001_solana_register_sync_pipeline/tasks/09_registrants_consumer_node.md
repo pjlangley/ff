@@ -38,7 +38,11 @@ Kustomize `configMapGenerator` keys in task 14.
 
 ## Verification (QA)
 
-- Node.js unit tests, `tsc`, `deno lint`, `deno fmt`. AWS clients and the register interface are mocked.
+- Node.js unit tests, `tsc`, `deno lint`, `deno fmt` — see the `build` skill. Requires the local stack
+  (`docker compose --profile blockchain up`).
+- **Chain is real, AWS is mocked.** AWS clients (SQS, DynamoDB, EventBridge, Secrets Manager) are `aws-sdk-client-mock`
+  doubles; `confirmRegistration` and `getRegistrationAccount` run against the local validator, as in task 07 — see the
+  `build` skill's testing conventions (ADR 013).
 - Test cases: happy path; `RegistrationAlreadyConfirmed` treated as success; a failed on-chain send leaves the message
   undeleted; re-processing the same message produces no duplicate row.
 - Run locally with the scoped IAM user's credentials: register a test account, wait for the poller, and observe the

@@ -19,9 +19,10 @@
   skill (`.claude/skills/new-adr/`), which assigns the next zero-padded, never-reused `NNN` and updates the README
   index.
 - Bruno CLI is used for integration testing against each API; located in `./fragments/apis/bruno/`.
-- Unit tests and integration tests run against the infrastructure and deployed Solana programs (see the `spec-build`
-  skill for commands).
-- Integration tests (with Bruno) require the relevant API to be running (see the `spec-build` skill for commands).
+- Unit tests and integration tests run against the local infrastructure and deployed Solana programs (see the `build`
+  skill for commands). Blockchain RPC integrations are never mocked — they run against the local validator; AWS SDK
+  clients are mocked (ADR 013, and the `build` skill's testing conventions).
+- Integration tests (with Bruno) require the relevant API to be running (see the `build` skill for commands).
 - I'm a software craftsman by trade and my software experience and skills are mostly in TypeScript and Node.js, so
   that's how I tend to frame my understanding and comparisions with Python and any other programming language.
 - I want to reposition myself as a platform engineer who designs, creates and maintains cloud-based infrastructure in

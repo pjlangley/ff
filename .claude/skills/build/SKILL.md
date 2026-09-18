@@ -67,6 +67,26 @@ spec feature's task list (in which case use `spec-build`, which composes this sk
   in AWS (e.g. use a secrets manager in the cloud instead)
 - Prefer snake case for file and directory names.
 
+## Testing conventions
+
+Decided in [ADR 013](../../../fragments/adrs/013_blockchain_tests_against_local_validator.md); the short version:
+
+- **The chain is real.** Blockchain fragment tests (`*.test.ts`, `test_*.py`) are integration tests against the local
+  validator — assume it is running (`docker compose --profile blockchain up`). Never mock `initRpcClient` /
+  `init_rpc_client`, the `@solana/kit` or `solana-py` RPC clients, or the `solana_*_interface` fragments. A module that
+  integrates with the chain is tested through the chain, against accounts the deployed program actually wrote.
+- **AWS is mocked, at the SDK client boundary.** Inject the clients (see `PollerClients` in
+  `./fragments/solana_register_sync/poller.ts`) and double them with `aws-sdk-client-mock` (Node.js) or the `boto3`
+  equivalent (Python), so tests assert the commands, condition expressions and envelopes the module actually sends. Do
+  not mock one level higher (a wrapper or interface) — that hides exactly the parts worth asserting.
+- **Be frugal with the shared validator.** The runner executes files in parallel against one validator with slowed slots
+  (`--ticks-per-slot 256`). Confine chain writes to `before` / `setUpClass` and keep them few; when bootstrapping a
+  singleton PDA tolerate an `already in use` error; use a generous confirmation window whose result is asserted, not
+  ignored. `./fragments/solana_register_sync/poller.test.ts` is the exemplar.
+- **In the agent sandbox the validator is unreachable** (loopback `listen()` denied, Docker socket blocked). Run
+  typecheck / lint / format yourself, then hand `node --run test` / `uv run python -m unittest -v` to the user and say
+  so explicitly in the handback. Never report those tests as passing, and never work around it by mocking the chain.
+
 ## See also
 
 - `spec-build` — drives spec-driven, per-task delivery and composes this skill for the commands and conventions above.

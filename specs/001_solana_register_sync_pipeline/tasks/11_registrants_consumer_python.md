@@ -26,8 +26,11 @@ consumer so a single Kustomize ConfigMap serves both.
 
 ## Verification (QA)
 
-- Python unit tests, `mypy`, `pylint`, `ruff format` — see the `build` skill. `boto3` and the register interface are
-  mocked.
+- Python unit tests, `mypy`, `pylint`, `ruff format` — see the `build` skill. Requires the local stack
+  (`docker compose --profile blockchain up`).
+- **Chain is real, AWS is mocked.** `boto3` clients (SQS, DynamoDB, EventBridge, Secrets Manager) are doubled;
+  `confirm_registration` and `get_registration_account` run against the local validator, as in task 07 — see the `build`
+  skill's testing conventions (ADR 013).
 - The same test cases as task 09: happy path, already-confirmed, failed send leaves the message, idempotent re-process.
 - Run locally against `ff_dev` and observe a registration reach `confirmed`.
 - With both the Node.js and Python consumers running, send several registrations and confirm SQS load-balances them and

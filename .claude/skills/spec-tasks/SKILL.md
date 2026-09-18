@@ -51,6 +51,8 @@ Invoke when the user wants to break down / split / plan the tasks for an existin
 
 - {which commands from the build skill to run — e.g. `node --run test`, `uv run mypy`, `cargo clippy`, the relevant
   Bruno suite}
+- {which integrations the tests exercise for real and which are doubled, per the build skill's testing conventions: the
+  chain is real against the local validator, AWS SDK clients are mocked}
 
 ## Definition of done
 
@@ -63,6 +65,9 @@ Invoke when the user wants to break down / split / plan the tasks for an existin
 - Reference QA commands by name and defer to the `build` skill for their canonical form — don't duplicate the command
   list here.
 - Keep tasks small enough to review as a self-contained diff.
+- Never plan a task around mocking the chain. The `build` skill's testing conventions (ADR 013) have blockchain RPC and
+  the `solana_*_interface` fragments exercised against the local validator; only AWS SDK clients are doubled. A QA
+  section that says otherwise is a material preflight finding in `spec-build`.
 - When a bullet's rationale asserts current behaviour — this repo's or a third-party tool's — look it up rather than
   writing it from memory (`grilling`'s rule: facts are yours to find, decisions are the user's). `spec-build` preflights
   these premises before implementing, and a wrong one costs a round trip.

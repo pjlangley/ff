@@ -21,7 +21,10 @@ environment-variable names as the Node.js auditor.
 
 ## Verification (QA)
 
-- Python unit tests, `mypy`, `pylint`, `ruff format`.
+- Python unit tests, `mypy`, `pylint`, `ruff format` — see the `build` skill. Requires the local stack
+  (`docker compose --profile blockchain up`).
+- **Chain is real, AWS is mocked.** `boto3` clients (SQS, DynamoDB) are doubled; the `Registration` PDA is read from the
+  local validator, as in task 07 — see the `build` skill's testing conventions (ADR 013).
 - The same test cases as task 10: match → `audited`; index mismatch → raises; unset `confirmed_at` → raises; missing
   record → raises.
 - Locally against `ff_dev`: a real registration reaches `audited`, and a forced mismatch reaches the DLQ without being
