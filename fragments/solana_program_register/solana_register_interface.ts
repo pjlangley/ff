@@ -165,7 +165,21 @@ const registryStateDecoder: Decoder<{
   skipAnchorDiscriminator,
 );
 
-const registrationDecoder: Decoder<{
+// Byte layout of a `Registration` account, mirroring the Rust struct in `programs/register/src/lib.rs`:
+//
+//   0..8    anchor account discriminator
+//   8..40   registrant           Pubkey
+//   40..48  registration_index   u64 (little-endian)
+//   48..56  registered_at        u64 (little-endian)
+//   56..65  confirmed_at         Option<u64> (1 discriminant byte + 8 payload, per Anchor's InitSpace)
+//
+// Both constants live here, beside the decoder, so a caller filtering on the raw bytes server-side
+// (the poller's `getProgramAccounts` + `memcmp` lookup by index) cannot drift from the layout the
+// decoder assumes.
+export const REGISTRATION_INDEX_OFFSET = 40;
+export const REGISTRATION_ACCOUNT_SIZE = 65;
+
+export const registrationDecoder: Decoder<{
   registrant: Address;
   registration_index: bigint;
   registered_at: bigint;
@@ -179,3 +193,5 @@ const registrationDecoder: Decoder<{
   ]),
   skipAnchorDiscriminator,
 );
+
+export type RegistrationAccount = ReturnType<typeof registrationDecoder["decode"]>;

@@ -17,7 +17,7 @@ a time and ticks them off here.
 
 ## Ingestion (chain → queue)
 
-- [ ] 07 — [Lambda poller (Node.js)](./07_lambda_poller_node.md)
+- [x] 07 — [Lambda poller (Node.js)](./07_lambda_poller_node.md)
 - [ ] 08 — [Lambda + EventBridge Scheduler (chain to queue, end to end)](./08_terraform_lambda_and_scheduler.md)
 
 ## Consumers
