@@ -91,21 +91,21 @@ graph TD
 Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-style markdown files in
 [`fragments/adrs/`](./fragments/adrs/). New records are created via the [`/new-adr`](./.claude/skills/new-adr/) skill.
 
-| ADR                                                                                                                         | Date       | Status   |
-| --------------------------------------------------------------------------------------------------------------------------- | ---------- | -------- |
-| [001: Use HCP Terraform as the state backend](./fragments/adrs/001_hcp_terraform_state_backend.md)                          | 2026-04-23 | Accepted |
-| [002: Terraform directory and workspace layout](./fragments/adrs/002_terraform_directory_and_workspace_layout.md)           | 2026-04-28 | Accepted |
-| [003: Use `aws login` for AWS auth in the ff_dev workspace](./fragments/adrs/003_aws_login_auth_for_ff_dev_workspace.md)    | 2026-04-29 | Accepted |
-| [004: Use OIDC + HCP runner for AWS auth in the ff_prod workspace](./fragments/adrs/004_oidc_auth_for_ff_prod_workspace.md) | 2026-05-09 | Accepted |
-| [005: Use Helius as the Solana RPC provider for devnet](./fragments/adrs/005_helius_rpc_provider_for_devnet.md)             | 2026-06-24 | Accepted |
-| [006: Deploy Solana programs to devnet (not testnet)](./fragments/adrs/006_deploy_solana_programs_to_devnet.md)             | 2026-06-24 | Accepted |
-| [007: Use upgradeable (upgrade-in-place) Solana programs](./fragments/adrs/007_upgradeable_solana_programs.md)              | 2026-06-24 | Accepted |
-| [008: Store devnet deployer keypair as a GH Actions secret](./fragments/adrs/008_devnet_deployer_keypair_storage.md)        | 2026-06-24 | Accepted |
-| [009: Manually bootstrap initial devnet deploy and init](./fragments/adrs/009_manual_bootstrap_initial_devnet_deploy.md)    | 2026-06-24 | Accepted |
-| [010: Two on-chain Solana register instances via feature flag](./fragments/adrs/010_two_onchain_register_instances.md)      | 2026-07-23 | Accepted |
-| [011: DynamoDB as the central datastore](./fragments/adrs/011_dynamodb_central_datastore.md)                                | 2026-08-13 | Accepted |
-| [012: EventBridge-centred event architecture](./fragments/adrs/012_eventbridge_event_architecture.md)                       | 2026-08-25 | Accepted |
-| [013: Blockchain & AWS SDK client testing approach](./fragments/adrs/013_blockchain_tests_against_local_validator.md)       | 2026-09-18 | Accepted |
+| ADR                                                                                                                         | Date Accepted |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| [001: Use HCP Terraform as the state backend](./fragments/adrs/001_hcp_terraform_state_backend.md)                          | 2026-04-23    |
+| [002: Terraform directory and workspace layout](./fragments/adrs/002_terraform_directory_and_workspace_layout.md)           | 2026-04-28    |
+| [003: Use `aws login` for AWS auth in the ff_dev workspace](./fragments/adrs/003_aws_login_auth_for_ff_dev_workspace.md)    | 2026-04-29    |
+| [004: Use OIDC + HCP runner for AWS auth in the ff_prod workspace](./fragments/adrs/004_oidc_auth_for_ff_prod_workspace.md) | 2026-05-09    |
+| [005: Use Helius as the Solana RPC provider for devnet](./fragments/adrs/005_helius_rpc_provider_for_devnet.md)             | 2026-06-24    |
+| [006: Deploy Solana programs to devnet (not testnet)](./fragments/adrs/006_deploy_solana_programs_to_devnet.md)             | 2026-06-24    |
+| [007: Use upgradeable (upgrade-in-place) Solana programs](./fragments/adrs/007_upgradeable_solana_programs.md)              | 2026-06-24    |
+| [008: Store devnet deployer keypair as a GH Actions secret](./fragments/adrs/008_devnet_deployer_keypair_storage.md)        | 2026-06-24    |
+| [009: Manually bootstrap initial devnet deploy and init](./fragments/adrs/009_manual_bootstrap_initial_devnet_deploy.md)    | 2026-06-24    |
+| [010: Two on-chain Solana register instances via feature flag](./fragments/adrs/010_two_onchain_register_instances.md)      | 2026-07-23    |
+| [011: DynamoDB as the central datastore](./fragments/adrs/011_dynamodb_central_datastore.md)                                | 2026-08-13    |
+| [012: EventBridge-centred event architecture](./fragments/adrs/012_eventbridge_event_architecture.md)                       | 2026-08-25    |
+| [013: Blockchain & AWS SDK client testing approach](./fragments/adrs/013_blockchain_tests_against_local_validator.md)       | 2026-09-18    |
 
 ## Spec-driven workflow
 

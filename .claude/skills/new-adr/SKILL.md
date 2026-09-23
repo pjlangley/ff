@@ -18,13 +18,15 @@ option, and a brief context — then proceed.
 1. **Compute the next number.** List `fragments/adrs/`, find the highest existing `NNN_*.md`, add one, zero-pad to three
    digits. Numbers are never reused — even if a previous ADR was rejected or deleted, do not fill its slot.
 2. **Derive the filename.** `NNN_title_with_underscores.md` — snake_case, ASCII only, drop punctuation.
-3. **Default the metadata.** `Status: Accepted` and `Date:` = today's actual date (`YYYY-MM-DD`) unless the user says
-   otherwise. Other valid statuses: `Proposed`, `Rejected`, `Deprecated`, `Superseded by [NNN](NNN_title.md)`.
+3. **Default the metadata.** `Status: Accepted` and `Date:` = today's actual date (`YYYY-MM-DD`) — the date the record
+   is accepted — unless the user says otherwise. Other valid statuses: `Proposed`, `Rejected`, `Deprecated`,
+   `Superseded by [NNN](NNN_title.md)`.
 4. **Write the file** at `fragments/adrs/NNN_title_with_underscores.md` using the canonical structure below. Include
    `### Consequences` and `## More Information` unless the user explicitly asks to omit them — both are optional but
    usually present.
-5. **Update the README index.** Append a new row to the `| ADR | Date | Status |` table under `## Decision records` in
-   the **repo-root** `README.md` (i.e. `./README.md`), linking to the new file.
+5. **Update the README index.** Append a new row to the `| ADR | Date Accepted |` table under `## Decision records` in
+   the **repo-root** `README.md` (i.e. `./README.md`), linking to the new file. The index carries only the link and the
+   accepted date — it has no status column, so a record's status (including supersession) lives in the record itself.
 6. **Format.** Run `deno fmt fragments/adrs/<new-file>.md ./README.md`.
 7. **Report back** with the new file path and a one-line note that the README index was updated.
 
