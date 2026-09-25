@@ -86,6 +86,33 @@ resource "aws_secretsmanager_secret" "solana_register_rpc_url" {
   description = "Helius devnet RPC URL, API key included"
 }
 
+# --- poller
+#
+# The bundle path is relative to the root module so both workspaces read the one artifact that
+# `node --run solana_register_sync:build` writes. It sits under `fragments/terraform/` deliberately:
+# `ff_prod` plans remotely on HCP, which uploads this directory (see `terraform_deploy.yml`), and the
+# runner has no Node.js toolchain to build with. The file is gitignored, so a `plan` needs the build
+# run first.
+
+module "solana_register_poller" {
+  source = "../modules/solana_register_poller"
+
+  name        = "solana_register_poller"
+  name_prefix = local.name_prefix
+
+  bundle_path = "${path.root}/../lambda_dist/solana_register_poller/index.js"
+
+  program_id         = var.solana_register_program_id
+  table_name         = module.solana_register_registrations_table.table_name
+  table_arn          = module.solana_register_registrations_table.table_arn
+  event_bus_name     = aws_cloudwatch_event_bus.solana_register.name
+  event_bus_arn      = aws_cloudwatch_event_bus.solana_register.arn
+  event_source       = local.solana_register_event_source
+  rpc_url_secret_arn = aws_secretsmanager_secret.solana_register_rpc_url.arn
+
+  schedule_expression = var.solana_register_poller_schedule_expression
+}
+
 # --- outputs
 
 output "solana_register_registrants_queue_arn" {
@@ -171,4 +198,24 @@ output "solana_register_rpc_url_secret_name" {
 output "solana_register_rpc_url_secret_arn" {
   description = "ARN of the Helius RPC URL secret"
   value       = aws_secretsmanager_secret.solana_register_rpc_url.arn
+}
+
+output "solana_register_poller_function_name" {
+  description = "Name of the poller Lambda"
+  value       = module.solana_register_poller.function_name
+}
+
+output "solana_register_poller_function_arn" {
+  description = "ARN of the poller Lambda"
+  value       = module.solana_register_poller.function_arn
+}
+
+output "solana_register_poller_log_group_name" {
+  description = "CloudWatch log group the poller writes its per-invocation summary to"
+  value       = module.solana_register_poller.log_group_name
+}
+
+output "solana_register_poller_schedule_name" {
+  description = "Name of the EventBridge Scheduler schedule that invokes the poller"
+  value       = module.solana_register_poller.schedule_name
 }

@@ -28,6 +28,9 @@ __pycache__/
 *.tfstate.*
 *.tfvars
 *.tfvars.json
+# lambda bundle and the zip archive_file makes of it
+/fragments/terraform/lambda_dist
+.terraform_lambda/
 
 # misc
 .DS_Store

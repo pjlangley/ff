@@ -1,3 +1,5 @@
 .terraform/
 !.terraform/modules/
 ff_dev/
+# archive_file writes the Lambda zip here during plan; the bundle it zips is uploaded, this is not
+ff_prod/.terraform_lambda/

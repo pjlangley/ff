@@ -46,9 +46,55 @@
       "Resource": "arn:aws:secretsmanager:eu-west-2:<account_id>:secret:ff_prod_*"
     },
     {
-      "Sid": "SqsListAndIdentity",
+      "Sid": "LambdaReadScoped",
       "Effect": "Allow",
       "Action": [
+        "lambda:GetFunction",
+        "lambda:GetFunctionCodeSigningConfig",
+        "lambda:GetFunctionConfiguration",
+        "lambda:GetPolicy",
+        "lambda:ListTags",
+        "lambda:ListVersionsByFunction"
+      ],
+      "Resource": "arn:aws:lambda:eu-west-2:<account_id>:function:ff_prod_*"
+    },
+    {
+      "Sid": "IamRoleReadScoped",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies",
+        "iam:ListRoleTags"
+      ],
+      "Resource": "arn:aws:iam::<account_id>:role/ff_prod_*"
+    },
+    {
+      "Sid": "SchedulerReadScoped",
+      "Effect": "Allow",
+      "Action": [
+        "scheduler:GetSchedule",
+        "scheduler:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:scheduler:eu-west-2:<account_id>:schedule/default/ff_prod_*"
+    },
+    {
+      "Sid": "CloudWatchLogsReadScoped",
+      "Effect": "Allow",
+      "Action": [
+        "logs:ListTagsForResource"
+      ],
+      "Resource": [
+        "arn:aws:logs:eu-west-2:<account_id>:log-group:/aws/lambda/ff_prod_*",
+        "arn:aws:logs:eu-west-2:<account_id>:log-group:/aws/lambda/ff_prod_*:*"
+      ]
+    },
+    {
+      "Sid": "ListAndDescribeWithoutResourceScope",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
         "sqs:ListQueues",
         "sts:GetCallerIdentity"
       ],

@@ -694,6 +694,34 @@ one-shot script.
 1. You can also view this on the
    [Solana explorer](https://explorer.solana.com/address/DfVEJ1fSe5M9MnVJKiTDvYBbLwSCuMTTT1LjJW4Gh6YY/anchor-account?cluster=devnet)
 
+**Registering a test account:**
+
+Once the registry is initialised,
+[`register_user_devnet.ts`](./fragments/blockchain/solana/scripts/register_user_devnet.ts) registers one account against
+whichever instance `REGISTER_PROGRAM_ID` names - the way to produce a registration for the sync pipeline to ingest. It
+reads the same `devnet.env`, so no extra setup:
+
+```
+npx tsx --env-file ./scripts/devnet.env ./scripts/register_user_devnet.ts
+```
+
+The registrant keypair is **ephemeral** - generated per run, used once, never persisted. Because `register` sets
+`payer = registrant`, a new account cannot pay for its own `Registration` PDA, so the deployer transfers it 0.01 SOL
+first; that makes two transactions per run and requires the deployer to be funded. Sample output:
+
+```
+Program: DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+Funder (deployer): 2RyBqXmMNG9mAjRBMS5oyHkqMRyjHP2x9rKF43YXCgKi
+Registrations so far: 1
+Registrant (ephemeral): HTRHq3ppmZXpDizDKfe2ig6sGPbffQ3gGYWQDeGqxfd8
+✅ funded with 10000000 lamports: 3to57N6tZpDagmmM1YXW51A59dbWZE5bNuBWUWi98ExDcVfdgZNcZYmyYBcP4LEgMopRCL9Lp4i79MrZ5RnovkMj
+✅ register sent: 369fi8gxDYbewyNmBxJ6LKZbB2ygJvDW8uNtCi5x2HVDtmUfQjADabpThytMgtQbiqwcxDRZA3iibHcUWJP6Pami
+Assigned registration index: 1
+Registered at slot: 503877657
+Transaction: https://solscan.io/tx/369fi8gxDYbewyNmBxJ6LKZbB2ygJvDW8uNtCi5x2HVDtmUfQjADabpThytMgtQbiqwcxDRZA3iibHcUWJP6Pami?cluster=devnet
+Registrant: https://solscan.io/account/HTRHq3ppmZXpDizDKfe2ig6sGPbffQ3gGYWQDeGqxfd8?cluster=devnet
+```
+
 #### Devnet (prod instance)
 
 The prod `register` instance is a second, fully independent deployment on devnet under its own program id and its own

@@ -100,9 +100,84 @@
       "Resource": "arn:aws:sqs:eu-west-2:<account_id>:ff_dev_*"
     },
     {
-      "Sid": "SqsListAndIdentity",
+      "Sid": "LambdaFunctionLifecycleScoped",
       "Effect": "Allow",
       "Action": [
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:GetFunction",
+        "lambda:GetFunctionCodeSigningConfig",
+        "lambda:GetFunctionConfiguration",
+        "lambda:GetPolicy",
+        "lambda:InvokeFunction",
+        "lambda:ListTags",
+        "lambda:ListVersionsByFunction",
+        "lambda:TagResource",
+        "lambda:UntagResource",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": "arn:aws:lambda:eu-west-2:<account_id>:function:ff_dev_*"
+    },
+    {
+      "Sid": "IamRoleLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:DeleteRolePolicy",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListInstanceProfilesForRole",
+        "iam:ListRolePolicies",
+        "iam:ListRoleTags",
+        "iam:PassRole",
+        "iam:PutRolePolicy",
+        "iam:TagRole",
+        "iam:UntagRole"
+      ],
+      "Resource": "arn:aws:iam::<account_id>:role/ff_dev_*"
+    },
+    {
+      "Sid": "SchedulerLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "scheduler:CreateSchedule",
+        "scheduler:DeleteSchedule",
+        "scheduler:GetSchedule",
+        "scheduler:ListTagsForResource",
+        "scheduler:TagResource",
+        "scheduler:UntagResource",
+        "scheduler:UpdateSchedule"
+      ],
+      "Resource": "arn:aws:scheduler:eu-west-2:<account_id>:schedule/default/ff_dev_*"
+    },
+    {
+      "Sid": "CloudWatchLogsLifecycleScoped",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:DeleteRetentionPolicy",
+        "logs:DescribeLogStreams",
+        "logs:FilterLogEvents",
+        "logs:GetLogEvents",
+        "logs:ListTagsForResource",
+        "logs:PutRetentionPolicy",
+        "logs:TagResource",
+        "logs:UntagResource"
+      ],
+      "Resource": [
+        "arn:aws:logs:eu-west-2:<account_id>:log-group:/aws/lambda/ff_dev_*",
+        "arn:aws:logs:eu-west-2:<account_id>:log-group:/aws/lambda/ff_dev_*:*"
+      ]
+    },
+    {
+      "Sid": "ListAndDescribeWithoutResourceScope",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
         "sqs:ListQueues",
         "sts:GetCallerIdentity"
       ],

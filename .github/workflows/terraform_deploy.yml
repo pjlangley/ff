@@ -12,11 +12,25 @@ jobs:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v4
         id: filter
+        # Deliberately coarse. This filter is a cost optimisation, not a safety gate: the gate is the
+        # `apply` job's `run_status == 'planned'`, which HCP only reports when the plan found changes (an
+        # empty plan finishes as `planned_and_finished`), plus the `ff_prod` approval environment. So
+        # over-triggering costs a no-op HCP run and nothing else, while under-triggering would silently
+        # leave prod on stale code.
+        #
+        # `fragments/**` rather than an enumeration of the Lambda bundle's inputs, because that set is not
+        # knowable from the import graph: `solana_program_utils` imports the four program IDLs, and whether
+        # they reach the artifact depends on which of them survive esbuild's tree-shaking - which changes
+        # as the poller changes. `package.json` counts too; it holds the build script's flags.
         with:
+          predicate-quantifier: "some-with-excludes"
           filters: |
             terraform:
-              - 'fragments/terraform/ff_prod/**'
-              - 'fragments/terraform/modules/**'
+              - 'fragments/**'
+              # ff_dev is applied from a laptop and is excluded from the HCP upload anyway
+              - '!fragments/terraform/ff_dev/**'
+              - 'package.json'
+              - 'package-lock.json'
               - '.terraform-version'
               - '.github/workflows/terraform_deploy.yml'
 
@@ -34,6 +48,18 @@ jobs:
       TF_WORKSPACE: ff_prod
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: install npm dependencies
+        run: npm ci
+
+      # The HCP runner has no Node.js toolchain, so the bundle `archive_file` zips has to exist in the
+      # configuration before it is uploaded.
+      - name: build poller lambda bundle
+        run: node --run solana_register_sync:build
 
       - id: upload
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.2
