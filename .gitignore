@@ -32,5 +32,9 @@ __pycache__/
 /fragments/terraform/lambda_dist
 .terraform_lambda/
 
+# local env files for the register sync consumers
+/fragments/solana_register_sync/*.env
+!/fragments/solana_register_sync/*.example.env
+
 # misc
 .DS_Store

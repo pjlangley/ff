@@ -4,8 +4,14 @@
 
 ## Goal
 
-A local KIND cluster runs all four consumers against the **real** `ff_dev` AWS resources and the dev register instance
-on devnet, driven by a Kustomize base and a `kind` overlay. This is the primary daily-driver loop.
+A local KIND cluster runs ~~all four consumers~~ both consumers, two replicas each, against the **real** `ff_dev` AWS
+resources and the dev register instance on devnet, driven by a Kustomize base and a `kind` overlay. This is the primary
+daily-driver loop.
+
+> [!IMPORTANT]
+> **Revised 2026-09-28 (during task 09):** the consumers are Node.js only — two Deployments, not four, each at
+> `replicas: 2` so competing consumers are still exercised. See the requirements'
+> [Revisions](../requirements.md#revisions).
 
 ## Depends on
 
@@ -15,14 +21,20 @@ on devnet, driven by a Kustomize base and a `kind` overlay. This is the primary 
 
 All Kubernetes assets live under `fragments/k8s/`, mirroring `fragments/terraform/`.
 
-- `fragments/k8s/base/` — one Deployment per consumer (`registrants_consumer_node`, `registrants_consumer_python`,
-  `confirmed_consumer_node`, `confirmed_consumer_python`), each overriding the image's command, plus a
-  `kustomization.yaml`. Environment config arrives via `envFrom: configMapRef` so overlays never need a strategic-merge
-  patch to change a single variable. `terminationGracePeriodSeconds` long enough for an in-flight message. Set
-  `imagePullPolicy: IfNotPresent` so a locally side-loaded image (see below) is trusted rather than re-pulled.
-- `fragments/k8s/overlays/kind/` — `kustomization.yaml` with a `configMapGenerator` (queue URLs, table name, bus name,
-  program id, region, secret ARN) and a patch adding `envFrom: secretRef` for the AWS credentials. The generator's
-  content hash means a config change rolls the pods automatically.
+- `fragments/k8s/base/` — one Deployment per consumer (~~`registrants_consumer_node`, `registrants_consumer_python`,
+  `confirmed_consumer_node`, `confirmed_consumer_python`~~ `registrants-consumer`, `confirmed-consumer` — hyphens, since
+  Kubernetes object names must be lowercase RFC 1123 and reject underscores), each at **`replicas: 2`** and overriding
+  the image's command, plus a `kustomization.yaml`. Environment config arrives via `envFrom: configMapRef` so overlays
+  never need a strategic-merge patch to change a single variable. `terminationGracePeriodSeconds` long enough for an
+  in-flight message — `60`: task 09's worst case is ~25s (the 20s confirmation wait plus the AWS calls), which the 30s
+  default leaves too little margin for. Set `imagePullPolicy: IfNotPresent` so a locally side-loaded image (see below)
+  is trusted rather than re-pulled.
+- `fragments/k8s/overlays/kind/` — `kustomization.yaml` with a `configMapGenerator` (~~queue URLs, table name, bus name,
+  program id, region, secret ARN~~ the environment variables task 09 settled — `SOLANA_REGISTER_PROGRAM_ID`,
+  `REGISTRANTS_QUEUE_URL`, `REGISTRATIONS_TABLE_NAME`, `EVENT_BUS_NAME`, `EVENT_SOURCE`, `DEPLOYER_KEYPAIR_SECRET_ID`,
+  `HELIUS_RPC_URL_SECRET_ID`, `AWS_REGION`, and optionally `POLL_INTERVAL_SECONDS` (default 1800; lower it in the `kind`
+  overlay for a tighter local loop) — plus whatever task 10 adds) and a patch adding `envFrom: secretRef` for the AWS
+  credentials. The generator's content hash means a config change rolls the pods automatically.
 - The AWS credentials Secret holds the scoped `ff_dev` IAM user's access keys from task 06. It must **not** be committed
   — create it with `kubectl create secret generic`, or generate it from a gitignored env file. Add the path to
   `.gitignore`.
@@ -62,18 +74,21 @@ architecturally consistent. Document this loop in the README alongside the Docke
 ## Verification (QA)
 
 - `kubectl kustomize fragments/k8s/overlays/kind` renders valid manifests before anything is applied.
-- `kubectl apply -k fragments/k8s/overlays/kind`, then all four Deployments reach `Available`.
+- `kubectl apply -k fragments/k8s/overlays/kind`, then ~~all four Deployments~~ both Deployments reach `Available` with
+  two ready replicas each.
 - Register a test account against the dev program. End to end, with no manual step: the poller emits a
   `RegistrationDetected` event → registrants SQS → a KIND consumer writes the DynamoDB record → `confirm_registration`
   lands on-chain with `confirmed_at` set → `RegistrationConfirmed` → confirmed SQS → the auditor verifies against the
   on-chain PDA and marks the record `audited`.
 - Force a DynamoDB↔on-chain mismatch: the record is not audited, and the message reaches the confirmed DLQ.
-- `kubectl logs` shows both the Node.js and Python consumers picking up work — competing consumers on one queue.
+- ~~`kubectl logs` shows both the Node.js and Python consumers picking up work~~ `kubectl logs` shows both replicas of a
+  Deployment picking up work — competing consumers on one queue. Each registration is still confirmed once on-chain,
+  with one row and its signature recorded.
 
 ## Definition of done
 
-- The KIND loop runs all four consumers against real `ff_dev` resources, credentials supplied as a k8s Secret and the
-  deployer keypair sourced from Secrets Manager.
+- The KIND loop runs ~~all four consumers~~ both consumers, two replicas each, against real `ff_dev` resources,
+  credentials supplied as a k8s Secret and the deployer keypair sourced from Secrets Manager.
 - The full happy path reaches `audited`; the mismatch path reaches the DLQ un-audited.
 - No credentials are committed.
 - **Both** ADRs are accepted and the README index updated — the KIND-against-real-cloud-resources one, and the one

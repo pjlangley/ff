@@ -194,8 +194,8 @@ execute the code.
 - `fnm install`. This installs and uses the version specified in [`.node-version`](./.node-version)
 - Run `npm ci` at root of repo
 - Install [`dvm`](https://deno.land/x/dvm). Used for linting and formatting with deno
-- `dvm install 2.1.6` if you don't already have this version
-- `dvm use 2.1.6`
+- `dvm install 2.2.4` if you don't already have this version
+- `dvm use 2.2.4`
 
 ##### Run
 
@@ -1151,9 +1151,55 @@ After `tf apply`:
 1. In the IAM console, open the user `ff_dev_solana_register_local_runtime`
 1. _Security credentials_ → _Create access key_ → choose _Application running outside AWS_
 1. Securely store the access key ID and secret access key - the secret is shown **once**
-1. Supply them to the local cluster as a Kubernetes Secret. Never commit them
+1. Supply them to the local cluster as a Kubernetes Secret, and to a local AWS CLI profile for running the consumers as
+   plain processes (below). Never commit them
 
-> [!IMPORTANT] `terraform destroy` will fail with a `DeleteConflict` while the hand-made access key still exists,
-> because the user resource does not set `force_destroy`. Delete the access key in the console first, then destroy.
+> [!IMPORTANT]
+> `terraform destroy` will fail with a `DeleteConflict` while the hand-made access key still exists, because the user
+> resource does not set `force_destroy`. Delete the access key in the console first, then destroy.
 
-To rotate, create the new key before deleting the old one, update the Kubernetes Secret, then delete the old key.
+To rotate, create the new key before deleting the old one, update the Kubernetes Secret and the AWS CLI profile, then
+delete the old key.
+
+##### Run the registrants consumer locally
+
+Runs [`registrants_consumer.ts`](./fragments/solana_register_sync/registrants_consumer.ts) as a plain Node.js process
+against the real `ff_dev` resources, authenticated as the runtime user.
+
+1. Store the access key in an AWS CLI profile named after the user (once, and again on rotation):
+   ```
+   aws configure --profile ff_dev_solana_register_local_runtime
+   ```
+   Enter the access key ID, the secret access key and region `eu-west-2`.
+1. Confirm you are authenticated as the runtime user:
+   ```
+   aws sts get-caller-identity --profile ff_dev_solana_register_local_runtime
+   ```
+   The `Arn` ends in `user/ff_dev_solana_register_local_runtime`, and `Account` is the account ID for the next step.
+1. Copy the [example env file](./fragments/solana_register_sync/registrants_consumer.example.env) and replace
+   `<account_id>` in `REGISTRANTS_QUEUE_URL`:
+   ```
+   cp fragments/solana_register_sync/registrants_consumer.example.env fragments/solana_register_sync/registrants_consumer.env
+   ```
+   It sets `AWS_PROFILE`, so there is nothing to export in the shell.
+1. Run the consumer:
+   ```
+   node --run solana_register_sync:registrants_consumer
+   ```
+   It logs `started`, then one line per poll cycle: `confirmed` for a processed message (`signature` is `null` when the
+   registration was already confirmed on-chain), `failed` for one left on the queue to retry, or `empty`. `Ctrl+C` stops
+   it cleanly (`stopping`, then `stopped`), finishing any in-flight message first.
+1. Check the result. The record's `status` is `confirmed` with `confirmed_at` set, and the confirmed queue holds a
+   `RegistrationConfirmed` message for the auditor:
+   ```
+   aws dynamodb get-item --profile ff_dev_solana_register_local_runtime \
+     --table-name ff_dev_solana_register_registrations \
+     --key '{"pk":{"S":"REGISTRANT#<registrant_pubkey>"}}'
+   aws sqs get-queue-attributes --profile ff_dev_solana_register_local_runtime \
+     --queue-url https://sqs.eu-west-2.amazonaws.com/<account_id>/ff_dev_solana_register_registrants_confirmed \
+     --attribute-names ApproximateNumberOfMessages
+   ```
+
+> [!NOTE]
+> The message must come from the poller, which writes the `REGISTRANT#` record before publishing. A hand-published
+> `RegistrationDetected` has no record, so the consumer confirms on-chain and then fails the message into the DLQ.

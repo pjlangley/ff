@@ -16,11 +16,11 @@ the invariant that **exactly one consumer runtime is attached at a time**.
 - `fragments/k8s/scripts/dev_cloud.sh` with subcommands:
   - `up` — `aws ec2 start-instances`, wait for the instance to pass its status checks, refresh the kubeconfig server
     address with the new public IP (it changes on every start; there is no Elastic IP), and scale the cloud Deployments
-    to 1. Scaling the KIND Deployments to 0 first.
-  - `down` — scale the cloud Deployments to 0, `aws ec2 stop-instances`, then restore the KIND Deployments to 1. This is
-    the default posture.
+    to ~~1~~ the base replica count (`2`, task 14). Scaling the KIND Deployments to 0 first.
+  - `down` — scale the cloud Deployments to 0, `aws ec2 stop-instances`, then restore the KIND Deployments to ~~1~~ the
+    base replica count (`2`). This is the default posture.
   - `pause` / `resume` — the in-session toggle for when the EC2 is already running:
-    `kubectl scale deploy … --replicas=0` and back to `1` against a chosen context. No app code, no queue
+    `kubectl scale deploy … --replicas=0` and back to ~~`1`~~ `2` against a chosen context. No app code, no queue
     reconfiguration — SQS consumers are pull-based, so the consumer is the only thing to switch.
   - `status` — report the instance state and the replica counts in both contexts, so the invariant is inspectable.
 - `README.md` — document the toggle and the single-runtime invariant.

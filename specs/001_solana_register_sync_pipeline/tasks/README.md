@@ -22,10 +22,10 @@ a time and ticks them off here.
 
 ## Consumers
 
-- [ ] 09 — [Registrants consumer (Node.js)](./09_registrants_consumer_node.md)
+- [x] 09 — [Registrants consumer (Node.js)](./09_registrants_consumer_node.md)
 - [ ] 10 — [Confirmed consumer / auditor (Node.js)](./10_confirmed_consumer_node.md)
-- [ ] 11 — [Registrants consumer (Python)](./11_registrants_consumer_python.md)
-- [ ] 12 — [Confirmed consumer / auditor (Python)](./12_confirmed_consumer_python.md)
+- ~~11 — [Registrants consumer (Python)](./11_registrants_consumer_python.md)~~ — **dropped** (see below)
+- ~~12 — [Confirmed consumer / auditor (Python)](./12_confirmed_consumer_python.md)~~ — **dropped** (see below)
 
 ## Kubernetes
 
@@ -45,9 +45,12 @@ a time and ticks them off here.
   are public OSS artifacts with no confidentiality requirement, so ECR's IAM-gated pull offers learning value rather
   than product value.
 - **Architecture:** `arm64` end to end in the cloud — a Graviton `t4g.small` for k3s (task 15) and an `arm64` Lambda
-  (task 08). `ff_node` and `ff_python` are published as multi-arch manifest lists (`amd64` + `arm64`, task 13), which
-  also removes emulation from the local Apple Silicon Docker loop. The older `ff_solana` / `ff_anchor` /
+  (task 08). ~~`ff_node` and `ff_python` are~~ `ff_node` is published as a multi-arch manifest list (`amd64` + `arm64`,
+  task 13), which also removes emulation from the local Apple Silicon Docker loop. The older `ff_solana` / `ff_anchor` /
   `ff_solana_builder` images stay `amd64`-only; that constraint predates this feature and was not revisited.
+- **Consumers are Node.js only (revised during task 09, 2026-09-28).** Tasks 11 and 12 — the Python mirrors — are
+  dropped; each consumer instead runs `replicas: 2`, which exercises competing consumers with the same SQS semantics and
+  races. Tasks 13–16 narrow accordingly. Reasoning in the requirements' [Revisions](../requirements.md#revisions).
 - **ADRs:** written alongside the task that makes each decision, not batched retrospectively. Eight in total — the five
   named in the requirements, plus one for Docker Hub over ECR (task 13), one for k3s over EKS (task 15), and one **added
   during task 06's build** for how the in-cluster consumer runtime authenticates to AWS (task 14) — static scoped keys

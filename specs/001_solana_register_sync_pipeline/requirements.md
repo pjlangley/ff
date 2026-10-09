@@ -16,7 +16,8 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
 ## Users & goals
 
 - **Me (aspiring platform-engineer):** stand up and operate a Kubernetes-based event processor that bridges Solana ↔
-  AWS, mirrored in Node.js and Python, with a working local (KIND) loop and a cheap cloud (k3s) deployment.
+  AWS, ~~mirrored in Node.js and Python~~ in Node.js (see [Revisions](#revisions)), with a working local (KIND) loop and
+  a cheap cloud (k3s) deployment.
 - **Registrants (permissionless, on-chain):** register without centralised ID and receive a timely on-chain confirmation
   that the central entity has acknowledged them.
 - **The central entity:** holds an auditable off-chain record of every registration and its confirmation.
@@ -69,11 +70,12 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   `confirmed` → `audited`), source signatures, and timestamps.
 - The same table holds the poller's **last-processed `registration_count` watermark** per program.
 
-### D. Kubernetes processing services (mirrored Node.js + Python)
+### D. Kubernetes processing services (~~mirrored Node.js + Python~~ Node.js)
 
-- A **registrants consumer** reads the registrants SQS queue, upserts the record into DynamoDB, then signs
+- A **registrants consumer** reads the registrants SQS queue, ~~upserts the record into DynamoDB, then~~ signs
   `confirm_registration` on-chain with the deployer authority, reconciling `confirmed_at` from on-chain truth and
-  treating `RegistrationAlreadyConfirmed` as success (idempotent).
+  treating `RegistrationAlreadyConfirmed` as success (idempotent), then marks the poller's record `confirmed`. _No
+  upsert: the poller commits the record before publishing the event, so it exists for every message (task 09)._
 - On success it publishes a **structured confirmed event via EventBridge**, routed to the
   `{env}_solana_register_registrants_confirmed` SQS queue.
 - A **confirmed consumer** reads the confirmed queue and acts as an independent **auditor**: it loads the central
@@ -86,8 +88,11 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   further services would act on a confirmed registration. Because the confirmed path already flows through
   **EventBridge**, additional subscribers attach as their own EventBridge rules → their own queues (fan-out), not by
   competing on this queue. Modelling those downstream services is out of scope for this iteration.
-- Both consumer roles are implemented in **both Node.js and Python**, deployed as **competing consumers** (SQS
-  load-balances between them — the repo's round-robin/parity goal).
+- ~~Both consumer roles are implemented in **both Node.js and Python**, deployed as **competing consumers** (SQS
+  load-balances between them — the repo's round-robin/parity goal).~~ Both consumer roles are implemented in
+  **Node.js**, each deployed with **`replicas: 2`** as **competing consumers** on its queue — SQS load-balances between
+  the replicas, so concurrency, duplicate delivery and idempotency are exercised exactly as two languages would have
+  exercised them.
 - Services are **long-running, no public API** at this stage; reuse the existing Docker images / Dockerfiles for the
   container builds.
 
@@ -114,8 +119,8 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   - **Default posture:** keep the `ff_dev` EC2 **stopped** (`aws ec2 stop-instances`) — local KIND is the daily driver.
     Start it (`aws ec2 start-instances`) only to rehearse the cloud path, and pause local KIND during that window.
   - **In-session toggle:** if the EC2 is already up, **scale the consumer Deployments to zero** on the cluster to
-    silence (`kubectl scale deploy … --replicas=0`, back to `--replicas=1` to resume) — no app code, no queue
-    reconfiguration.
+    silence (`kubectl scale deploy … --replicas=0`, back to ~~`--replicas=1`~~ the base replica count, `2`, to resume) —
+    no app code, no queue reconfiguration.
 - `ff_prod` does not require local access.
 
 ### G. Terraform (both roots)
@@ -150,11 +155,12 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
 - EKS (using k3s-on-EC2 for cost); webhooks/websockets (polling only this iteration).
 - A public-facing API or UI, and a wallet-based registration UI.
 - A Python mirror of the Lambda poller (single scheduled trigger → Node.js only).
+- A Python mirror of the consumers (see [Revisions](#revisions)).
 - Running the poller locally / iterating on poller logic locally (poller always in AWS this iteration).
 - Backfill / cold-start ingestion and per-poll batching (the poller ingests at most one registration per poll).
 - Mainnet (devnet is the de-facto prod network for this portfolio).
-- Observability/tracing tooling (acknowledged as a later addition that will support the non-deterministic node/python
-  round-robin).
+- Observability/tracing tooling (acknowledged as a later addition that will support the non-deterministic ~~node/python
+  round-robin~~ distribution of messages across competing replicas).
 
 ## Acceptance criteria
 
@@ -168,8 +174,9 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   and eventually reaches the confirmed queue's DLQ.
 - Re-processing the same registration is idempotent (no duplicate DynamoDB rows; `RegistrationAlreadyConfirmed` handled
   as success).
-- Both Node.js and Python consumers can process messages from the same queues (competing consumers) with equivalent
-  results.
+- ~~Both Node.js and Python consumers can process messages from the same queues (competing consumers) with equivalent
+  results.~~ Two replicas of each consumer process messages from the same queue (competing consumers) with no
+  double-confirmation, no duplicate rows and no lost signature.
 - The local KIND loop runs consumers against real `ff_dev` AWS resources with credentials supplied as a k8s Secret and
   the deployer keypair sourced from Secrets Manager.
 - The same pipeline runs on the `ff_dev` k3s-on-EC2 cluster (rehearsing the cloud deploy before prod), and the
@@ -188,3 +195,20 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   registration per poll this iteration, so throughput is bounded by the poll interval).
 - The exact set of downstream services that would subscribe to confirmed registrations (via EventBridge fan-out) — out
   of scope now; `audited` is the terminal state of the one audit subscriber this iteration builds.
+
+## Revisions
+
+- **2026-09-28 — Python consumers dropped (during task 09).** The consumers were to be mirrored in Python and compete
+  with the Node.js ones for the repo's comparison goal. Dropped because:
+  - The repo's own API surface convention (`build` skill) classes a consumer loop as a deployment surface, not a
+    capability — the same reasoning that already kept the poller Node.js-only. The Python side of the chain capability
+    is mirrored where it belongs, in `solana_register_interface.py` and the FastAPI routes.
+  - Parity was the cost, not the learning: behavioural equivalence across the condition expressions, the `ALL_OLD`-based
+    missing-vs-audited distinction, the signature write rule and `RegistrationAlreadyConfirmed` detection (whose error
+    shape differs in `solana-py`), with no shared type to catch envelope drift. A divergence would have made outcomes
+    depend on which language received a message.
+  - The competing-consumers learning survives intact: `replicas: 2` produces the same SQS semantics and the same races,
+    which come from concurrency, not from language.
+
+  Tasks 11 and 12 are dropped; tasks 13–16 narrow to the Node.js image and two Deployments. Python remains a candidate
+  for a future feature with a smaller parity surface.

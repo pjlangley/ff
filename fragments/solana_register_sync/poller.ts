@@ -10,8 +10,10 @@ import {
   getRegistryStateAccount,
   type RegistrationAccount,
 } from "../solana_program_register/solana_register_interface";
+import { REGISTRATION_DETECTED_DETAIL_TYPE, type RegistrationDetectedDetail } from "./events";
+import { registrantKey, watermarkKey } from "./registrations_table";
 
-export const REGISTRATION_DETECTED_DETAIL_TYPE = "RegistrationDetected";
+export { REGISTRATION_DETECTED_DETAIL_TYPE };
 
 export interface PollerConfig {
   programId: string;
@@ -50,9 +52,6 @@ export interface PollResult {
   /** False when the registrant already had a record, i.e. the dedup fired. */
   recordCreated?: boolean;
 }
-
-const watermarkKey = (programId: string) => `WATERMARK#${programId}`;
-const registrantKey = (registrant: Address) => `REGISTRANT#${registrant}`;
 
 const readWatermark = async (config: PollerConfig, clients: PollerClients): Promise<bigint> => {
   const result = await clients.documentClient.send(
@@ -112,12 +111,14 @@ const publishRegistrationDetected = async (
         EventBusName: config.eventBusName,
         Source: config.eventSource,
         DetailType: REGISTRATION_DETECTED_DETAIL_TYPE,
-        Detail: JSON.stringify({
-          program_id: config.programId,
-          registrant: registration.registrant,
-          registration_index: Number(registration.registration_index),
-          registered_at: Number(registration.registered_at),
-        }),
+        Detail: JSON.stringify(
+          {
+            program_id: config.programId,
+            registrant: registration.registrant,
+            registration_index: Number(registration.registration_index),
+            registered_at: Number(registration.registered_at),
+          } satisfies RegistrationDetectedDetail,
+        ),
       }],
     }),
   );

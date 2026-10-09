@@ -1,6 +1,11 @@
 # 11 — Registrants consumer (Python)
 
-**Status:** Todo | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+**Status:** Dropped | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+
+> [!IMPORTANT]
+> **Dropped 2026-09-28, during task 09.** The consumers are Node.js only; competing consumers are exercised with
+> `replicas: 2` instead of a second language. See the requirements' [Revisions](../requirements.md#revisions) for why.
+> The plan below is kept as a record of what was dropped, not as work to do.
 
 ## Goal
 

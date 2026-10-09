@@ -28,6 +28,25 @@ Behaviour:
 This is the terminal state of the one audit subscriber in this iteration. Further subscribers would attach as their own
 EventBridge rule and queue, not by competing on this one.
 
+**Carried over from task 09 (added during its build):** give the auditor the same receive loop as
+`registrants_consumer.ts`'s `consume`, including its fixed cadence:
+
+- **One poll cycle every `POLL_INTERVAL_SECONDS`**: same name, same default (1800s, from
+  `DEFAULT_POLL_INTERVAL_SECONDS`) and same validation (unset or empty means the default, `0` means back-to-back polls,
+  anything but a non-negative integer fails startup). Each cycle handles at most one message, then sleeps whatever the
+  queue holds. Both consumers then read one ConfigMap key and can be tuned together for testing.
+- The rest of the loop shape: one message per receive (`MaxNumberOfMessages: 1`, 20s long poll), a failed receive that
+  just ends the cycle (no separate backoff), and an `AbortSignal` that cancels the long poll and the sleep but never an
+  in-flight message.
+- Read the payload through `RegistrationConfirmedDetail` from `events.ts`. Its `signature` is `null` when the
+  registrants consumer found the registration already confirmed; the audit ignores it either way.
+- Derive the record's key with `registrantKey` from `registrations_table.ts`, not a third private copy. Tests spell
+  `REGISTRANT#<pubkey>` out by hand, as `poller.test.ts` and `registrants_consumer.test.ts` do.
+
+Whether to extract the loop into a shared helper (e.g. `consume(config, signal, handleMessage)`) or keep a second copy
+is a build-time call. Two consumers is the point where the duplication starts to cost; a shared loop would also keep the
+interval and shutdown tests in one place.
+
 ## Verification (QA)
 
 - Node.js unit tests, `tsc`, `deno lint`, `deno fmt` — see the `build` skill. Requires the local stack

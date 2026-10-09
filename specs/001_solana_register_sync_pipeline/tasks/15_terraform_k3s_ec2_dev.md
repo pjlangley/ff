@@ -4,8 +4,8 @@
 
 ## Goal
 
-A single small EC2 instance running k3s hosts the same four consumers in `ff_dev`, rehearsing the cloud deployment path
-before `ff_prod` ever sees it. Its default state is **stopped**.
+A single small EC2 instance running k3s hosts the same ~~four consumers~~ two consumer Deployments (task 14) in
+`ff_dev`, rehearsing the cloud deployment path before `ff_prod` ever sees it. Its default state is **stopped**.
 
 ## Depends on
 
@@ -43,8 +43,9 @@ before `ff_prod` ever sees it. Its default state is **stopped**.
   `kubectl get nodes` reports `Ready` and `kubectl get node -o jsonpath='{..kubernetes\.io/arch}'` reports `arm64`.
 - **Pause the local KIND consumers first** (`kubectl scale deploy --replicas=0` against the KIND context) so the two
   runtimes don't compete for the `ff_dev` queues.
-- `kubectl apply -k fragments/k8s/overlays/ff_dev`, all four Deployments `Available` — confirming the pods pulled the
-  `arm64` variant of the manifest lists from task 13 with no `exec format error` and no `ImagePullBackOff`.
+- `kubectl apply -k fragments/k8s/overlays/ff_dev`, ~~all four Deployments~~ both Deployments `Available` — confirming
+  the pods pulled the `arm64` variant of the ~~manifest lists~~ `ff_node` manifest list from task 13 with no
+  `exec format error` and no `ImagePullBackOff`.
 - Register a test account and confirm the same end-to-end path as task 14 completes, this time on the cloud cluster,
   with the record reaching `audited`.
 - `aws ec2 stop-instances` returns the environment to its default posture.

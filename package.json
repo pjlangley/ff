@@ -31,6 +31,7 @@
     "api:bru:fastify:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastify.bru --env-var host=fastify)",
     "api:bru:fastapi": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastapi.bru)",
     "api:bru:fastapi:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastapi.bru --env-var host=fastapi)",
+    "solana_register_sync:registrants_consumer": "tsx --env-file-if-exists=./fragments/solana_register_sync/registrants_consumer.env ./fragments/solana_register_sync/registrants_consumer.ts",
     "solana_register_sync:build": "esbuild fragments/solana_register_sync/poller.ts --bundle --platform=node --target=node22 --format=cjs --outfile=fragments/terraform/lambda_dist/solana_register_poller/index.js"
   },
   "devDependencies": {
@@ -49,6 +50,7 @@
     "@aws-sdk/client-dynamodb": "^3.1134.0",
     "@aws-sdk/client-eventbridge": "^3.1134.0",
     "@aws-sdk/client-secrets-manager": "^3.1134.0",
+    "@aws-sdk/client-sqs": "^3.1134.0",
     "@aws-sdk/lib-dynamodb": "^3.1134.0",
     "@solana-program/system": "^0.7.0",
     "@solana/codecs-core": "^3.0.0",
