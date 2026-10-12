@@ -25,13 +25,8 @@ import {
   initialiseRegistry,
   register,
 } from "../solana_program_register/solana_register_interface";
-import {
-  createAwsClients,
-  type PollerClients,
-  type PollerConfig,
-  pollOnce,
-  REGISTRATION_DETECTED_DETAIL_TYPE,
-} from "./poller";
+import { REGISTRATION_DETECTED_DETAIL_TYPE } from "./events";
+import { createAwsClients, type PollerClients, type PollerConfig, pollOnce } from "./poller";
 
 // The two condition expressions the poller relies on for correctness. Pinned here so that changing
 // either one in `poller.ts` fails a test rather than silently weakening the dedup or the watermark race.

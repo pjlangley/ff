@@ -13,8 +13,6 @@ import {
 import { REGISTRATION_DETECTED_DETAIL_TYPE, type RegistrationDetectedDetail } from "./events";
 import { registrantKey, watermarkKey } from "./registrations_table";
 
-export { REGISTRATION_DETECTED_DETAIL_TYPE };
-
 export interface PollerConfig {
   programId: string;
   tableName: string;

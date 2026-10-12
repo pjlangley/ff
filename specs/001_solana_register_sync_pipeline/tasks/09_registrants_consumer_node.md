@@ -72,11 +72,12 @@ Settled during build:
 - **Messages for another program id, or of another `detail-type`, are rejected** (thrown → retried → DLQ) rather than
   confirmed against the configured instance.
 - **The detail-type constants moved to `fragments/solana_register_sync/events.ts`.** Importing them from `poller.ts`
-  would have run the poller's module-level AWS client construction inside the consumer; `poller.ts` re-exports its
-  constant, so its callers are unchanged. The two `detail` payload types live there too (`RegistrationDetectedDetail`,
-  `RegistrationConfirmedDetail`): each producer builds its payload with `satisfies`, and each consumer reads through the
-  same type, so a shape change on one side fails to compile on the other. They bind the TypeScript code and messages
-  already on a queue are still held to the envelope by the Terraform comment and the tests' envelope assertions.
+  would have run the poller's module-level AWS client construction inside the consumer. Every caller, `poller.test.ts`
+  included, imports them from `events.ts`; `poller.ts`. The two `detail` payload types live there too
+  (`RegistrationDetectedDetail`, `RegistrationConfirmedDetail`): each producer builds its payload with `satisfies`, and
+  each consumer reads through the same type, so a shape change on one side fails to compile on the other. They bind the
+  TypeScript code and messages already on a queue are still held to the envelope by the Terraform comment and the tests'
+  envelope assertions.
 - **The table's key formats moved to `fragments/solana_register_sync/registrations_table.ts`** (`registrantKey`,
   `watermarkKey`), for the same reason: the poller and this consumer each defined `REGISTRANT#<pubkey>` privately, and a
   divergence would strand every message on a missing record. The tests keep spelling the formats out by hand rather than
