@@ -30,11 +30,11 @@ import { REGISTRATION_CONFIRMED_DETAIL_TYPE, REGISTRATION_DETECTED_DETAIL_TYPE }
 import {
   consume,
   createAwsClients,
-  DEFAULT_POLL_INTERVAL_SECONDS,
   processMessage,
   type RegistrantsConsumerClients,
   type RegistrantsConsumerConfig,
 } from "./registrants_consumer";
+import { DEFAULT_POLL_INTERVAL_SECONDS } from "./shared";
 
 // The one write the consumer makes — with the signature SET only when the attempt has one — and the
 // condition it relies on for replay safety. Pinned here so that changing either in
@@ -396,50 +396,12 @@ describe("solana register sync registrants consumer", () => {
     assert.deepStrictEqual(deletedReceiptHandles(), []);
   });
 
-  test("sleeps after an empty poll rather than polling again, and shutdown cuts the sleep short", async () => {
-    const controller = new AbortController();
-    sqsMock.on(ReceiveMessageCommand).callsFake(() => {
-      // SIGTERM arrives once the cycle is over, well inside the 30-minute sleep.
-      setTimeout(() => controller.abort(), 100);
-      return {};
-    });
-
-    const started = Date.now();
-    await consume(config, clients, authority, controller.signal);
-
-    assert.strictEqual(sqsMock.commandCalls(ReceiveMessageCommand).length, 1);
-    assert.ok(Date.now() - started < 5_000, "shutdown should not wait out the interval");
-  });
-
-  test("handles one message per cycle, sleeping before the next even with a backlog waiting", async () => {
-    seedPollerRecord(confirmed);
-    const controller = new AbortController();
-    const first = messageFor(confirmed);
-    const second = { ...first, MessageId: "second", ReceiptHandle: "receipt-second" };
-    const queue = [first, second];
-
-    // `splice` takes the head of the queue as a 0- or 1-element array: exactly a receive's `Messages`.
-    sqsMock.on(ReceiveMessageCommand).callsFake(() => ({ Messages: queue.splice(0, 1) }));
-    // Shutdown lands shortly after the first message is deleted — inside the interval sleep if the
-    // consumer sleeps, but well after a second receive if it went straight back to the queue.
-    sqsMock.on(DeleteMessageCommand).callsFake(() => {
-      setTimeout(() => controller.abort(), 200);
-      return {};
-    });
-
-    await consume(config, clients, authority, controller.signal);
-
-    assert.strictEqual(sqsMock.commandCalls(ReceiveMessageCommand).length, 1);
-    assert.deepStrictEqual(deletedReceiptHandles(), [first.ReceiptHandle]);
-    // The second message is still on the queue for the next cycle.
-    assert.deepStrictEqual(queue, [second]);
-  });
-
-  test("on shutdown, finishes the in-flight message and then stops receiving", async () => {
+  // The loop's own contract — cadence, one message per cycle, shutdown — is pinned in `shared.test.ts`;
+  // this and the failed-send test above only check that `consume` wires `processMessage` into it.
+  test("consume processes a received message end to end", async () => {
     const message = messageFor(confirmed);
     seedPollerRecord(confirmed);
 
-    // The abort lands while the receive is in flight, exactly as SIGTERM would during a long poll.
     await consumeOne(message);
 
     assert.strictEqual(sqsMock.commandCalls(ReceiveMessageCommand).length, 1);

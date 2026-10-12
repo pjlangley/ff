@@ -880,7 +880,102 @@ The `ff_solana_devnet` environment requires two secrets:
   the program's upgrade authority.
 - `HELIUS_API_KEY` - the Helius API key only; the RPC URL is constructed in the workflow.
 
-### Terraform
+### Solana register sync pipeline
+
+The [`solana_register_sync`](./fragments/solana_register_sync/) consumers move each on-chain registration through the
+pipeline: the Lambda poller publishes `RegistrationDetected`, the registrants consumer confirms it on-chain and
+publishes `RegistrationConfirmed`, and the confirmed consumer audits the record against the chain.
+
+#### Local (Solana register sync)
+
+Each consumer runs as a plain Node.js process against the real `ff_dev` resources, authenticated as the runtime user
+`ff_dev_solana_register_local_runtime`.
+
+##### Setup
+
+> [!IMPORTANT]
+> Prerequisites: `ff_dev` is applied (see [Local (Terraform)](#local-terraform)), its secrets are set (see
+> [Secrets (manual)](#secrets-manual)), and the runtime user has an access key (see
+> [Local cluster access key (manual)](#local-cluster-access-key-manual)).
+
+1. Store the access key in an AWS CLI profile named after the user (once, and again on rotation):
+   ```
+   aws configure --profile ff_dev_solana_register_local_runtime
+   ```
+   Enter the access key ID, the secret access key and region `eu-west-2`. Each consumer's env file sets `AWS_PROFILE` to
+   this profile, so there is nothing to export in the shell.
+1. Confirm you are authenticated as the runtime user:
+   ```
+   aws sts get-caller-identity --profile ff_dev_solana_register_local_runtime
+   ```
+   The `Arn` ends in `user/ff_dev_solana_register_local_runtime`, and `Account` is the account ID the env files' queue
+   URLs need.
+
+##### Run the registrants consumer
+
+Runs [`registrants_consumer.ts`](./fragments/solana_register_sync/registrants_consumer.ts).
+
+1. Copy the [example env file](./fragments/solana_register_sync/registrants_consumer.example.env) and replace
+   `<account_id>` in `REGISTRANTS_QUEUE_URL`:
+   ```
+   cp fragments/solana_register_sync/registrants_consumer.example.env fragments/solana_register_sync/registrants_consumer.env
+   ```
+1. Run the consumer:
+   ```
+   node --run solana_register_sync:registrants_consumer
+   ```
+   It logs `started`, then one line per poll cycle: `confirmed` for a processed message (`signature` is `null` when the
+   registration was already confirmed on-chain), `failed` for one left on the queue to retry, or `empty`. `Ctrl+C` stops
+   it cleanly (`stopping`, then `stopped`), finishing any in-flight message first.
+1. Check the result. The record's `status` is `confirmed` with `confirmed_at` set, and the confirmed queue holds a
+   `RegistrationConfirmed` message for the auditor:
+   ```
+   aws dynamodb get-item --profile ff_dev_solana_register_local_runtime \
+     --table-name ff_dev_solana_register_registrations \
+     --key '{"pk":{"S":"REGISTRANT#<registrant_pubkey>"}}'
+   aws sqs get-queue-attributes --profile ff_dev_solana_register_local_runtime \
+     --queue-url https://sqs.eu-west-2.amazonaws.com/<account_id>/ff_dev_solana_register_registrants_confirmed \
+     --attribute-names ApproximateNumberOfMessages
+   ```
+
+> [!NOTE]
+> The message must come from the poller, which writes the `REGISTRANT#` record before publishing. A hand-published
+> `RegistrationDetected` has no record, so the consumer confirms on-chain and then fails the message into the DLQ.
+
+##### Run the confirmed consumer
+
+Runs [`confirmed_consumer.ts`](./fragments/solana_register_sync/confirmed_consumer.ts) - the auditor. It only reads the
+chain, so it needs no deployer keypair.
+
+1. Copy the [example env file](./fragments/solana_register_sync/confirmed_consumer.example.env) and replace
+   `<account_id>` in `CONFIRMED_QUEUE_URL`:
+   ```
+   cp fragments/solana_register_sync/confirmed_consumer.example.env fragments/solana_register_sync/confirmed_consumer.env
+   ```
+1. Run the consumer:
+   ```
+   node --run solana_register_sync:confirmed_consumer
+   ```
+   It logs `started`, then one line per poll cycle: `audited` for a record that agrees with the on-chain `Registration`,
+   `failed` for one left on the queue to retry - its `error` names each field that diverged - or `empty`. `Ctrl+C` stops
+   it cleanly (`stopping`, then `stopped`), finishing any in-flight message first.
+1. Check the result. The record's `status` is `audited` with `audited_at` set, and the confirmed queue has drained:
+   ```
+   aws dynamodb get-item --profile ff_dev_solana_register_local_runtime \
+     --table-name ff_dev_solana_register_registrations \
+     --key '{"pk":{"S":"REGISTRANT#<registrant_pubkey>"}}'
+   aws sqs get-queue-attributes --profile ff_dev_solana_register_local_runtime \
+     --queue-url https://sqs.eu-west-2.amazonaws.com/<account_id>/ff_dev_solana_register_registrants_confirmed \
+     --attribute-names ApproximateNumberOfMessages ApproximateNumberOfMessagesNotVisible
+   ```
+
+> [!NOTE]
+> The auditor takes only the registrant from the `RegistrationConfirmed` message and re-reads both the DynamoDB record
+> and the chain, so a mismatch is never resolved by the event's own copy of the fields. A mismatched message retries
+> and, after the queue's `maxReceiveCount`, lands in the `ff_dev_solana_register_registrants_confirmed_dlq` for
+> inspection.
+
+## Terraform
 
 Terraform is used to provision AWS infrastructure. State is stored remotely in
 [HCP Terraform](https://app.terraform.io/). Each HCP workspace has its own root module directory under
@@ -903,7 +998,7 @@ what triggers a run. HCP is used for state in both workspaces but differs on the
 | `ff_dev`  | HCP   | Laptop        | CLI (`tf plan` / `tf apply`)                |
 | `ff_prod` | HCP   | HCP runner VM | API (GH Actions via `tfc-workflows-github`) |
 
-#### Local (Terraform)
+### Local (Terraform)
 
 This section only applies to the `ff_dev` workspace. Note that the `ff_prod` workspace is provisioned through CI/CD and
 is not applicable in this section.
@@ -941,7 +1036,7 @@ graph TD
     Providers -->|signed requests| AWSAPI
 ```
 
-##### Setup
+#### Setup
 
 - Install [`tenv`](https://github.com/tofuutils/tenv)
 - `tenv tf install`. This installs and uses the version specified in [`.terraform-version`](./.terraform-version)
@@ -965,7 +1060,7 @@ graph TD
 - Login via the CLI with `aws login --profile ff_dev` and complete the login with your IAM user in the browser
 - Optional: Run `aws configure --profile ff_dev list` for details of the authenticated session
 
-##### Run
+#### Run
 
 > [!IMPORTANT]
 > Run the following commands from within the [`ff_dev/`](./fragments/terraform/ff_dev/) workspace directory. And ensure
@@ -1008,7 +1103,7 @@ workspace:
   tf fmt -check -recursive
   ```
 
-#### Remote (Terraform)
+### Remote (Terraform)
 
 This section only applies to the `ff_prod` workspace that is provisioned through CI/CD.
 
@@ -1044,7 +1139,7 @@ sequenceDiagram
     API-->>GHA: streamed logs + result
 ```
 
-##### Setup
+#### Setup
 
 This is a record of how it was originally setup using one-time manual steps.
 
@@ -1116,7 +1211,7 @@ The two main parts to this set up are as follows:
 - Required reviewer(s), e.g. `pjlangley`
 - Restricted to an appropriate branch, e.g. `main`
 
-#### Secrets (manual)
+### Secrets (manual)
 
 This section applies to **both** workspaces.
 
@@ -1137,7 +1232,7 @@ already used for the IAM policies in the two sections above.
 
 Do this after `tf apply` for `ff_dev`, and after the first `ff_prod` run has created the containers.
 
-#### Local cluster access key (manual)
+### Local cluster access key (manual)
 
 This section applies to `ff_dev` only - `ff_prod` is reached exclusively from inside AWS, via the EC2 instance profile.
 
@@ -1152,7 +1247,7 @@ After `tf apply`:
 1. _Security credentials_ → _Create access key_ → choose _Application running outside AWS_
 1. Securely store the access key ID and secret access key - the secret is shown **once**
 1. Supply them to the local cluster as a Kubernetes Secret, and to a local AWS CLI profile for running the consumers as
-   plain processes (below). Never commit them
+   plain processes (see [Solana register sync pipeline](#solana-register-sync-pipeline)). Never commit them
 
 > [!IMPORTANT]
 > `terraform destroy` will fail with a `DeleteConflict` while the hand-made access key still exists, because the user
@@ -1160,46 +1255,3 @@ After `tf apply`:
 
 To rotate, create the new key before deleting the old one, update the Kubernetes Secret and the AWS CLI profile, then
 delete the old key.
-
-##### Run the registrants consumer locally
-
-Runs [`registrants_consumer.ts`](./fragments/solana_register_sync/registrants_consumer.ts) as a plain Node.js process
-against the real `ff_dev` resources, authenticated as the runtime user.
-
-1. Store the access key in an AWS CLI profile named after the user (once, and again on rotation):
-   ```
-   aws configure --profile ff_dev_solana_register_local_runtime
-   ```
-   Enter the access key ID, the secret access key and region `eu-west-2`.
-1. Confirm you are authenticated as the runtime user:
-   ```
-   aws sts get-caller-identity --profile ff_dev_solana_register_local_runtime
-   ```
-   The `Arn` ends in `user/ff_dev_solana_register_local_runtime`, and `Account` is the account ID for the next step.
-1. Copy the [example env file](./fragments/solana_register_sync/registrants_consumer.example.env) and replace
-   `<account_id>` in `REGISTRANTS_QUEUE_URL`:
-   ```
-   cp fragments/solana_register_sync/registrants_consumer.example.env fragments/solana_register_sync/registrants_consumer.env
-   ```
-   It sets `AWS_PROFILE`, so there is nothing to export in the shell.
-1. Run the consumer:
-   ```
-   node --run solana_register_sync:registrants_consumer
-   ```
-   It logs `started`, then one line per poll cycle: `confirmed` for a processed message (`signature` is `null` when the
-   registration was already confirmed on-chain), `failed` for one left on the queue to retry, or `empty`. `Ctrl+C` stops
-   it cleanly (`stopping`, then `stopped`), finishing any in-flight message first.
-1. Check the result. The record's `status` is `confirmed` with `confirmed_at` set, and the confirmed queue holds a
-   `RegistrationConfirmed` message for the auditor:
-   ```
-   aws dynamodb get-item --profile ff_dev_solana_register_local_runtime \
-     --table-name ff_dev_solana_register_registrations \
-     --key '{"pk":{"S":"REGISTRANT#<registrant_pubkey>"}}'
-   aws sqs get-queue-attributes --profile ff_dev_solana_register_local_runtime \
-     --queue-url https://sqs.eu-west-2.amazonaws.com/<account_id>/ff_dev_solana_register_registrants_confirmed \
-     --attribute-names ApproximateNumberOfMessages
-   ```
-
-> [!NOTE]
-> The message must come from the poller, which writes the `REGISTRANT#` record before publishing. A hand-published
-> `RegistrationDetected` has no record, so the consumer confirms on-chain and then fails the message into the DLQ.

@@ -1,8 +1,8 @@
 import { ConditionalCheckFailedException, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
-import { DeleteMessageCommand, type Message, ReceiveMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
+import { DeleteMessageCommand, type Message, SQSClient } from "@aws-sdk/client-sqs";
 import {
   Address,
   address,
@@ -13,9 +13,8 @@ import {
   Signature,
   SOLANA_ERROR__JSON_RPC__SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE,
 } from "@solana/kit";
-import process, { env } from "node:process";
+import process from "node:process";
 import { setTimeout as sleep } from "node:timers/promises";
-import { getEnvVar } from "../env_vars/env_vars_utils";
 import { initRpcClient } from "../solana_rpc/solana_rpc_utils";
 import {
   confirmRegistration,
@@ -29,29 +28,27 @@ import {
   type RegistrationDetectedDetail,
 } from "./events";
 import { registrantKey } from "./registrations_table";
-
-// SQS's own maximum: a message that lands while the poll is open is received straight away.
-const RECEIVE_WAIT_TIME_SECONDS = 20;
-
-// One poll cycle every 30 minutes, whatever the queue holds. The poller publishes at most one
-// registration an hour, so two cycles an hour keep up, and the consumer makes ~2 requests an hour
-// rather than ~180. Tighten it with `POLL_INTERVAL_SECONDS` when testing; `0` means back-to-back long
-// polls, which drains a backlog as fast as it can be processed.
-export const DEFAULT_POLL_INTERVAL_SECONDS = 30 * 60;
+import {
+  type ConsumeConfig,
+  consumeQueue,
+  parseDetail,
+  readPollIntervalSeconds,
+  readSecretString,
+  requireEnvVar,
+  seedSolanaRpcUrl,
+  shutdownSignal,
+} from "./shared";
 
 // The queues keep SQS's default 30s visibility timeout, so the whole of `processMessage` has to fit
 // inside it or the message reappears mid-flight. This leaves ~10s for the AWS calls either side.
 export const CONFIRMATION_TIMEOUT_MS = 20_000;
 const CONFIRMATION_POLL_INTERVAL_MS = 1_000;
 
-export interface RegistrantsConsumerConfig {
+export interface RegistrantsConsumerConfig extends ConsumeConfig {
   programId: string;
-  queueUrl: string;
   tableName: string;
   eventBusName: string;
   eventSource: string;
-  /** How long to sleep between poll cycles; each cycle handles at most one message. */
-  pollIntervalSeconds: number;
 }
 
 /** Injected for the same reason as `PollerClients`: tests double them with `aws-sdk-client-mock`. */
@@ -69,28 +66,6 @@ export interface ProcessResult {
   /** False when the record was already `audited` and was deliberately left there. */
   statusUpdated: boolean;
 }
-
-/**
- * SQS carries the whole EventBridge envelope (the rules set no input transformer), so the payload
- * is under `detail`. Anything that is not a `RegistrationDetected` for this consumer's program is
- * rejected: it throws, and after `maxReceiveCount` lands in the DLQ rather than being confirmed
- * against the wrong instance.
- */
-const parseMessage = (config: RegistrantsConsumerConfig, message: Message): RegistrationDetectedDetail => {
-  const envelope = JSON.parse(message.Body ?? "");
-
-  if (envelope["detail-type"] !== REGISTRATION_DETECTED_DETAIL_TYPE) {
-    throw new Error(`Unexpected detail-type ${envelope["detail-type"]} on message ${message.MessageId}`);
-  }
-
-  const detail = envelope.detail as RegistrationDetectedDetail;
-
-  if (detail.program_id !== config.programId) {
-    throw new Error(`Message ${message.MessageId} is for program ${detail.program_id}, not ${config.programId}`);
-  }
-
-  return detail;
-};
 
 const isRegistrationAlreadyConfirmed = (e: unknown) =>
   isSolanaError(e, SOLANA_ERROR__JSON_RPC__SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE) &&
@@ -248,7 +223,11 @@ export const processMessage = async (
   authority: KeyPairSigner,
   message: Message,
 ): Promise<ProcessResult> => {
-  const detail = parseMessage(config, message);
+  const detail = parseDetail<RegistrationDetectedDetail>(
+    message,
+    REGISTRATION_DETECTED_DETAIL_TYPE,
+    config.programId,
+  );
   const programAddress = address(config.programId);
   const registrant = address(detail.registrant);
   const signature = await confirmOnChain(authority, programAddress, registrant);
@@ -280,104 +259,23 @@ export const processMessage = async (
   return { registrant, confirmedAt, signature, statusUpdated };
 };
 
-/**
- * One poll cycle: receive at most one message and process it. Never throws — every failure is logged,
- * and an unprocessed message stays on the queue for SQS to redeliver after its visibility timeout.
- */
-const receiveAndProcess = async (
+/** The shared receive loop, handling each message with `processMessage`. */
+export const consume = (
   config: RegistrantsConsumerConfig,
   clients: RegistrantsConsumerClients,
   authority: KeyPairSigner,
   signal: AbortSignal,
-) => {
-  let message: Message | undefined;
-
-  try {
-    const result = await clients.sqs.send(
-      new ReceiveMessageCommand({
-        QueueUrl: config.queueUrl,
-        // One at a time, not a batch: every message in a batch starts its visibility timeout at
-        // receive, and one confirmation can take most of the 30s, so the rest would reappear to
-        // other consumers while still waiting here.
-        MaxNumberOfMessages: 1,
-        WaitTimeSeconds: RECEIVE_WAIT_TIME_SECONDS,
-      }),
-      { abortSignal: signal },
-    );
-    message = result.Messages?.[0];
-  } catch (e) {
-    // An abort is shutdown, not a failure.
-    if (!signal.aborted) {
-      console.error(JSON.stringify({ outcome: "receive_failed", error: String(e) }));
-    }
-    return;
-  }
-
-  if (!message) {
-    console.log(JSON.stringify({ outcome: "empty" }));
-    return;
-  }
-
-  try {
+) =>
+  consumeQueue(config, clients.sqs, signal, async (message) => {
     const result = await processMessage(config, clients, authority, message);
-    console.log(JSON.stringify({
+    return {
       outcome: "confirmed",
-      message_id: message.MessageId,
       registrant: result.registrant,
       confirmed_at: result.confirmedAt.toString(),
       signature: result.signature,
       status_updated: result.statusUpdated,
-    }));
-  } catch (e) {
-    console.error(JSON.stringify({ outcome: "failed", message_id: message.MessageId, error: String(e) }));
-  }
-};
-
-/**
- * Runs a poll cycle every `config.pollIntervalSeconds` until `signal` aborts.
- *
- * An abort cancels the long poll and the sleep, never a message already received: that is processed
- * to completion first, so a `SIGTERM` (e.g. `kubectl scale --replicas=0`) never abandons one half way
- * through its on-chain write — nor waits out a 30-minute interval.
- */
-export const consume = async (
-  config: RegistrantsConsumerConfig,
-  clients: RegistrantsConsumerClients,
-  authority: KeyPairSigner,
-  signal: AbortSignal,
-) => {
-  while (!signal.aborted) {
-    await receiveAndProcess(config, clients, authority, signal);
-    await sleep(config.pollIntervalSeconds * 1000, undefined, { signal }).catch(() => {});
-  }
-};
-
-const requireEnvVar = (name: string) => {
-  const value = getEnvVar(name);
-
-  if (!value) {
-    throw new Error(`Environment variable ${name} is not set`);
-  }
-
-  return value;
-};
-
-/** Optional: unset or empty means the default, anything but a non-negative integer fails startup. */
-const readPollIntervalSeconds = () => {
-  const value = getEnvVar("POLL_INTERVAL_SECONDS");
-
-  if (!value) {
-    return DEFAULT_POLL_INTERVAL_SECONDS;
-  }
-
-  const seconds = Number(value);
-
-  if (!Number.isInteger(seconds) || seconds < 0) {
-    throw new Error(`Environment variable POLL_INTERVAL_SECONDS must be a non-negative integer, got ${value}`);
-  }
-
-  return seconds;
-};
+    };
+  });
 
 /**
  * Every value the process takes from its environment; these become the Kustomize
@@ -405,23 +303,11 @@ export const createAwsClients = (): RegistrantsConsumerClients => ({
   eventBridge: new EventBridgeClient({}),
 });
 
-const readSecretString = async (client: SecretsManagerClient, secretId: string) => {
-  const result = await client.send(new GetSecretValueCommand({ SecretId: secretId }));
-
-  if (!result.SecretString) {
-    throw new Error(`Secret ${secretId} has no string value`);
-  }
-
-  return result.SecretString.trim();
-};
-
 export const main = async () => {
   const config = readConfig();
   const secretsManager = new SecretsManagerClient({});
 
-  // As in the poller: `initRpcClient` reads `SOLANA_RPC_URL` at call time, so seeding it once here
-  // points every chain call at Helius without the API key ever being a plaintext env var.
-  env.SOLANA_RPC_URL = await readSecretString(secretsManager, config.heliusRpcUrlSecretId);
+  await seedSolanaRpcUrl(secretsManager, config.heliusRpcUrlSecretId);
 
   // The secret holds the keypair file's contents: a JSON array of the 64 secret key bytes.
   const keypairBytes = JSON.parse(await readSecretString(secretsManager, config.deployerKeypairSecretId));
@@ -434,14 +320,7 @@ export const main = async () => {
     throw new Error(`Keypair ${authority.address} is not the registry authority ${registryState.authority}`);
   }
 
-  const controller = new AbortController();
-  const stop = (signalName: string) => {
-    console.log(JSON.stringify({ outcome: "stopping", signal: signalName }));
-    controller.abort();
-  };
-
-  process.once("SIGTERM", stop);
-  process.once("SIGINT", stop);
+  const signal = shutdownSignal();
 
   console.log(JSON.stringify({
     outcome: "started",
@@ -450,7 +329,7 @@ export const main = async () => {
     poll_interval_seconds: config.pollIntervalSeconds,
   }));
 
-  await consume(config, createAwsClients(), authority, controller.signal);
+  await consume(config, createAwsClients(), authority, signal);
 
   console.log(JSON.stringify({ outcome: "stopped" }));
 };

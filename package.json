@@ -32,6 +32,7 @@
     "api:bru:fastapi": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastapi.bru)",
     "api:bru:fastapi:docker": "(cd ./fragments/apis/bruno && bru run -r --env-file ./environments/fastapi.bru --env-var host=fastapi)",
     "solana_register_sync:registrants_consumer": "tsx --env-file-if-exists=./fragments/solana_register_sync/registrants_consumer.env ./fragments/solana_register_sync/registrants_consumer.ts",
+    "solana_register_sync:confirmed_consumer": "tsx --env-file-if-exists=./fragments/solana_register_sync/confirmed_consumer.env ./fragments/solana_register_sync/confirmed_consumer.ts",
     "solana_register_sync:build": "esbuild fragments/solana_register_sync/poller.ts --bundle --platform=node --target=node22 --format=cjs --outfile=fragments/terraform/lambda_dist/solana_register_poller/index.js"
   },
   "devDependencies": {

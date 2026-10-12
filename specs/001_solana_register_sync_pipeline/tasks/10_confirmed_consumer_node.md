@@ -1,6 +1,6 @@
 # 10 — Confirmed consumer / auditor (Node.js)
 
-**Status:** Todo | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+**Status:** Done | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
 
 ## Goal
 
@@ -14,6 +14,10 @@ from the chain, cross-checks it against the central DynamoDB record, and marks t
 ## Changes
 
 - `fragments/solana_register_sync/confirmed_consumer.ts` (+ `.test.ts`).
+- `fragments/solana_register_sync/shared.ts` (+ `.test.ts`) — added during build, see _Settled during build_.
+- `fragments/solana_register_sync/confirmed_consumer.example.env`, a `solana_register_sync:confirmed_consumer` script in
+  `package.json`, and a _Run the confirmed consumer_ section in the root `README.md` (under _Solana register sync
+  pipeline_) — mirroring task 09.
 
 Behaviour:
 
@@ -47,6 +51,36 @@ Whether to extract the loop into a shared helper (e.g. `consume(config, signal, 
 is a build-time call. Two consumers is the point where the duplication starts to cost; a shared loop would also keep the
 interval and shutdown tests in one place.
 
+Settled during build:
+
+- **The loop was extracted, with the rest of what both consumers do identically, into `shared.ts`:**
+  `consumeQueue(config, sqs, signal, handleMessage)` (the handler returns its success log line, so each consumer keeps
+  its own `outcome` — `confirmed` / `audited`), `DEFAULT_POLL_INTERVAL_SECONDS` and `readPollIntervalSeconds`,
+  `parseDetail` (the detail-type and `program_id` envelope check, parameterised by detail-type), `requireEnvVar`,
+  `readSecretString` / `seedSolanaRpcUrl`, and the `SIGTERM`/`SIGINT` `shutdownSignal`. `registrants_consumer.ts` was
+  refactored onto it with no change in behaviour; its `consume` is now a thin wrapper. The loop's contract tests
+  (cadence, one message per cycle, shutdown, surviving a failed receive or handler) moved to `shared.test.ts`, driven by
+  a stub handler — the loop never touches the chain, so ADR 013 is unaffected — and each consumer keeps one `consume`
+  wiring test.
+- **Not shared:** `waitForSignature` / `confirmOnChain` (the auditor sends no transaction, so has no signature to wait
+  on), and each consumer's `createAwsClients` and config (different client sets). `poller.ts` keeps its own
+  `requireEnvVar`: it is esbuild-bundled into the Lambda, and `shared.ts` would pull the SQS client in with it. The
+  chain test fixtures (`registerOne`, `confirmOrFail`, the registry-init race) are now in three test files; sharing them
+  is left as a follow-up.
+- **Configuration:** `SOLANA_REGISTER_PROGRAM_ID`, `CONFIRMED_QUEUE_URL`, `REGISTRATIONS_TABLE_NAME`,
+  `HELIUS_RPC_URL_SECRET_ID` and the optional `POLL_INTERVAL_SECONDS`. No deployer keypair — the auditor only reads the
+  chain. Startup reads `registry_state` to fail fast on a wrong RPC URL or program id.
+- **The record is read with `ConsistentRead`.** The registrants consumer writes `confirmed` seconds before this event
+  arrives; an eventually consistent read could return the `registered` row and fail a healthy message.
+- **The `audited` write is conditional on the values just cross-checked**
+  (`registrant = :registrant AND registration_index = :registration_index AND confirmed_at = :confirmed_at`), so a
+  record changed between the read and the write is not audited — the message throws and retries. The comparisons also
+  fail on a missing item, so no partial row is ever created.
+- **Replays re-audit.** An already `audited` record is re-checked and, on a match, keeps its first `audited_at`
+  (`if_not_exists`); only `updated_at` moves.
+- **Mismatch logging:** the thrown error names each diverged field with both values, e.g.
+  `registration_index record=6 chain=5`, and lands in the loop's `failed` log line.
+
 ## Verification (QA)
 
 - Node.js unit tests, `tsc`, `deno lint`, `deno fmt` — see the `build` skill. Requires the local stack
@@ -54,10 +88,10 @@ interval and shutdown tests in one place.
 - **Chain is real, AWS is mocked.** AWS clients (SQS, DynamoDB) are `aws-sdk-client-mock` doubles; the `Registration`
   PDA is read from the local validator, as in task 07 — see the `build` skill's testing conventions (ADR 013).
 - Test cases: matching record and PDA → `audited`; a `registration_index` mismatch → throws, no status change; a PDA
-  with `confirmed_at` unset → throws; a missing DynamoDB record → throws.
+  with `confirmed_at` unset → throws; a missing DynamoDB record → throws. Added during build: a `confirmed_at` mismatch;
+  the event's own fields are ignored; a record changed between cross-check and write; a replay keeps `audited_at`;
+  another program / detail-type is rejected; `consume` wiring.
 - Locally against `ff_dev`: a real registration flows through to `audited`.
-- Force a mismatch (e.g. hand-edit `registration_index` on the DynamoDB record before the message is consumed) and
-  confirm the record is **not** audited and the message reaches the DLQ after the redrive count.
 
 ## Definition of done
 

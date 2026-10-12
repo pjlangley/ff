@@ -23,7 +23,7 @@ a time and ticks them off here.
 ## Consumers
 
 - [x] 09 — [Registrants consumer (Node.js)](./09_registrants_consumer_node.md)
-- [ ] 10 — [Confirmed consumer / auditor (Node.js)](./10_confirmed_consumer_node.md)
+- [x] 10 — [Confirmed consumer / auditor (Node.js)](./10_confirmed_consumer_node.md)
 - ~~11 — [Registrants consumer (Python)](./11_registrants_consumer_python.md)~~ — **dropped** (see below)
 - ~~12 — [Confirmed consumer / auditor (Python)](./12_confirmed_consumer_python.md)~~ — **dropped** (see below)
 
