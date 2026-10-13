@@ -106,6 +106,7 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [011: DynamoDB as the central datastore](./fragments/adrs/011_dynamodb_central_datastore.md)                                | 2026-08-13    |
 | [012: EventBridge-centred event architecture](./fragments/adrs/012_eventbridge_event_architecture.md)                       | 2026-08-25    |
 | [013: Blockchain & AWS SDK client testing approach](./fragments/adrs/013_blockchain_tests_against_local_validator.md)       | 2026-09-18    |
+| [014: Docker Hub over ECR, published multi-arch](./fragments/adrs/014_docker_hub_multi_arch_image_distribution.md)          | 2026-10-13    |
 
 ## Spec-driven workflow
 

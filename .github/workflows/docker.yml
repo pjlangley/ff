@@ -14,11 +14,16 @@ jobs:
       ff_anchor_docs: ${{ steps.filter.outputs.ff_anchor_docs }}
       ff_solana: ${{ steps.filter.outputs.ff_solana }}
       ff_solana_docs: ${{ steps.filter.outputs.ff_solana_docs }}
+      ff_node: ${{ steps.filter.outputs.ff_node }}
+      ff_node_docs: ${{ steps.filter.outputs.ff_node_docs }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v4
         id: filter
         with:
+          # A file counts if it matches any pattern and no `!` pattern. Only ff_node has excludes, so the
+          # other filters behave exactly as under the default 'some'.
+          predicate-quantifier: some-with-excludes
           filters: |
             workflow_cfg:
               - '.github/workflows/docker.yml'
@@ -35,6 +40,18 @@ jobs:
               - 'docker.solana.ci.Dockerfile'
             ff_solana_docs:
               - 'docker_hub/ff_solana.md'
+            ff_node:
+              - 'docker.node.Dockerfile'
+              - '.dockerignore'
+              - '.npmrc'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.json'
+              - 'tsconfig.api.json'
+              - 'fragments/**'
+              - '!**/*.py'
+            ff_node_docs:
+              - 'docker_hub/ff_node.md'
 
   ff_solana_builder:
     runs-on: ubuntu-latest
@@ -192,3 +209,46 @@ jobs:
           repository: pjlangley/ff_solana
           short-description: Solana CLI image for Solana programs
           readme-filepath: ./docker_hub/ff_solana.md
+
+  # Multi-arch, unlike the images above: nodejs consumers run on a Graviton (arm64) k3s node and on an
+  # Apple Silicon laptop. docker/github-builder builds each platform on its own native runner (no QEMU)
+  # and merges the digests into one manifest list per tag. See ADR 014.
+  ff_node:
+    name: ff_node (amd64, arm64)
+    needs: [changes]
+    if: needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_node == 'true'
+    permissions:
+      contents: read
+      # keyless cosign signing of the attestation manifest
+      id-token: write
+    uses: docker/github-builder/.github/workflows/build.yml@v1
+    with:
+      output: image
+      push: true
+      file: docker.node.Dockerfile
+      platforms: linux/amd64,linux/arm64
+      meta-images: pjlangley/ff_node
+      meta-tags: |
+        type=sha,prefix=
+        type=raw,value=latest
+    secrets:
+      registry-auths: |
+        - registry: docker.io
+          username: pjlangley
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  ff_node_docs:
+    runs-on: ubuntu-latest
+    name: ff_node_docs
+    needs: [changes, ff_node]
+    if: always() && (needs.changes.outputs.workflow_cfg == 'true' || needs.changes.outputs.ff_node_docs == 'true')
+    steps:
+      - uses: actions/checkout@v6
+      - name: set description
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: pjlangley
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: pjlangley/ff_node
+          short-description: Node.js API and Solana register sync consumers
+          readme-filepath: ./docker_hub/ff_node.md

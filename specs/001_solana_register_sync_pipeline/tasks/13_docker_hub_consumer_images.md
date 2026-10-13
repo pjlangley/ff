@@ -1,6 +1,6 @@
 # 13 — Publish the consumer images to Docker Hub
 
-**Status:** Todo | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+**Status:** Done | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
 
 ## Goal
 
@@ -26,11 +26,24 @@ cannot reach a local Docker daemon.
   image with the short SHA and `latest`, dropping the `-amd64-` infix the existing images use — the tag now resolves to
   a manifest list and the client picks its own platform. The existing images keep their single-arch tags; this
   deliberately deviates.
-- Build each architecture on a **native runner** rather than emulating: a matrix over `ubuntu-latest` (amd64) and
+- Build each architecture on a **native runner** rather than emulating ~~a matrix over `ubuntu-latest` (amd64) and
   GitHub's hosted arm64 Linux runner (`ubuntu-24.04-arm` — free for public repositories; verify the current label),
   pushing by digest with `outputs: type=image,push-by-digest=true`. A dependent merge job then assembles the manifest
   list with `docker buildx imagetools create -t pjlangley/ff_node:<tag> <digest>...`. This is the documented
-  `docker/build-push-action` multi-platform pattern.
+  `docker/build-push-action` multi-platform pattern.~~
+
+  > [!NOTE]
+  > **Revised 2026-10-13 (preflight):** Docker's
+  > [multi-platform guide](https://docs.docker.com/build/ci/github-actions/multi-platform/) no longer documents the
+  > hand-written push-by-digest + `imagetools create` recipe. It now points at the Docker-maintained
+  > [`docker/github-builder`](https://github.com/docker/github-builder) reusable workflow, which does the same native
+  > fan-out (`linux/arm64` → `ubuntu-24.04-arm` by default) and merges the manifest itself. The `ff_node` job calls
+  > `docker/github-builder/.github/workflows/build.yml@v1` instead. It signs the attestation manifest with keyless
+  > cosign when it pushes, so the job, and the `docker_images` job in `main.yml` that caps it, grant `id-token: write`.
+  > That is the first explicit `permissions` block in the repo's workflows. Tags come from `docker/metadata-action`:
+  > `type=sha,prefix=` (7-char short SHA) and `type=raw,value=latest`. Reasoning in ADR 014. The `ff_node` paths filter
+  > also excludes `**/*.py` (paths-filter `predicate-quantifier: some-with-excludes`), so Python-only changes under
+  > `fragments/` do not rebuild the image.
 
   The alternative — one job with `platforms: linux/amd64,linux/arm64` plus `docker/setup-qemu-action` — is far less
   workflow machinery, but builds arm64 under emulation. That matters here: `npm ci` pulls `better-sqlite3`, which falls
@@ -64,7 +77,15 @@ fail to schedule outright, so the manifest list is load-bearing rather than cosm
 
 - Locally: `docker compose build fastify fastapi`, then
   `docker run --rm --entrypoint node ff_node ./fragments/apis/fastify/dist/solana_register_sync/registrants_consumer.js`
-  starts, logs its config, and exits cleanly on `SIGTERM`. ~~The equivalent for `ff_python`.~~
+  ~~starts, logs its config, and exits cleanly on `SIGTERM`~~ loads and exits `1` on its first missing environment
+  variable. ~~The equivalent for `ff_python`.~~
+
+  > [!NOTE]
+  > **Revised 2026-10-13 (preflight):** `main()` needs eight environment variables, reads Secrets Manager and checks the
+  > on-chain registry authority before it logs `started`, so a bare `docker run` cannot reach that point. The
+  > missing-variable failure is what proves the compiled entrypoint and its runtime dependencies are in the image. The
+  > start-up log and the clean `SIGTERM` exit are verified in task 14, where the cluster supplies config and AWS
+  > credentials.
 - `docker buildx imagetools inspect pjlangley/ff_node:<sha>` lists **both** `linux/amd64` and `linux/arm64` platforms.
   ~~The same for `ff_python`.~~
 - On the Apple Silicon laptop, `docker pull pjlangley/ff_node:<sha>` resolves to the `arm64` variant:

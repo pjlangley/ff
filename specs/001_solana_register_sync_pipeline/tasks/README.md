@@ -29,7 +29,7 @@ a time and ticks them off here.
 
 ## Kubernetes
 
-- [ ] 13 — [Publish the consumer images to Docker Hub](./13_docker_hub_consumer_images.md)
+- [x] 13 — [Publish the consumer images to Docker Hub](./13_docker_hub_consumer_images.md)
 - [ ] 14 — [Local KIND cluster and Kustomize base](./14_kind_local_cluster.md)
 - [ ] 15 — [k3s on EC2 in `ff_dev`](./15_terraform_k3s_ec2_dev.md)
 - [ ] 16 — [`dev-cloud` toggle script](./16_dev_cloud_toggle.md)
