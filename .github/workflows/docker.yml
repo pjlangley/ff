@@ -50,6 +50,8 @@ jobs:
               - 'tsconfig.api.json'
               - 'fragments/**'
               - '!**/*.py'
+              - '!fragments/adrs/**'
+              - '!fragments/terraform/**'
             ff_node_docs:
               - 'docker_hub/ff_node.md'
 
