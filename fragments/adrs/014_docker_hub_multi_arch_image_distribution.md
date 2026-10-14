@@ -44,8 +44,9 @@ maintains.
 
 ### Consequences
 
-- Good, because one tag runs natively on Graviton, on Apple Silicon and on `amd64` CI runners, so `docker-compose` on
-  the laptop also stops running `ff_node` under emulation
+- Good, because one tag runs natively on Graviton, on Apple Silicon and on `amd64` CI runners, so the local KIND cluster
+  and the k3s node pull the same image without emulation (`docker-compose` is unaffected: it still builds `ff_node`
+  locally with `pull_policy: never`)
 - Good, because no cluster needs registry credentials: KIND and k3s pull anonymously
 - Good, because the native-runner fan-out and the manifest merge are Docker-maintained, so `docker.yml` declares only
   the Dockerfile, the platforms and the tags
