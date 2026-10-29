@@ -52,6 +52,7 @@ jobs:
               - '!**/*.py'
               - '!fragments/adrs/**'
               - '!fragments/terraform/**'
+              - '!fragments/k8s/**'
             ff_node_docs:
               - 'docker_hub/ff_node.md'
 
