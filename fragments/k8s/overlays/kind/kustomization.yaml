@@ -1,0 +1,63 @@
+# https://kubectl.docs.kubernetes.io/references/kustomize/glossary/#overlay
+# The local KIND cluster, for testing local changes against the real `ff_dev` resources.
+# Needs the gitignored `queue_urls.env` and `aws_credentials.env` first; see the README's
+# _Local cluster (KIND)_.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: solana-register-sync
+
+resources:
+  - ../../base
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/images/
+# The image built from the working tree and side-loaded with `kind load`, never pulled: there is
+# no `ff_node:kind` on any registry, and the base's `IfNotPresent` trusts the copy on the node.
+images:
+  - name: pjlangley/ff_node
+    newName: ff_node
+    newTag: kind
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/configmapgenerator/
+configMapGenerator:
+  - name: solana-register-sync-config
+    literals:
+      - AWS_REGION=eu-west-2
+      # The dev register instance on devnet (`solana_register_program_id` in `ff_dev/variables.tf`).
+      - SOLANA_REGISTER_PROGRAM_ID=DPEfE7E9LExX61taVQRQHpxZGkFEKLzRqwfCDMtzFg2K
+      - REGISTRATIONS_TABLE_NAME=ff_dev_solana_register_registrations
+      - EVENT_BUS_NAME=ff_dev_solana_register
+      - EVENT_SOURCE=ff.solana.register
+      - DEPLOYER_KEYPAIR_SECRET_ID=ff_dev_solana_register_deployer_keypair
+      - HELIUS_RPC_URL_SECRET_ID=ff_dev_solana_register_helius_rpc_url
+      # A tighter loop than the 30-minute default for local testing
+      - POLL_INTERVAL_SECONDS=60
+    # The queue URLs carry the AWS account ID, which is never committed: copy
+    # `queue_urls.example.env` to the gitignored `queue_urls.env` first.
+    envs:
+      - queue_urls.env
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/secretgenerator/
+# The static, scoped `ff_dev_solana_register_local_runtime` key (ADR 016), from a gitignored env
+# file created from the AWS CLI profile, never committed.
+secretGenerator:
+  - name: aws-credentials
+    envs:
+      - aws_credentials.env
+    # https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/generatoroptions/
+    # https://kubernetes.io/docs/concepts/configuration/secret/#secret-immutable
+    options:
+      immutable: true
+
+# Gives both containers the Secret (`kind: Deployment`).
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/
+# https://jsonpatch.com/
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom/-
+        value:
+          secretRef:
+            name: aws-credentials

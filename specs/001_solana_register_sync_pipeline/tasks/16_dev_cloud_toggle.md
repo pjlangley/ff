@@ -1,6 +1,12 @@
 # 16 — `dev-cloud` toggle script
 
-**Status:** Todo | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+**Status:** Dropped | **Feature:** [001_solana_register_sync_pipeline](../requirements.md)
+
+> [!IMPORTANT]
+> **Dropped 2026-10-15 (after task 14's build).** The `ff_dev` EC2 now runs on a weekday schedule as the default
+> `ff_dev` runtime, and KIND is an occasional test bench. Handing the queues over is one README command, stopping the
+> EC2 (task 14). The kubeconfig refresh moves to task 15, and the both-runtimes guard is dropped as an accepted risk.
+> See the requirements' [Revisions](../requirements.md#revisions).
 
 ## Goal
 

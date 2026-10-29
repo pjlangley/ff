@@ -1,0 +1,5 @@
+# https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: solana-register-sync

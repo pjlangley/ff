@@ -9,26 +9,27 @@ windows the poller on `Europe/London` time so producer and consumers wake togeth
 
 ## Depends on
 
-- 16 (the cloud path is rehearsed in `ff_dev` before prod sees it)
+- ~~16~~ 15 (the cloud path is rehearsed in `ff_dev` before prod sees it; task 16 was dropped)
 
 ## Changes
 
 - `fragments/terraform/ff_prod/` — instantiate the `k3s_node` module (task 15) and confirm the DynamoDB table, bus,
   rules, secrets, Lambda and scheduler from tasks 04–08 are all present and pointed at the **prod** program id.
-- `fragments/terraform/ff_prod/` — the overnight pause: two `aws_scheduler_schedule` resources using the templated
+- ~~`fragments/terraform/ff_prod/` — the overnight pause: two `aws_scheduler_schedule` resources using the templated
   `arn:aws:scheduler:::aws-sdk:ec2:stopInstances` and `:startInstances` targets (no Lambda), with
   `schedule_expression_timezone = "Europe/London"` and an IAM role permitting only those two actions on that one
-  instance. Align the start/stop times with the poller's daytime window from task 08.
+  instance. Align the start/stop times with the poller's daytime window from task 08.~~ The overnight pause comes with
+  the `k3s_node` module (moved to task 15, 2026-10-15), so instantiating it here is enough.
 - `fragments/k8s/overlays/ff_prod/` — `kustomization.yaml` with its own `configMapGenerator` (prod queues, table, bus,
   prod program id). Instance profile for credentials, as in `ff_dev`.
-- The start path must refresh the kubeconfig endpoint — the auto-assigned public IP changes on every restart. Reuse the
-  helper from task 16.
+- The start path must refresh the kubeconfig endpoint — the auto-assigned public IP changes on every restart. Reuse
+  ~~the helper from task 16~~ task 15's README steps.
 - Populate the prod Secrets Manager values out-of-band (deployer keypair, Helius URL).
-- New ADR via `/new-adr`: scheduled overnight pause of the poller and the EC2 instances (`Europe/London`) as the
-  cost-control approach. Context: the cluster is stateless and SQS is durable with 14-day retention (task 04), so an
-  overnight gap loses nothing — a registration made during the down window is simply ingested in the next active window,
-  which the state-reconciliation design tolerates. Consequence: confirmation latency for overnight registrants is
-  bounded by the window, not by the poll interval.
+- ~~New ADR via `/new-adr`:~~ (Moved to task 15, 2026-10-15.) Scheduled overnight pause of the poller and the EC2
+  instances (`Europe/London`) as the cost-control approach. Context: the cluster is stateless and SQS is durable with
+  14-day retention (task 04), so an overnight gap loses nothing — a registration made during the down window is simply
+  ingested in the next active window, which the state-reconciliation design tolerates. Consequence: confirmation latency
+  for overnight registrants is bounded by the window, not by the poll interval.
 - `README.md` — document the prod pipeline and the pause schedule.
 
 ## Verification (QA)
@@ -41,7 +42,7 @@ windows the poller on `Europe/London` time so producer and consumers wake togeth
   the down window. On resume, confirm with no manual intervention that the poller ingests it, the consumers process it,
   and the record reaches `audited`.
 - Confirm the EC2 stops and starts on schedule, and that the started instance's new public IP is picked up.
-- `deno fmt` for the ADR and the README index.
+- `deno fmt` for the README.
 
 ## Definition of done
 
@@ -52,4 +53,4 @@ windows the poller on `Europe/London` time so producer and consumers wake togeth
   intervention.
 - All repo checks pass: `deno fmt` / `cargo fmt` / `terraform fmt`, and the lint, typecheck and test suites for every
   language touched.
-- The ADR is accepted and the README index updated.
+- ~~The ADR is accepted and the README index updated.~~ (The ADR lands in task 15.)

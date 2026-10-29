@@ -36,5 +36,9 @@ __pycache__/
 /fragments/solana_register_sync/*.env
 !/fragments/solana_register_sync/*.example.env
 
+# k8s overlay env files (the queue URLs carry the AWS account ID)
+/fragments/k8s/overlays/*/*.env
+!/fragments/k8s/overlays/*/*.example.env
+
 # misc
 .DS_Store

@@ -85,6 +85,8 @@ graph TD
 | Register                       | [`register`](./fragments/blockchain/solana/programs/register)     |         |        |  ✅  |
 | **AWS IaC**                    |                                                                   |         |        |      |
 | Terraform (HCP backend)        | [`terraform`](./fragments/terraform/)                             |         |        |      |
+| **Kubernetes**                 |                                                                   |         |        |      |
+| Kustomize (KIND overlay)       | [`k8s`](./fragments/k8s/)                                         |         |        |      |
 
 ## Decision records
 
@@ -107,6 +109,8 @@ Architectural decisions are recorded as [MADR](https://github.com/adr/madr)-styl
 | [012: EventBridge-centred event architecture](./fragments/adrs/012_eventbridge_event_architecture.md)                       | 2026-08-25    |
 | [013: Blockchain & AWS SDK client testing approach](./fragments/adrs/013_blockchain_tests_against_local_validator.md)       | 2026-09-18    |
 | [014: Docker Hub over ECR, published multi-arch](./fragments/adrs/014_docker_hub_multi_arch_image_distribution.md)          | 2026-10-13    |
+| [015: Local KIND cluster against real cloud resources](./fragments/adrs/015_local_kind_cluster.md)                          | 2026-10-15    |
+| [016: AWS identity for consumer pods runtime](./fragments/adrs/016_aws_identity_for_pods_runtime.md)                        | 2026-10-15    |
 
 ## Spec-driven workflow
 
@@ -976,6 +980,118 @@ chain, so it needs no deployer keypair.
 > and, after the queue's `maxReceiveCount`, lands in the `ff_dev_solana_register_registrants_confirmed_dlq` for
 > inspection.
 
+#### Local cluster (KIND)
+
+For testing local changes before they reach `ff_dev`: both consumers run on a local [KIND](https://kind.sigs.k8s.io/)
+cluster from an image built from the working tree. They run against the same real `ff_dev` resources and the dev
+register instance on devnet (see [ADR 015](./fragments/adrs/015_local_kind_cluster.md)).
+
+The manifests live under [`fragments/k8s/`](./fragments/k8s/): a Kustomize [`base/`](./fragments/k8s/base/) with one
+Deployment per consumer, and an [`overlays/kind/`](./fragments/k8s/overlays/kind/) that supplies the environment config
+as a generated ConfigMap, points the image at the locally built `ff_node:kind`, and generates the AWS credentials
+Secret. The pods authenticate as the runtime user's static access key, copied from the AWS CLI profile above into an env
+file (see [ADR 016](./fragments/adrs/016_aws_identity_for_pods_runtime.md)).
+
+> [!IMPORTANT]
+> Run **one** consumer runtime against the `ff_dev` queues at a time. The `ff_dev` cloud cluster consumes them on
+> weekdays, so stop its EC2 instance before bringing KIND up. Competing runtimes make runs non-deterministic.
+
+##### Setup (KIND)
+
+> [!IMPORTANT]
+> Prerequisites: the [Setup](#setup-3) above (the AWS CLI profile), Docker running, and `kind` and `kubectl` installed
+> (e.g. `brew install kind kubectl`).
+
+1. Copy the [example queue URLs](./fragments/k8s/overlays/kind/queue_urls.example.env) and replace `<account_id>` - the
+   URLs carry the AWS account ID, so the copy is gitignored:
+   ```
+   cp fragments/k8s/overlays/kind/queue_urls.example.env fragments/k8s/overlays/kind/queue_urls.env
+   ```
+1. Create the [credentials env file](./fragments/k8s/overlays/kind/aws_credentials.example.env) from the AWS CLI
+   profile. The overlay's `secretGenerator` turns it into the `aws-credentials` Secret. `umask 077` makes the file
+   readable by you alone, like `~/.aws/credentials`, and `printf` is a shell builtin, so the key is never pasted into an
+   editor or passed as a command argument:
+   ```
+   (umask 077 && printf 'AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n' \
+     "$(aws configure get aws_access_key_id --profile ff_dev_solana_register_local_runtime)" \
+     "$(aws configure get aws_secret_access_key --profile ff_dev_solana_register_local_runtime)" \
+     > fragments/k8s/overlays/kind/aws_credentials.env)
+   ```
+1. Check the overlay renders:
+   ```
+   kubectl kustomize fragments/k8s/overlays/kind
+   ```
+
+> [!WARNING]
+> The rendered output includes the `aws-credentials` Secret, with the access key in base64 - not encrypted. Don't paste
+> or share the output.
+
+##### Run (KIND)
+
+Every `kubectl` command names the `kind-ff` context, so none of them can reach the `ff_dev` cloud cluster by accident.
+
+1. Stop the `ff_dev` EC2 instance.
+1. Build the image from the working tree. On Apple Silicon it is `arm64`, the same variant the cloud Graviton node
+   pulls:
+   ```
+   docker build -f docker.node.Dockerfile -t ff_node:kind .
+   ```
+1. Create the cluster (`ff`, context `kind-ff`) and load the image onto its node. A KIND node keeps its own image store,
+   so it cannot see the images in Docker:
+   ```
+   kind create cluster --config fragments/k8s/kind-config.yaml
+   kind load docker-image ff_node:kind --name ff
+   docker exec ff-control-plane crictl images | grep ff_node
+   ```
+1. Apply the overlay - the namespace, the generated ConfigMap and Secret, and both Deployments, in that order - and wait
+   for both Deployments to be `Available` with two ready replicas each:
+   ```
+   kubectl --context kind-ff apply -k fragments/k8s/overlays/kind
+   kubectl --context kind-ff -n solana-register-sync wait --for=condition=Available deployment --all --timeout=180s
+   kubectl get pods --show-labels -n solana-register-sync
+   kubectl describe deployments -n solana-register-sync
+   ```
+1. Follow the logs. `--prefix` names the pod on each line, so the two replicas can be told apart as they compete for the
+   queue:
+   ```
+   kubectl --context kind-ff -n solana-register-sync logs -f --prefix -l app.kubernetes.io/name=registrants-consumer
+   kubectl --context kind-ff -n solana-register-sync logs -f --prefix -l app.kubernetes.io/name=confirmed-consumer
+   ```
+1. Register a test account (see _Registering a test account_ under [Devnet](#devnet)). Once the poller picks it up, the
+   registrants consumer logs `confirmed`, then the confirmed consumer logs `audited`; check the record as in the plain
+   process steps above.
+1. Delete the namespace (pods shutdown gracefully) and cluster:
+   ```
+   kubectl --context kind-ff delete namespace solana-register-sync
+   kind delete cluster --name ff
+   ```
+
+> [!NOTE]
+> Optionally, start the `ff_dev` EC2 instance again once the cluster is deleted. Otherwise it stays stopped until its
+> schedule next starts it.
+
+Changes while the cluster is up:
+
+- **Code** - rebuild the image and load it again, then roll the pods. They pick up the re-loaded `ff_node:kind` from the
+  node, since `imagePullPolicy: IfNotPresent` never pulls it:
+  ```
+  docker build -f docker.node.Dockerfile -t ff_node:kind .
+  kind load docker-image ff_node:kind --name ff
+  kubectl --context kind-ff -n solana-register-sync rollout restart deployment
+  ```
+- **Config** - edit the overlay's `configMapGenerator` (or `queue_urls.env`) and apply it again. The ConfigMap's name
+  carries a content hash, so the change rolls the pods by itself:
+  ```
+  kubectl --context kind-ff apply -k fragments/k8s/overlays/kind
+  ```
+- **Access key rotation** - update the AWS CLI profile, create the env file again as in [Setup (KIND)](#setup-kind), and
+  apply the overlay. Like the ConfigMap, the Secret's name carries a content hash, so the change rolls the pods by
+  itself. The previous Secret, holding the old key, stays in the namespace until the namespace is deleted on teardown;
+  the old key is inert anyway once deleted in IAM:
+  ```
+  kubectl --context kind-ff apply -k fragments/k8s/overlays/kind
+  ```
+
 ## Terraform
 
 Terraform is used to provision AWS infrastructure. State is stored remotely in
@@ -1247,12 +1363,13 @@ After `tf apply`:
 1. In the IAM console, open the user `ff_dev_solana_register_local_runtime`
 1. _Security credentials_ → _Create access key_ → choose _Application running outside AWS_
 1. Securely store the access key ID and secret access key - the secret is shown **once**
-1. Supply them to the local cluster as a Kubernetes Secret, and to a local AWS CLI profile for running the consumers as
-   plain processes (see [Solana register sync pipeline](#solana-register-sync-pipeline)). Never commit them
+1. Store them in the local AWS CLI profile (see [Solana register sync pipeline](#solana-register-sync-pipeline)). The
+   consumers read it when run as plain processes, and the KIND overlay's gitignored env file is created from it. Never
+   commit them
 
 > [!IMPORTANT]
 > `terraform destroy` will fail with a `DeleteConflict` while the hand-made access key still exists, because the user
 > resource does not set `force_destroy`. Delete the access key in the console first, then destroy.
 
-To rotate, create the new key before deleting the old one, update the Kubernetes Secret and the AWS CLI profile, then
-delete the old key.
+To rotate, create the new key before deleting the old one, update the AWS CLI profile and the KIND overlay's env file
+(see [Local cluster (KIND)](#local-cluster-kind)), then delete the old key.

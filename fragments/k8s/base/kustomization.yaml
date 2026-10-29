@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: solana-register-sync
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/labels/
+labels:
+  - pairs:
+      # https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+      app.kubernetes.io/part-of: solana-register-sync
+    includeTemplates: true
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/resource/
+resources:
+  - namespace.yaml
+  - registrants_consumer.yaml
+  - confirmed_consumer.yaml

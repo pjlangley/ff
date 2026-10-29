@@ -113,14 +113,18 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
 - Both local KIND and the `ff_dev` EC2 cluster (see G) can consume the same `ff_dev` queues, so the invariant is
   **exactly one consumer runtime attached to the `ff_dev` queue set at a time** (SQS competing-consumers — avoids
   non-deterministic runs).
-- A **simple, native disconnect** enforces that invariant, wrapped in a one-command script / Make target (e.g.
-  `dev-cloud up|down|pause|resume`). SQS consumers are pull-based (no trigger to disable), so the consumer itself is the
-  only thing to switch:
-  - **Default posture:** keep the `ff_dev` EC2 **stopped** (`aws ec2 stop-instances`) — local KIND is the daily driver.
-    Start it (`aws ec2 start-instances`) only to rehearse the cloud path, and pause local KIND during that window.
-  - **In-session toggle:** if the EC2 is already up, **scale the consumer Deployments to zero** on the cluster to
-    silence (`kubectl scale deploy … --replicas=0`, back to ~~`--replicas=1`~~ the base replica count, `2`, to resume) —
-    no app code, no queue reconfiguration.
+- A **simple, native disconnect** enforces that invariant, ~~wrapped in a one-command script / Make target (e.g.
+  `dev-cloud up|down|pause|resume`)~~ as README steps (revised 2026-10-15, see [Revisions](#revisions)). SQS consumers
+  are pull-based (no trigger to disable), so the consumer itself is the only thing to switch:
+  - ~~**Default posture:** keep the `ff_dev` EC2 **stopped** (`aws ec2 stop-instances`) — local KIND is the daily
+    driver. Start it (`aws ec2 start-instances`) only to rehearse the cloud path, and pause local KIND during that
+    window.~~ **Default posture:** the `ff_dev` EC2 runs on its weekday schedule (see G) and is the `ff_dev` consumer
+    runtime. Local KIND is a test bench for local changes: stop the EC2 (`aws ec2 stop-instances`) before bringing KIND
+    up; starting it again afterwards is optional, as the schedule starts it the next weekday morning.
+  - ~~**In-session toggle:** if the EC2 is already up, **scale the consumer Deployments to zero** on the cluster to
+    silence (`kubectl scale deploy … --replicas=0`, back to the base replica count, `2`, to resume) — no app code, no
+    queue reconfiguration.~~ Stopping the EC2 replaces scaling to zero: a stopped instance comes back on schedule by
+    itself, while a scale-to-zero would persist across restarts until undone.
 - `ff_prod` does not require local access.
 
 ### G. Terraform (both roots)
@@ -130,14 +134,16 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   group / instance profile). **Both** environments provision the k3s-on-EC2 cluster so the cloud deployment can be
   verified in `ff_dev` before `ff_prod` (symmetric envs, simpler promotion). Follow existing conventions (`name_prefix`,
   `default_tags`, shared modules where sensible).
-- The `ff_dev` EC2 is intended to run **on demand** (default state: stopped) — it exists to rehearse the cloud path, not
-  to run 24/7 — keeping cost low and avoiding queue contention with local KIND (see F). No overnight schedule is needed
-  for `ff_dev` (it's disconnected by default).
-- **`ff_prod` overnight pause (cost control):** a second **EventBridge Scheduler** pair uses the templated
-  `ec2:StopInstances` / `ec2:StartInstances` targets (no Lambda) on `Europe/London` time to stop the `ff_prod` EC2
-  overnight and start it in the morning, aligned with the poller window (B) so producer and consumers wake together.
-  Safe because the cluster is stateless and SQS is durable; the auto-assigned public IP changes on restart, so the start
-  helper refreshes the kubeconfig endpoint (no Elastic IP — it carries a standing charge).
+- ~~The `ff_dev` EC2 is intended to run **on demand** (default state: stopped) — it exists to rehearse the cloud path,
+  not to run 24/7 — keeping cost low and avoiding queue contention with local KIND (see F). No overnight schedule is
+  needed for `ff_dev` (it's disconnected by default).~~ The `ff_dev` EC2 runs on the same weekday schedule as `ff_prod`
+  (revised 2026-10-15, see [Revisions](#revisions)).
+- **~~`ff_prod`~~ Overnight pause (cost control), in both environments:** a second **EventBridge Scheduler** pair uses
+  the templated `ec2:StopInstances` / `ec2:StartInstances` targets (no Lambda) on `Europe/London` time to stop ~~the
+  `ff_prod` EC2~~ each environment's EC2 overnight and start it in the morning, aligned with the poller window (B) so
+  producer and consumers wake together: start 07:45, stop 17:00, Monday to Friday. Safe because the cluster is stateless
+  and SQS is durable; the auto-assigned public IP changes on restart, so the start helper refreshes the kubeconfig
+  endpoint (no Elastic IP — it carries a standing charge).
 - **SQS retention:** raise the registrants / confirmed queues' message-retention to the **14-day maximum** (extend the
   `sqs_queue_with_dlq` module) — cheap headroom so a longer pause can't expire an un-processed message and strand a
   record at `registered`.
@@ -179,11 +185,12 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   double-confirmation, no duplicate rows and no lost signature.
 - The local KIND loop runs consumers against real `ff_dev` AWS resources with credentials supplied as a k8s Secret and
   the deployer keypair sourced from Secrets Manager.
-- The same pipeline runs on the `ff_dev` k3s-on-EC2 cluster (rehearsing the cloud deploy before prod), and the
+- The same pipeline runs on the `ff_dev` k3s-on-EC2 cluster (rehearsing the cloud deploy before prod)~~, and the
   disconnect toggle (stop-instance or scale-to-zero) hands the `ff_dev` queues cleanly between the cloud cluster and
-  local KIND with no double-processing.
-- The `ff_prod` overnight schedule stops the EC2 and windows the poller (`Europe/London`); after a pause, a registration
-  made during the down window is picked up and processed on resume with no loss and no manual intervention.
+  local KIND with no double-processing~~. Stopping its EC2 hands the `ff_dev` queues to local KIND.
+- The ~~`ff_prod`~~ overnight schedule, in both environments, stops the EC2 and windows the poller (`Europe/London`);
+  after a pause, a registration made during the down window is picked up and processed on resume with no loss and no
+  manual intervention.
 - `terraform plan/apply` succeeds for `ff_dev` and `ff_prod` with the new resources; `deno fmt`/`cargo fmt`/`tf fmt` and
   the repo's lint/type/test checks pass.
 
@@ -212,3 +219,19 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
 
   Tasks 11 and 12 are dropped; tasks 13–16 narrow to the Node.js image and two Deployments. Python remains a candidate
   for a future feature with a smaller parity surface.
+
+- **2026-10-15 — the `ff_dev` cloud cluster becomes the default runtime; KIND becomes a test bench (after task 14's
+  build).** KIND was to be the daily driver, with the `ff_dev` EC2 stopped by default and a `dev-cloud` toggle script
+  handing the queues between them. Revised because:
+  - The cloud path is the one being learned and operated, so it should be what normally runs in `ff_dev`. KIND's value
+    is testing local changes (an image built from the working tree) before they reach `ff_dev`.
+  - The `ff_dev` EC2 runs on the poller's weekday window, start 07:45 and stop 17:00 Monday to Friday (`Europe/London`),
+    the same as `ff_prod`. Costs are monitored and the window adjusted if needed.
+  - With KIND used only now and then, the toggle's jobs shrink to stopping the EC2 first, which is one README command.
+    Its guard against both runtimes running is dropped; leaving KIND up when the schedule next starts the instance is an
+    accepted risk for a portfolio project.
+  - The plain-command preference also applies to KIND itself: `kind.sh` is replaced by README steps.
+
+  The scheduled stop/start pair and its ADR move from task 17 into task 15's shared `k3s_node` module, so both
+  environments get it from one place. Task 16 is dropped. The kubeconfig refresh it owned (the public IP changes on
+  every start) moves into task 15's README.

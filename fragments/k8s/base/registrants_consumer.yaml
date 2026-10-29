@@ -1,0 +1,38 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+# https://kubernetes.io/docs/concepts/overview/working-with-objects/
+# Drains the registrants queue: confirms each registration on-chain and publishes
+# `RegistrationConfirmed`.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registrants-consumer
+# https://kubernetes.io/docs/reference/kubernetes-api/apps/deployment-v1/#DeploymentSpec
+spec:
+  replicas: 2
+  minReadySeconds: 15
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: registrants-consumer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: registrants-consumer
+    spec:
+      # The worst in-flight message is ~25s (the 20s confirmation wait plus the AWS calls);
+      # the 30s default leaves too little margin after `SIGTERM`.
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: consumer
+          image: pjlangley/ff_node
+          # Trust an image already on the node, so the `kind load`-ed `ff_node:kind` is never pulled.
+          imagePullPolicy: IfNotPresent
+          command: ["node", "./fragments/apis/fastify/dist/solana_register_sync/registrants_consumer.js"]
+          envFrom:
+            - configMapRef:
+                name: solana-register-sync-config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi

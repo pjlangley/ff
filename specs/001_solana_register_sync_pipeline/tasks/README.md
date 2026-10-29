@@ -30,9 +30,9 @@ a time and ticks them off here.
 ## Kubernetes
 
 - [x] 13 — [Publish the consumer images to Docker Hub](./13_docker_hub_consumer_images.md)
-- [ ] 14 — [Local KIND cluster and Kustomize base](./14_kind_local_cluster.md)
+- [x] 14 — [Local KIND cluster and Kustomize base](./14_kind_local_cluster.md)
 - [ ] 15 — [k3s on EC2 in `ff_dev`](./15_terraform_k3s_ec2_dev.md)
-- [ ] 16 — [`dev-cloud` toggle script](./16_dev_cloud_toggle.md)
+- ~~16 — [`dev-cloud` toggle script](./16_dev_cloud_toggle.md)~~ — **dropped** (see below)
 - [ ] 17 — [`ff_prod` rollout and overnight pause](./17_terraform_prod_rollout_and_overnight_pause.md)
 
 ## Decisions settled during planning
@@ -51,6 +51,10 @@ a time and ticks them off here.
 - **Consumers are Node.js only (revised during task 09, 2026-09-28).** Tasks 11 and 12 — the Python mirrors — are
   dropped; each consumer instead runs `replicas: 2`, which exercises competing consumers with the same SQS semantics and
   races. Tasks 13–16 narrow accordingly. Reasoning in the requirements' [Revisions](../requirements.md#revisions).
+- **The `ff_dev` cloud cluster is the default runtime (revised after task 14, 2026-10-15).** Its EC2 runs on the
+  poller's weekday window, as in `ff_prod`; KIND is a test bench for local changes, reached by stopping the EC2 first.
+  Task 16's toggle script is dropped, and the overnight pause schedule and its ADR move from task 17 to task 15.
+  Reasoning in the requirements' [Revisions](../requirements.md#revisions).
 - **ADRs:** written alongside the task that makes each decision, not batched retrospectively. Eight in total — the five
   named in the requirements, plus one for Docker Hub over ECR (task 13), one for k3s over EKS (task 15), and one **added
   during task 06's build** for how the in-cluster consumer runtime authenticates to AWS (task 14) — static scoped keys
@@ -68,4 +72,4 @@ a time and ticks them off here.
 | Local KIND cluster against real cloud resources                            | 14   |
 | AWS identity for the in-cluster consumer runtime                           | 14   |
 | k3s on EC2 over EKS                                                        | 15   |
-| Scheduled overnight pause (`Europe/London`) as cost control                | 17   |
+| Scheduled overnight pause (`Europe/London`) as cost control                | 15   |
