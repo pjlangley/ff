@@ -1031,8 +1031,7 @@ file (see [ADR 016](./fragments/adrs/016_aws_identity_for_pods_runtime.md)).
 Every `kubectl` command names the `kind-ff` context, so none of them can reach the `ff_dev` cloud cluster by accident.
 
 1. Stop the `ff_dev` EC2 instance.
-1. Build the image from the working tree. On Apple Silicon it is `arm64`, the same variant the cloud Graviton node
-   pulls:
+1. Build the image from the working tree:
    ```
    docker build -f docker.node.Dockerfile -t ff_node:kind .
    ```
@@ -1048,8 +1047,8 @@ Every `kubectl` command names the `kind-ff` context, so none of them can reach t
    ```
    kubectl --context kind-ff apply -k fragments/k8s/overlays/kind
    kubectl --context kind-ff -n solana-register-sync wait --for=condition=Available deployment --all --timeout=180s
-   kubectl get pods --show-labels -n solana-register-sync
-   kubectl describe deployments -n solana-register-sync
+   kubectl --context kind-ff -n solana-register-sync get pods --show-labels
+   kubectl --context kind-ff -n solana-register-sync describe deployments
    ```
 1. Follow the logs. `--prefix` names the pod on each line, so the two replicas can be told apart as they compete for the
    queue:
