@@ -55,11 +55,15 @@ a time and ticks them off here.
   poller's weekday window, as in `ff_prod`; KIND is a test bench for local changes, reached by stopping the EC2 first.
   Task 16's toggle script is dropped, and the overnight pause schedule and its ADR move from task 17 to task 15.
   Reasoning in the requirements' [Revisions](../requirements.md#revisions).
+- **No laptop `kubectl` for the cloud clusters (revised before task 15, 2026-10-30).** Operator access is a Session
+  Manager shell on the node, so the k3s security group has no ingress and the kubeconfig refresh for the changing public
+  IP is dropped from tasks 15 and 17. Reasoning in the requirements' [Revisions](../requirements.md#revisions).
 - **ADRs:** written alongside the task that makes each decision, not batched retrospectively. Eight in total — the five
   named in the requirements, plus one for Docker Hub over ECR (task 13), one for k3s over EKS (task 15), and one **added
   during task 06's build** for how the in-cluster consumer runtime authenticates to AWS (task 14) — static scoped keys
   in KIND, an instance profile on EC2. Workload identity is a distinct question from the operator-laptop identity ADR
-  003 settles, so it gets its own record rather than amending that one.
+  003 settles, so it gets its own record rather than amending that one. A ninth was **added before task 15's build**
+  (2026-10-30): Session Manager as the operator access path to the cloud cluster nodes, with no laptop `kubectl`.
 
 ## ADR map
 
@@ -73,3 +77,4 @@ a time and ticks them off here.
 | AWS identity for the in-cluster consumer runtime                           | 14   |
 | k3s on EC2 over EKS                                                        | 15   |
 | Scheduled overnight pause (`Europe/London`) as cost control                | 15   |
+| Session Manager for operator access to the cloud cluster nodes             | 15   |

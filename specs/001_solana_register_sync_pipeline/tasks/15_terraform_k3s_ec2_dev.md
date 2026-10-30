@@ -28,22 +28,31 @@ requirements' [Revisions](../requirements.md#revisions)).
     the key would sit on the same laptop as two plaintext copies of the access key, for little gain.
   - Graviton instances are roughly 20% cheaper than their x86 equivalents at the same size, which suits the low-cost
     goal — and the arm64 path is where AWS is steering new workloads.
-  - `aws_security_group`: egress open; ingress restricted to an `admin_cidr` variable for the Kubernetes API (6443) and
-    SSH. Consider AWS Systems Manager Session Manager instead of an SSH ingress rule.
+  - `aws_security_group`: egress open; ~~ingress restricted to an `admin_cidr` variable for the Kubernetes API (6443)
+    and SSH. Consider AWS Systems Manager Session Manager instead of an SSH ingress rule.~~ **no ingress rules**
+    (revised 2026-10-30, see the requirements' [Revisions](../requirements.md#revisions)). The Kubernetes API is not
+    reached from the laptop; operator access is a shell on the node through AWS Systems Manager Session Manager, which
+    needs no open port, key pair or `admin_cidr`.
   - `aws_iam_instance_profile` attaching the consumer policy module from task 06, so pods reach SQS, DynamoDB, Secrets
-    Manager and EventBridge with **no static credentials** — the meaningful difference from the KIND overlay.
-  - No Elastic IP: it carries a standing charge, and the public IP is expected to change across stop/start.
+    Manager and EventBridge with **no static credentials** — the meaningful difference from the KIND overlay. It also
+    attaches the AWS-managed `AmazonSSMManagedInstanceCore` policy so the SSM agent (preinstalled on Amazon Linux 2023
+    and Ubuntu AMIs) can register the node for Session Manager.
+  - `user_data` also installs `git`, which k3s's bundled `kubectl` needs to apply a Kustomize overlay from a GitHub URL
+    on the node.
+  - No Elastic IP: it carries a standing charge, and the public IP is expected to change across stop/start. Nothing
+    depends on the public IP: it serves outbound traffic only, and operator access goes through Session Manager.
   - **The overnight pause (moved here from task 17, 2026-10-15):** two `aws_scheduler_schedule` resources using the
     templated `arn:aws:scheduler:::aws-sdk:ec2:startInstances` and `:stopInstances` targets (no Lambda), with
     `schedule_expression_timezone = "Europe/London"` and an IAM role permitting only those two actions on that one
     instance. Start 07:45 and stop 17:00, Monday to Friday, as module variables with those defaults: the poller fires
     hourly 08:00–16:00, and 17:00 leaves the consumers' 30-minute default poll interval time to drain the last batch.
-- `fragments/terraform/ff_dev/` — instantiate the module; output the instance id and public IP.
+- `fragments/terraform/ff_dev/` — instantiate the module; output the instance id ~~and public IP~~.
 - `fragments/terraform/ff_dev/tf_local_iam_policy.json` — extend with EC2, security group and instance-profile actions,
   and the scheduler role the pause schedules pass.
-- `README.md` — the kubeconfig refresh after each start (fetch `/etc/rancher/k3s/k3s.yaml` and rewrite its server
-  address to the new public IP; previously task 16's job), and the real instance-id output in place of the
-  `<instance_id>` placeholder in task 14's KIND steps.
+- `README.md` — ~~the kubeconfig refresh after each start (fetch `/etc/rancher/k3s/k3s.yaml` and rewrite its server
+  address to the new public IP; previously task 16's job)~~ opening a shell on the node
+  (`aws ssm start-session --target <instance_id>`) and running `sudo kubectl …` there, where the local k3s kubeconfig
+  works as-is; and the real instance-id output in place of the `<instance_id>` placeholder in task 14's KIND steps.
 - `fragments/k8s/overlays/ff_dev/` — `kustomization.yaml` with its own `configMapGenerator`. No AWS credentials Secret
   and no `envFrom: secretRef` patch: the instance profile supplies them.
 - New ADR via `/new-adr`: k3s on a single EC2 instance over EKS. Context: EKS bills roughly $0.10/hour for the control
@@ -55,23 +64,32 @@ requirements' [Revisions](../requirements.md#revisions)).
 - New ADR via `/new-adr` (moved here from task 17, 2026-10-15): scheduled overnight pause of the poller and the EC2
   instances (`Europe/London`) as the cost-control approach, in both environments. Context and consequences as task 17
   set them out.
+- New ADR via `/new-adr` (added 2026-10-30): Session Manager as the operator access path to the cloud cluster nodes,
+  with no laptop `kubectl`. Context: the auto-assigned public IP changes on every scheduled start and the k3s API
+  certificate does not cover it, so laptop `kubectl` would need a refresh after each start for a cluster that runs
+  unattended. Consequences to record: no ingress rules at all (no 6443, no SSH, no `admin_cidr`) and no key pair; access
+  is IAM-authorised and logged in CloudTrail; operator commands run on the node with `sudo kubectl`; overlays are
+  applied from a pushed GitHub ref; laptop `kubectl` can be added later through a Session Manager port-forward.
 
 ## Verification (QA)
 
 - Terraform format check, `validate` both roots, `plan`/`apply` in `ff_dev`.
-- `aws ec2 start-instances`, fetch `/etc/rancher/k3s/k3s.yaml`, rewrite its server address to the public IP, then
-  `kubectl get nodes` reports `Ready` and `kubectl get node -o jsonpath='{..kubernetes\.io/arch}'` reports `arm64`.
+- `aws ec2 start-instances`, ~~fetch `/etc/rancher/k3s/k3s.yaml`, rewrite its server address to the public IP~~ open a
+  Session Manager shell on the node, then `sudo kubectl get nodes` reports `Ready` and
+  `sudo kubectl get node -o jsonpath='{..kubernetes\.io/arch}'` reports `arm64`.
 - ~~**Pause the local KIND consumers first** (`kubectl scale deploy --replicas=0` against the KIND context) so the two
   runtimes don't compete for the `ff_dev` queues.~~ Make sure no KIND cluster is running (`kind get clusters`), so the
   two runtimes don't compete for the `ff_dev` queues.
-- `kubectl apply -k fragments/k8s/overlays/ff_dev`, ~~all four Deployments~~ both Deployments `Available` — confirming
-  the pods pulled the `arm64` variant of the ~~manifest lists~~ `ff_node` manifest list from task 13 with no
-  `exec format error` and no `ImagePullBackOff`.
+- ~~`kubectl apply -k fragments/k8s/overlays/ff_dev`~~ On the node,
+  `sudo kubectl apply -k 'https://github.com/pjlangley/ff//fragments/k8s/overlays/ff_dev?ref=<branch>'` (the overlay
+  must be pushed first), ~~all four Deployments~~ both Deployments `Available` — confirming the pods pulled the `arm64`
+  variant of the ~~manifest lists~~ `ff_node` manifest list from task 13 with no `exec format error` and no
+  `ImagePullBackOff`.
 - Register a test account and confirm the same end-to-end path as task 14 completes, this time on the cloud cluster,
   with the record reaching `audited`.
 - ~~`aws ec2 stop-instances` returns the environment to its default posture.~~ The schedules stop the instance at 17:00
-  and start it at 07:45 on a weekday (or invoke a schedule's target by hand), and the started instance's new public IP
-  is picked up by the kubeconfig refresh.
+  and start it at 07:45 on a weekday (or invoke a schedule's target by hand), ~~and the started instance's new public IP
+  is picked up by the kubeconfig refresh~~ and the consumers resume on the restarted node with no manual step.
 - The README's KIND steps hand the `ff_dev` queues over: stopping the instance leaves the cloud cluster consuming
   nothing.
 - `deno fmt` for the ADRs and the README index.
@@ -81,7 +99,8 @@ requirements' [Revisions](../requirements.md#revisions)).
 - A k3s-on-EC2 cluster exists in `ff_dev` on a Graviton `arm64` instance, with an instance profile granting the consumer
   permissions.
 - The same Kustomize base deploys to it via an `ff_dev` overlay, with no static AWS credentials in the cluster.
+- The security group has no ingress rules; operator access is through Session Manager only.
 - The full pipeline runs on the cloud cluster, reaching `audited`.
 - ~~The instance is left **stopped** — it exists to rehearse the cloud path, not to run 24/7.~~ The instance starts and
   stops on its weekday schedule, `Europe/London`.
-- ~~The ADR is~~ Both ADRs are accepted and the README index updated.
+- ~~The ADR is~~ ~~Both ADRs are~~ All three ADRs are accepted and the README index updated.

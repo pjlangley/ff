@@ -22,8 +22,9 @@ windows the poller on `Europe/London` time so producer and consumers wake togeth
   the `k3s_node` module (moved to task 15, 2026-10-15), so instantiating it here is enough.
 - `fragments/k8s/overlays/ff_prod/` — `kustomization.yaml` with its own `configMapGenerator` (prod queues, table, bus,
   prod program id). Instance profile for credentials, as in `ff_dev`.
-- The start path must refresh the kubeconfig endpoint — the auto-assigned public IP changes on every restart. Reuse
-  ~~the helper from task 16~~ task 15's README steps.
+- ~~The start path must refresh the kubeconfig endpoint — the auto-assigned public IP changes on every restart. Reuse
+  task 15's README steps.~~ No kubeconfig refresh (dropped 2026-10-30): operator access is a Session Manager shell on
+  the node, as in task 15, so the changing public IP affects nothing.
 - Populate the prod Secrets Manager values out-of-band (deployer keypair, Helius URL).
 - ~~New ADR via `/new-adr`:~~ (Moved to task 15, 2026-10-15.) Scheduled overnight pause of the poller and the EC2
   instances (`Europe/London`) as the cost-control approach. Context: the cluster is stateless and SQS is durable with
@@ -41,7 +42,7 @@ windows the poller on `Europe/London` time so producer and consumers wake togeth
 - **Pause test:** let the overnight stop fire (or invoke the schedule's target manually). Register a test account during
   the down window. On resume, confirm with no manual intervention that the poller ingests it, the consumers process it,
   and the record reaches `audited`.
-- Confirm the EC2 stops and starts on schedule, and that the started instance's new public IP is picked up.
+- Confirm the EC2 stops and starts on schedule ~~, and that the started instance's new public IP is picked up~~.
 - `deno fmt` for the README.
 
 ## Definition of done

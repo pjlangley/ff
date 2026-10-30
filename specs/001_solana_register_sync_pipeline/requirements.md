@@ -142,8 +142,9 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   the templated `ec2:StopInstances` / `ec2:StartInstances` targets (no Lambda) on `Europe/London` time to stop ~~the
   `ff_prod` EC2~~ each environment's EC2 overnight and start it in the morning, aligned with the poller window (B) so
   producer and consumers wake together: start 07:45, stop 17:00, Monday to Friday. Safe because the cluster is stateless
-  and SQS is durable; the auto-assigned public IP changes on restart, so the start helper refreshes the kubeconfig
-  endpoint (no Elastic IP — it carries a standing charge).
+  and SQS is durable; the auto-assigned public IP changes on restart ~~, so the start helper refreshes the kubeconfig
+  endpoint~~, which affects nothing because the Kubernetes API is not reached from the laptop (revised 2026-10-30, see
+  [Revisions](#revisions)) (no Elastic IP — it carries a standing charge).
 - **SQS retention:** raise the registrants / confirmed queues' message-retention to the **14-day maximum** (extend the
   `sqs_queue_with_dlq` module) — cheap headroom so a longer pause can't expire an un-processed message and strand a
   record at `registered`.
@@ -235,3 +236,16 @@ decentralised app from a centralised entity. Cost is kept low and pragmatic.
   The scheduled stop/start pair and its ADR move from task 17 into task 15's shared `k3s_node` module, so both
   environments get it from one place. Task 16 is dropped. The kubeconfig refresh it owned (the public IP changes on
   every start) moves into task 15's README.
+
+- **2026-10-30 — no laptop `kubectl` for the cloud clusters; the kubeconfig refresh is dropped (before task 15's
+  build).** The refresh existed only so `kubectl` on the laptop could follow the EC2's auto-assigned public IP, which
+  changes on every scheduled start. The cluster itself never needed it: pods reach the API in-cluster and AWS through
+  egress. Revised because:
+  - The cloud clusters run unattended on their schedule, so laptop access to the Kubernetes API is rarely needed, and a
+    daily refresh chore (plus the API certificate not covering the public IP) is cost without a matching use.
+  - Operator access becomes a shell on the node through AWS Systems Manager Session Manager, running k3s's bundled
+    `kubectl` against its local kubeconfig. The security group drops all ingress (no 6443, no SSH, no `admin_cidr`), and
+    the instance profile gains `AmazonSSMManagedInstanceCore`.
+
+  Tasks 15 and 17 drop the refresh and its verification. Laptop `kubectl` (for example through a Session Manager
+  port-forward) can be added later if a need appears.

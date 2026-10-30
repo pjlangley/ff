@@ -5,8 +5,8 @@
 > [!IMPORTANT]
 > **Dropped 2026-10-15 (after task 14's build).** The `ff_dev` EC2 now runs on a weekday schedule as the default
 > `ff_dev` runtime, and KIND is an occasional test bench. Handing the queues over is one README command, stopping the
-> EC2 (task 14). The kubeconfig refresh moves to task 15, and the both-runtimes guard is dropped as an accepted risk.
-> See the requirements' [Revisions](../requirements.md#revisions).
+> EC2 (task 14). The kubeconfig refresh moves to task 15 (where it was later dropped, 2026-10-30), and the both-runtimes
+> guard is dropped as an accepted risk. See the requirements' [Revisions](../requirements.md#revisions).
 
 ## Goal
 
